@@ -60,6 +60,7 @@ export declare enum ImGuiWindowFlags {
     NoNavInputs = 262144,
     NoNavFocus = 524288,
     UnsavedDocument = 1048576,
+    NoDocking = 2097152,
     NoNav = 786432,
     NoDecoration = 43,
     NoInputs = 786944,
@@ -377,6 +378,7 @@ export declare enum ImGuiConfigFlags {
     NavNoCaptureKeyboard = 8,
     NoMouse = 16,
     NoMouseCursorChange = 32,
+    DockingEnable = 64,
     IsSRGB = 1048576,
     IsTouchScreen = 2097152
 }
@@ -1058,6 +1060,14 @@ export declare class ImGuiIO {
     get FontDefault(): ImFont | null;
     set FontDefault(value: ImFont | null);
     get DisplayFramebufferScale(): Bind.reference_ImVec2;
+    get ConfigDockingNoSplit(): boolean;
+    set ConfigDockingNoSplit(value: boolean);
+    get ConfigDockingWithShift(): boolean;
+    set ConfigDockingWithShift(value: boolean);
+    get ConfigDockingAlwaysTabBar(): boolean;
+    set ConfigDockingAlwaysTabBar(value: boolean);
+    get ConfigDockingTransparentPayload(): boolean;
+    set ConfigDockingTransparentPayload(value: boolean);
     get ConfigMacOSXBehaviors(): boolean;
     set ConfigMacOSXBehaviors(value: boolean);
     get ConfigInputTextCursorBlink(): boolean;

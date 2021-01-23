@@ -1333,6 +1333,16 @@ EMSCRIPTEN_BINDINGS(ImGuiIO) {
         // ImVec2        DisplayFramebufferScale;  // = (1.0f,1.0f)        // For retina display or other situations where window coordinates are different from framebuffer coordinates. User storage only, presently not used by ImGui.
         CLASS_MEMBER_GET_RAW_REFERENCE(ImGuiIO, DisplayFramebufferScale)
 
+        // Docking options (when ImGuiConfigFlags_DockingEnable is set)
+        // bool        ConfigDockingNoSplit;           // = false          // Simplified docking mode: disable window splitting, so docking is limited to merging multiple windows together into tab-bars.
+        CLASS_MEMBER(ImGuiIO, ConfigDockingNoSplit)
+        // bool        ConfigDockingWithShift;         // = false          // Enable docking with holding Shift key (reduce visual noise, allows dropping in wider space)
+        CLASS_MEMBER(ImGuiIO, ConfigDockingWithShift)
+        // bool        ConfigDockingAlwaysTabBar;      // = false          // [BETA] [FIXME: This currently creates regression with auto-sizing and general overhead] Make every single floating window display within a docking node.
+        CLASS_MEMBER(ImGuiIO, ConfigDockingAlwaysTabBar)
+        // bool        ConfigDockingTransparentPayload;// = false          // [BETA] Make window or viewport transparent when docking and only display docking boxes on the target viewport. Useful if rendering of multiple viewport cannot be synced. Best used with ConfigViewportsNoAutoMerge.
+        CLASS_MEMBER(ImGuiIO, ConfigDockingTransparentPayload)
+
         // Advanced/subtle behaviors
         // bool        MouseDrawCursor;            // Request ImGui to draw a mouse cursor for you (if you are on a platform without a mouse cursor).
         CLASS_MEMBER(ImGuiIO, MouseDrawCursor)

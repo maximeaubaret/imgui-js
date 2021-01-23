@@ -53,6 +53,7 @@ System.register(["imgui-js", "./imgui_impl.js", "./imgui_demo.js", "./imgui_memo
             ImGui.CreateContext();
             const io = ImGui.GetIO();
             // io.ConfigFlags |= ImGui.ConfigFlags.NavEnableKeyboard;  // Enable Keyboard Controls
+            io.ConfigFlags |= ImGui.ConfigFlags.DockingEnable; // Enable Docking
             // Setup style
             ImGui.StyleColorsDark();
             //ImGui.StyleColorsClassic();

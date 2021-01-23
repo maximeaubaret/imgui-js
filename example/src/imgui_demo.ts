@@ -308,6 +308,7 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
     /* static */ const no_nav: Static<boolean> = STATIC("no_nav", false);
     /* static */ const no_background: Static<boolean> = STATIC("no_background", false);
     /* static */ const no_bring_to_front: Static<boolean> = STATIC("no_bring_to_front", false);
+    /* static */ const no_docking: Static<boolean> = STATIC("no_docking", false);
 
     let window_flags: ImGui.WindowFlags = 0;
     if (no_titlebar.value)        window_flags |= ImGuiWindowFlags.NoTitleBar;
@@ -319,6 +320,7 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
     if (no_nav.value)             window_flags |= ImGuiWindowFlags.NoNav;
     if (no_background.value)      window_flags |= ImGuiWindowFlags.NoBackground;
     if (no_bring_to_front.value)  window_flags |= ImGuiWindowFlags.NoBringToFrontOnFocus;
+    if (no_docking.value)         window_flags |= ImGuiWindowFlags.NoDocking;
     if (no_close.value)           p_open = null; // Don't pass our bool* to Begin
 
     // We specify a default position/size in case there's no data in the .ini file. Typically this isn't required! We only do it to make the Demo applications a little more welcoming.
@@ -413,6 +415,23 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
             }
             ImGui.CheckboxFlags("io.ConfigFlags: NoMouseCursorChange", (value = io.ConfigFlags) => io.ConfigFlags = value, ImGui.ConfigFlags.NoMouseCursorChange);
             ImGui.SameLine(); HelpMarker("Instruct back-end to not alter mouse cursor shape and visibility.");
+
+            ImGui.CheckboxFlags("io.ConfigFlags: DockingEnable", (value = io.ConfigFlags) => io.ConfigFlags = value, ImGui.ConfigFlags.DockingEnable);
+            ImGui.SameLine(); HelpMarker(io.ConfigDockingWithShift ? "[beta] Use SHIFT to dock window into each others." : "[beta] Drag from title bar to dock windows into each others.");
+            if (io.ConfigFlags & ImGui.ConfigFlags.DockingEnable)
+            {
+                ImGui.Indent();
+                ImGui.Checkbox("io.ConfigDockingNoSplit", (value = io.ConfigDockingNoSplit) => io.ConfigDockingNoSplit = value);
+                ImGui.SameLine(); HelpMarker("Simplified docking mode: disable window splitting, so docking is limited to merging multiple windows together into tab-bars.");
+                ImGui.Checkbox("io.ConfigDockingWithShift", (value = io.ConfigDockingWithShift) => io.ConfigDockingWithShift = value);
+                ImGui.SameLine(); HelpMarker("Enable docking when holding Shift only (allows to drop in wider space, reduce visual noise)");
+                ImGui.Checkbox("io.ConfigDockingAlwaysTabBar", (value = io.ConfigDockingAlwaysTabBar) => io.ConfigDockingAlwaysTabBar = value);
+                ImGui.SameLine(); HelpMarker("Create a docking node and tab-bar on single floating windows.");
+                ImGui.Checkbox("io.ConfigDockingTransparentPayload", (value = io.ConfigDockingTransparentPayload) => io.ConfigDockingTransparentPayload = value);
+                ImGui.SameLine(); HelpMarker("Make window or viewport transparent when docking and only display docking boxes on the target viewport. Useful if rendering of multiple viewport cannot be synced. Best used with ConfigViewportsNoAutoMerge.");
+                ImGui.Unindent();
+            }
+
             ImGui.Checkbox("io.ConfigInputTextCursorBlink", (value = io.ConfigInputTextCursorBlink) => io.ConfigInputTextCursorBlink = value);
             ImGui.SameLine(); HelpMarker("Set to false to disable blinking cursor, for users who consider it distracting");
             ImGui.Checkbox("io.ConfigWindowsResizeFromEdges [beta]", (value = io.ConfigWindowsResizeFromEdges) => io.ConfigWindowsResizeFromEdges = value);
@@ -461,16 +480,21 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
 
     if (ImGui.CollapsingHeader("Window options"))
     {
-        ImGui.Checkbox("No titlebar", (value = no_titlebar.value) => no_titlebar.value = value); ImGui.SameLine(150);
-        ImGui.Checkbox("No scrollbar", (value = no_scrollbar.value) => no_scrollbar.value = value); ImGui.SameLine(300);
-        ImGui.Checkbox("No menu", (value = no_menu.value) => no_menu.value = value);
-        ImGui.Checkbox("No move", (value = no_move.value) => no_move.value = value); ImGui.SameLine(150);
-        ImGui.Checkbox("No resize", (value = no_resize.value) => no_resize.value = value); ImGui.SameLine(300);
-        ImGui.Checkbox("No collapse", (value = no_collapse.value) => no_collapse.value = value);
-        ImGui.Checkbox("No close", (value = no_close.value) => no_close.value = value); ImGui.SameLine(150);
-        ImGui.Checkbox("No nav", (value = no_nav.value) => no_nav.value = value); ImGui.SameLine(300);
-        ImGui.Checkbox("No background", (value = no_background.value) => no_background.value = value);
-        ImGui.Checkbox("No bring to front", (value = no_bring_to_front.value) => no_bring_to_front.value = value);
+        if (ImGui.BeginTable("split", 3))
+        {
+            ImGui.TableNextColumn(); ImGui.Checkbox("No titlebar", (value = no_titlebar.value) => no_titlebar.value = value);
+            ImGui.TableNextColumn(); ImGui.Checkbox("No scrollbar", (value = no_scrollbar.value) => no_scrollbar.value = value);
+            ImGui.TableNextColumn(); ImGui.Checkbox("No menu", (value = no_menu.value) => no_menu.value = value);
+            ImGui.TableNextColumn(); ImGui.Checkbox("No move", (value = no_move.value) => no_move.value = value);
+            ImGui.TableNextColumn(); ImGui.Checkbox("No resize", (value = no_resize.value) => no_resize.value = value);
+            ImGui.TableNextColumn(); ImGui.Checkbox("No collapse", (value = no_collapse.value) => no_collapse.value = value);
+            ImGui.TableNextColumn(); ImGui.Checkbox("No close", (value = no_close.value) => no_close.value = value);
+            ImGui.TableNextColumn(); ImGui.Checkbox("No nav", (value = no_nav.value) => no_nav.value = value);
+            ImGui.TableNextColumn(); ImGui.Checkbox("No background", (value = no_background.value) => no_background.value = value);
+            ImGui.TableNextColumn(); ImGui.Checkbox("No bring to front", (value = no_bring_to_front.value) => no_bring_to_front.value = value);
+            ImGui.TableNextColumn(); ImGui.Checkbox("No docking", (value = no_docking.value) => no_docking.value = value);
+            ImGui.EndTable();
+        }
     }
 
     // All demo contents

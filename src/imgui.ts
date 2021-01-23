@@ -139,6 +139,7 @@ export enum ImGuiWindowFlags {
     NoNavInputs            = 1 << 18,  // No gamepad/keyboard navigation within the window
     NoNavFocus             = 1 << 19,  // No focusing toward this window with gamepad/keyboard navigation (e.g. skipped by CTRL+TAB)
     UnsavedDocument        = 1 << 20,  // Append '*' to title without affecting the ID, as a convenience to avoid using the ### operator. When used in a tab/docking context, tab is selected on closure and closure is deferred by one frame to allow code to cancel the closure (with a confirmation popup, etc.) without flicker.
+    NoDocking              = 1 << 21,  // Disable docking of this window
     NoNav                  = NoNavInputs | NoNavFocus,
     NoDecoration           = NoTitleBar | NoResize | NoScrollbar | NoCollapse,
     NoInputs               = NoMouseInputs | NoNavInputs | NoNavFocus,
@@ -533,6 +534,9 @@ export enum ImGuiConfigFlags
     NavNoCaptureKeyboard = 1 << 3,    // Do not set the io.WantCaptureKeyboard flag with io.NavActive is set.
     NoMouse              = 1 << 4,   // Instruct imgui to clear mouse position/buttons in NewFrame(). This allows ignoring the mouse information back-end
     NoMouseCursorChange  = 1 << 5,   // Instruct back-end to not alter mouse cursor shape and visibility.
+
+    // [BETA] Docking
+    DockingEnable        = 1 << 6,   // Docking enable flags.
 
     IsSRGB               = 1 << 20,  // Application is SRGB-aware.
     IsTouchScreen        = 1 << 21   // Application is using a touch screen instead of a mouse.
@@ -2292,6 +2296,20 @@ export class ImGuiIO
     }
     // ImVec2        DisplayFramebufferScale;  // = (1.0f,1.0f)        // For retina display or other situations where window coordinates are different from framebuffer coordinates. User storage only, presently not used by ImGui.
     get DisplayFramebufferScale(): Bind.reference_ImVec2 { return this.native.DisplayFramebufferScale; }
+
+    // Docking options (when ImGuiConfigFlags_DockingEnable is set)
+    // bool        ConfigDockingNoSplit;           // = false          // Simplified docking mode: disable window splitting, so docking is limited to merging multiple windows together into tab-bars.
+    get ConfigDockingNoSplit(): boolean { return this.native.ConfigDockingNoSplit; }
+    set ConfigDockingNoSplit(value: boolean) { this.native.ConfigDockingNoSplit = value; }
+    // bool        ConfigDockingWithShift;         // = false          // Enable docking with holding Shift key (reduce visual noise, allows dropping in wider space)
+    get ConfigDockingWithShift(): boolean { return this.native.ConfigDockingWithShift; }
+    set ConfigDockingWithShift(value: boolean) { this.native.ConfigDockingWithShift = value; }
+    // bool        ConfigDockingAlwaysTabBar;      // = false          // [BETA] [FIXME: This currently creates regression with auto-sizing and general overhead] Make every single floating window display within a docking node.
+    get ConfigDockingAlwaysTabBar(): boolean { return this.native.ConfigDockingAlwaysTabBar; }
+    set ConfigDockingAlwaysTabBar(value: boolean) { this.native.ConfigDockingAlwaysTabBar = value; }
+    // bool        ConfigDockingTransparentPayload;// = false          // [BETA] Make window or viewport transparent when docking and only display docking boxes on the target viewport. Useful if rendering of multiple viewport cannot be synced. Best used with ConfigViewportsNoAutoMerge.
+    get ConfigDockingTransparentPayload(): boolean { return this.native.ConfigDockingTransparentPayload; }
+    set ConfigDockingTransparentPayload(value: boolean) { this.native.ConfigDockingTransparentPayload = value; }
 
     // Miscellaneous configuration options
     // bool          OptMacOSXBehaviors;       // = defined(__APPLE__) // OS X style: Text editing cursor movement using Alt instead of Ctrl, Shortcuts using Cmd/Super instead of Ctrl, Line/Text Start and End using Cmd+Arrows instead of Home/End, Double click selects by word instead of selecting whole text, Multi-selection in lists uses Cmd/Super instead of Ctrl

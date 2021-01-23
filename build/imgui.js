@@ -2240,6 +2240,7 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 ImGuiWindowFlags[ImGuiWindowFlags["NoNavInputs"] = 262144] = "NoNavInputs";
                 ImGuiWindowFlags[ImGuiWindowFlags["NoNavFocus"] = 524288] = "NoNavFocus";
                 ImGuiWindowFlags[ImGuiWindowFlags["UnsavedDocument"] = 1048576] = "UnsavedDocument";
+                ImGuiWindowFlags[ImGuiWindowFlags["NoDocking"] = 2097152] = "NoDocking";
                 ImGuiWindowFlags[ImGuiWindowFlags["NoNav"] = 786432] = "NoNav";
                 ImGuiWindowFlags[ImGuiWindowFlags["NoDecoration"] = 43] = "NoDecoration";
                 ImGuiWindowFlags[ImGuiWindowFlags["NoInputs"] = 786944] = "NoInputs";
@@ -2605,6 +2606,8 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 ImGuiConfigFlags[ImGuiConfigFlags["NavNoCaptureKeyboard"] = 8] = "NavNoCaptureKeyboard";
                 ImGuiConfigFlags[ImGuiConfigFlags["NoMouse"] = 16] = "NoMouse";
                 ImGuiConfigFlags[ImGuiConfigFlags["NoMouseCursorChange"] = 32] = "NoMouseCursorChange";
+                // [BETA] Docking
+                ImGuiConfigFlags[ImGuiConfigFlags["DockingEnable"] = 64] = "DockingEnable";
                 ImGuiConfigFlags[ImGuiConfigFlags["IsSRGB"] = 1048576] = "IsSRGB";
                 ImGuiConfigFlags[ImGuiConfigFlags["IsTouchScreen"] = 2097152] = "IsTouchScreen"; // Application is using a touch screen instead of a mouse.
             })(ImGuiConfigFlags || (ImGuiConfigFlags = {}));
@@ -4300,6 +4303,19 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 }
                 // ImVec2        DisplayFramebufferScale;  // = (1.0f,1.0f)        // For retina display or other situations where window coordinates are different from framebuffer coordinates. User storage only, presently not used by ImGui.
                 get DisplayFramebufferScale() { return this.native.DisplayFramebufferScale; }
+                // Docking options (when ImGuiConfigFlags_DockingEnable is set)
+                // bool        ConfigDockingNoSplit;           // = false          // Simplified docking mode: disable window splitting, so docking is limited to merging multiple windows together into tab-bars.
+                get ConfigDockingNoSplit() { return this.native.ConfigDockingNoSplit; }
+                set ConfigDockingNoSplit(value) { this.native.ConfigDockingNoSplit = value; }
+                // bool        ConfigDockingWithShift;         // = false          // Enable docking with holding Shift key (reduce visual noise, allows dropping in wider space)
+                get ConfigDockingWithShift() { return this.native.ConfigDockingWithShift; }
+                set ConfigDockingWithShift(value) { this.native.ConfigDockingWithShift = value; }
+                // bool        ConfigDockingAlwaysTabBar;      // = false          // [BETA] [FIXME: This currently creates regression with auto-sizing and general overhead] Make every single floating window display within a docking node.
+                get ConfigDockingAlwaysTabBar() { return this.native.ConfigDockingAlwaysTabBar; }
+                set ConfigDockingAlwaysTabBar(value) { this.native.ConfigDockingAlwaysTabBar = value; }
+                // bool        ConfigDockingTransparentPayload;// = false          // [BETA] Make window or viewport transparent when docking and only display docking boxes on the target viewport. Useful if rendering of multiple viewport cannot be synced. Best used with ConfigViewportsNoAutoMerge.
+                get ConfigDockingTransparentPayload() { return this.native.ConfigDockingTransparentPayload; }
+                set ConfigDockingTransparentPayload(value) { this.native.ConfigDockingTransparentPayload = value; }
                 // Miscellaneous configuration options
                 // bool          OptMacOSXBehaviors;       // = defined(__APPLE__) // OS X style: Text editing cursor movement using Alt instead of Ctrl, Shortcuts using Cmd/Super instead of Ctrl, Line/Text Start and End using Cmd+Arrows instead of Home/End, Double click selects by word instead of selecting whole text, Multi-selection in lists uses Cmd/Super instead of Ctrl
                 get ConfigMacOSXBehaviors() { return this.native.ConfigMacOSXBehaviors; }

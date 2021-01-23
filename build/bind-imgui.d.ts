@@ -820,6 +820,16 @@ export interface reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
     // ImVec2        DisplayFramebufferScale;  // = (1.0f,1.0f)        // For retina display or other situations where window coordinates are different from framebuffer coordinates. User storage only, presently not used by ImGui.
     readonly DisplayFramebufferScale: reference_ImVec2;
 
+    // Docking options (when ImGuiConfigFlags_DockingEnable is set)
+    // bool        ConfigDockingNoSplit;           // = false          // Simplified docking mode: disable window splitting, so docking is limited to merging multiple windows together into tab-bars.
+    ConfigDockingNoSplit: boolean;
+    // bool        ConfigDockingWithShift;         // = false          // Enable docking with holding Shift key (reduce visual noise, allows dropping in wider space)
+    ConfigDockingWithShift: boolean;
+    // bool        ConfigDockingAlwaysTabBar;      // = false          // [BETA] [FIXME: This currently creates regression with auto-sizing and general overhead] Make every single floating window display within a docking node.
+    ConfigDockingAlwaysTabBar: boolean;
+    // bool        ConfigDockingTransparentPayload;// = false          // [BETA] Make window or viewport transparent when docking and only display docking boxes on the target viewport. Useful if rendering of multiple viewport cannot be synced. Best used with ConfigViewportsNoAutoMerge.
+    ConfigDockingTransparentPayload: boolean;
+
     // Advanced/subtle behaviors
     // bool        MouseDrawCursor;                // Request ImGui to draw a mouse cursor for you (if you are on a platform without a mouse cursor).
     MouseDrawCursor: boolean;
