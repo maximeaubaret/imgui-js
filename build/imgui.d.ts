@@ -278,6 +278,16 @@ export declare enum ImGuiHoveredFlags {
     RectOnly = 104,
     RootAndChildWindows = 3
 }
+export { ImGuiDockNodeFlags as DockNodeFlags };
+export declare enum ImGuiDockNodeFlags {
+    None = 0,
+    KeepAliveOnly = 1,
+    NoDockingInCentralNode = 4,
+    PassthruCentralNode = 8,
+    NoSplit = 16,
+    NoResize = 32,
+    AutoHideTabBar = 64
+}
 export { ImGuiDragDropFlags as DragDropFlags };
 export declare enum ImGuiDragDropFlags {
     None = 0,
@@ -688,6 +698,14 @@ export declare class ImGuiListClipper {
     Step(): boolean;
     Begin(items_count: number, items_height?: number): void;
     End(): void;
+}
+export declare class ImGuiViewport {
+    readonly native: Bind.reference_ImGuiViewport;
+    constructor(native: Bind.reference_ImGuiViewport);
+    get ID(): number;
+    GetCenter(): Bind.interface_ImVec2;
+    GetWorkPos(): Bind.interface_ImVec2;
+    GetWorkSize(): Bind.interface_ImVec2;
 }
 export declare class ImGuiTableColumnSortSpecs {
     readonly native: Bind.reference_ImGuiTableColumnSortSpecs;
@@ -1195,6 +1213,7 @@ export declare function SetNextWindowContentSize(size: Readonly<Bind.interface_I
 export declare function SetNextWindowCollapsed(collapsed: boolean, cond?: ImGuiCond): void;
 export declare function SetNextWindowFocus(): void;
 export declare function SetNextWindowBgAlpha(alpha: number): void;
+export declare function SetNextWindowViewport(viewport_id: number): void;
 export declare function SetWindowPos(name_or_pos: string | Readonly<Bind.interface_ImVec2>, pos_or_cond?: Readonly<Bind.interface_ImVec2> | ImGuiCond, cond?: ImGuiCond): void;
 export declare function SetWindowSize(name_or_size: string | Readonly<Bind.interface_ImVec2>, size_or_cond?: Readonly<Bind.interface_ImVec2> | ImGuiCond, cond?: ImGuiCond): void;
 export declare function SetWindowCollapsed(name_or_collapsed: string | boolean, collapsed_or_cond?: boolean | ImGuiCond, cond?: ImGuiCond): void;
@@ -1407,6 +1426,7 @@ export declare function EndTabBar(): void;
 export declare function BeginTabItem(label: string, p_open?: Bind.ImScalar<boolean> | Bind.ImAccess<boolean> | null, flags?: ImGuiTabItemFlags): boolean;
 export declare function EndTabItem(): void;
 export declare function SetTabItemClosed(tab_or_docked_window_label: string): void;
+export declare function DockSpace(id: number, size?: Readonly<Bind.interface_ImVec2>, flags?: ImGuiDockNodeFlags): void;
 export declare function LogToTTY(max_depth?: number): void;
 export declare function LogToFile(max_depth?: number, filename?: string | null): void;
 export declare function LogToClipboard(max_depth?: number): void;
@@ -1486,3 +1506,4 @@ export declare function SaveIniSettingsToMemory(out_ini_size?: Bind.ImScalar<num
 export declare function SetAllocatorFunctions(alloc_func: (sz: number, user_data: any) => number, free_func: (ptr: number, user_data: any) => void, user_data?: any): void;
 export declare function MemAlloc(sz: number): void;
 export declare function MemFree(ptr: any): void;
+export declare function GetMainViewport(): ImGuiViewport | null;

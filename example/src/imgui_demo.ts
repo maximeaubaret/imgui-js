@@ -85,6 +85,7 @@ import { ImGuiColorEditFlags } from "imgui-js";
 import { ImGuiSliderFlags } from "imgui-js";
 import { ImGuiCond } from "imgui-js";
 import { ImGuiFocusedFlags } from "imgui-js";
+import { ImGuiDockNodeFlags } from "imgui-js";
 import { ImGuiHoveredFlags } from "imgui-js";
 import { ImGuiInputTextFlags } from "imgui-js";
 import { ImGuiMouseCursor } from "imgui-js";
@@ -261,6 +262,7 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
 
     // Examples Apps (accessible from the "Examples" menu)
     /* static */ const show_app_documents: Static<boolean> = STATIC("show_app_documents", false);
+    /* static */ const show_app_dockspace: Static<boolean> = STATIC("show_app_dockspace", false);
     /* static */ const show_app_main_menu_bar: Static<boolean> = STATIC("show_app_main_menu_bar", false);
     /* static */ const show_app_console: Static<boolean> = STATIC("show_app_console", false);
     /* static */ const show_app_log: Static<boolean> = STATIC("show_app_log", false);
@@ -274,8 +276,9 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
     /* static */ const show_app_custom_rendering: Static<boolean> = STATIC("show_app_custom_rendering", false);
     /* static */ const show_backend_checker_window: Static<boolean> = STATIC("show_backend_checker_window", false);
 
-    if (show_app_documents.value)           ShowExampleAppDocuments((value = show_app_documents.value) => show_app_documents.value = value);
     if (show_app_main_menu_bar.value)       ShowExampleAppMainMenuBar();
+    if (show_app_dockspace.value)           ShowExampleAppDockspace((value = show_app_dockspace.value) => show_app_dockspace.value = value);
+    if (show_app_documents.value)           ShowExampleAppDocuments((value = show_app_documents.value) => show_app_documents.value = value);
     if (show_app_console.value)             ShowExampleAppConsole((value = show_app_console.value) => show_app_console.value = value);
     if (show_app_log.value)                 ShowExampleAppLog((value = show_app_log.value) => show_app_log.value = value);
     if (show_app_layout.value)              ShowExampleAppLayout((value = show_app_layout.value) => show_app_layout.value = value);
@@ -360,6 +363,7 @@ export function ShowDemoWindow(p_open: ImAccess<boolean> | ImScalar<boolean> | n
             ImGui.MenuItem("Simple overlay", null, (value = show_app_simple_overlay.value) => show_app_simple_overlay.value = value);
             ImGui.MenuItem("Manipulating window titles", null, (value = show_app_window_titles.value) => show_app_window_titles.value = value);
             ImGui.MenuItem("Custom rendering", null, (value = show_app_custom_rendering.value) => show_app_custom_rendering.value = value);
+            ImGui.MenuItem("Dockspace", null, (value = show_app_dockspace.value) => show_app_dockspace.value = value);
             ImGui.MenuItem("Documents", null, (value = show_app_documents.value) => show_app_documents.value = value);
             ImGui.MenuItem("Backend-checker window", null, (value = show_backend_checker_window.value) => show_backend_checker_window.value = value);
             ImGui.EndMenu();
@@ -6377,6 +6381,139 @@ function ShowExampleAppCustomRendering(p_open: ImAccess<boolean>): void
 
     ImGui.End();
 }
+
+
+function ShowDockingDisabledMessage(): void
+{
+    let io = ImGui.GetIO();
+    ImGui.Text("ERROR: Docking is not enabled! See Demo > Configuration.");
+    ImGui.Text("Set io.ConfigFlags |= ImGuiConfigFlags.DockingEnable in your code, or ");
+    ImGui.SameLine(0.0, 0.0);
+    if (ImGui.SmallButton("click here"))
+        io.ConfigFlags |= ImGui.ConfigFlags.DockingEnable;
+}
+
+//-----------------------------------------------------------------------------
+// [SECTION] Example App: Docking, DockSpace / ShowExampleAppDockSpace()
+//-----------------------------------------------------------------------------
+
+// Demonstrate using DockSpace() to create an explicit docking node within an existing window.
+// Note that you dock windows into each others _without_ a dockspace, by just clicking on
+// a window title bar and moving it (+ hold SHIFT if io.ConfigDockingWithShift is set).
+// DockSpace() and DockSpaceOverViewport() are only useful to construct a central docking
+// location for your application.
+function ShowExampleAppDockspace(p_open: ImAccess<boolean>): void
+{
+    // In 99% case you should be able to just call DockSpaceOverViewport() and ignore all the code below!
+    // In this specific demo, we are not using DockSpaceOverViewport() because:
+    // - we allow the host window to be floating/moveable instead of filling the viewport (when opt_fullscreen == false)
+    // - we allow the host window to have padding (when opt_padding == true)
+    // - we have a local menu bar in the host window (vs. you could use BeginMainMenuBar() + DockSpaceOverViewport() in your code!)
+    // TL;DR; this demo is more complicated than what you would normally use.
+    // If we removed all the options we are showcasing, this demo would become:
+    //     void ShowExampleAppDockSpace()
+    //     {
+    //         ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
+    //     }
+
+    const opt_fullscreen = STATIC("opt_fullscreen#dockspace", true);
+    const opt_padding = STATIC("opt_padding#dockspace", false);
+    const dockspace_flags = STATIC("dockspace_flags#dockspace", ImGuiDockNodeFlags.None);
+
+    // We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
+    // because it would be confusing to have two docking targets within each others.
+    let window_flags = ImGuiWindowFlags.MenuBar | ImGuiWindowFlags.NoDocking;
+    if (opt_fullscreen.value)
+    {
+        let viewport = ImGui.GetMainViewport();
+        if (!viewport)
+        {
+            IM_ASSERT(0);
+            return;
+        }
+        ImGui.SetNextWindowPos(viewport.GetWorkPos());
+        ImGui.SetNextWindowSize(viewport.GetWorkSize());
+        ImGui.SetNextWindowViewport(viewport.ID);
+        ImGui.PushStyleVar(ImGuiStyleVar.WindowRounding, 0.0);
+        ImGui.PushStyleVar(ImGuiStyleVar.WindowBorderSize, 0.0);
+        window_flags |= ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove;
+        window_flags |= ImGuiWindowFlags.NoBringToFrontOnFocus | ImGuiWindowFlags.NoNavFocus;
+    }
+    else
+    {
+        dockspace_flags.value &= ~ImGuiDockNodeFlags.PassthruCentralNode;
+    }
+
+    // When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background
+    // and handle the pass-thru hole, so we ask Begin() to not render a background.
+    if (dockspace_flags.value & ImGuiDockNodeFlags.PassthruCentralNode)
+        window_flags |= ImGuiWindowFlags.NoBackground;
+
+    // Important: note that we proceed even if Begin() returns false (aka window is collapsed).
+    // This is because we want to keep our DockSpace() active. If a DockSpace() is inactive,
+    // all active windows docked into it will lose their parent and become undocked.
+    // We cannot preserve the docking relationship between an active window and an inactive docking, otherwise
+    // any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
+    if (!opt_padding.value)
+        ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, new ImVec2(0.0, 0.0));
+    ImGui.Begin("DockSpace Demo", p_open, window_flags);
+    if (!opt_padding.value)
+        ImGui.PopStyleVar();
+
+    if (opt_fullscreen.value)
+        ImGui.PopStyleVar(2);
+
+    // DockSpace
+    let io = ImGui.GetIO();
+    if (io.ConfigFlags & ImGui.ConfigFlags.DockingEnable)
+    {
+        let dockspace_id = ImGui.GetID("MyDockSpace");
+        ImGui.DockSpace(dockspace_id, new ImVec2(0.0, 0.0), dockspace_flags.value);
+    }
+    else
+    {
+        ShowDockingDisabledMessage();
+    }
+
+    if (ImGui.BeginMenuBar())
+    {
+        if (ImGui.BeginMenu("Options"))
+        {
+            // Disabling fullscreen would allow the window to be moved to the front of other windows,
+            // which we can't undo at the moment without finer window depth/z control.
+            ImGui.MenuItem("Fullscreen", null, (value = opt_fullscreen.value) => opt_fullscreen.value = value);
+            ImGui.MenuItem("Padding", null, (value = opt_padding.value) => opt_padding.value = value);
+            ImGui.Separator();
+
+            if (ImGui.MenuItem("Flag: NoSplit",                "", (dockspace_flags.value & ImGuiDockNodeFlags.NoSplit) != 0))                 { dockspace_flags.value ^= ImGuiDockNodeFlags.NoSplit; }
+            if (ImGui.MenuItem("Flag: NoResize",               "", (dockspace_flags.value & ImGuiDockNodeFlags.NoResize) != 0))                { dockspace_flags.value ^= ImGuiDockNodeFlags.NoResize; }
+            if (ImGui.MenuItem("Flag: NoDockingInCentralNode", "", (dockspace_flags.value & ImGuiDockNodeFlags.NoDockingInCentralNode) != 0))  { dockspace_flags.value ^= ImGuiDockNodeFlags.NoDockingInCentralNode; }
+            if (ImGui.MenuItem("Flag: AutoHideTabBar",         "", (dockspace_flags.value & ImGuiDockNodeFlags.AutoHideTabBar) != 0))          { dockspace_flags.value ^= ImGuiDockNodeFlags.AutoHideTabBar; }
+            if (ImGui.MenuItem("Flag: PassthruCentralNode",    "", (dockspace_flags.value & ImGuiDockNodeFlags.PassthruCentralNode) != 0, opt_fullscreen.value)) { dockspace_flags.value ^= ImGuiDockNodeFlags.PassthruCentralNode; }
+            ImGui.Separator();
+
+            if (ImGui.MenuItem("Close", null, false, p_open()))
+                p_open(false);
+            ImGui.EndMenu();
+        }
+        HelpMarker(
+            "When docking is enabled, you can ALWAYS dock MOST window into another! Try it now!" + "\n\n"
+            + " > if io.ConfigDockingWithShift==false (default):" + "\n"
+            + "   drag windows from title bar to dock" + "\n"
+            + " > if io.ConfigDockingWithShift==true:" + "\n"
+            + "   drag windows from anywhere and hold Shift to dock" + "\n\n"
+            + "This demo app has nothing to do with it!" + "\n\n"
+            + "This demo app only demonstrate the use of ImGui.DockSpace() which allows you to manually create a docking node _within_ another window. This is useful so you can decorate your main application window (e.g. with a menu bar)." + "\n\n"
+            + "ImGui.DockSpace() comes with one hard constraint: it needs to be submitted _before_ any window which may be docked into it. Therefore, if you use a dock spot as the central point of your application, you'll probably want it to be part of the very first window you are submitting to imgui every frame." + "\n\n"
+            + "(NB: because of this constraint, the implicit \"Debug\" window can not be docked into an explicit DockSpace() node, because that window is submitted as part of the NewFrame() call. An easy workaround is that you can create your own implicit \"Debug##2\" window after calling DockSpace() and leave it in the window stack for anyone to use.)"
+        );
+
+        ImGui.EndMenuBar();
+    }
+
+    ImGui.End();
+}
+
 
 //-----------------------------------------------------------------------------
 // [SECTION] Example App: Documents Handling / ShowExampleAppDocuments()

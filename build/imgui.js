@@ -9,7 +9,7 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
             step((generator = generator.apply(thisArg, _arguments || [])).next());
         });
     };
-    var Bind, bind, config, IMGUI_VERSION, IMGUI_VERSION_NUM, ImStringBuffer, ImGuiWindowFlags, ImGuiInputTextFlags, ImGuiTreeNodeFlags, ImGuiPopupFlags, ImGuiSelectableFlags, ImGuiComboFlags, ImGuiTabBarFlags, ImGuiTabItemFlags, ImGuiSortDirection, ImGuiTableFlags, ImGuiTableColumnFlags, ImGuiTableRowFlags, ImGuiTableBgTarget, ImGuiFocusedFlags, ImGuiHoveredFlags, ImGuiDragDropFlags, IMGUI_PAYLOAD_TYPE_COLOR_3F, IMGUI_PAYLOAD_TYPE_COLOR_4F, ImGuiDataType, ImGuiDir, ImGuiKey, ImGuiNavInput, ImGuiConfigFlags, ImGuiCol, ImGuiStyleVar, ImGuiBackendFlags, ImGuiColorEditFlags, ImGuiSliderFlags, ImGuiMouseCursor, ImGuiCond, ImDrawCornerFlags, ImDrawListFlags, ImVec2, ImVec4, ImVector, ImGuiTextFilter, ImGuiTextBuffer, ImGuiStorage, IM_COL32_R_SHIFT, IM_COL32_G_SHIFT, IM_COL32_B_SHIFT, IM_COL32_A_SHIFT, IM_COL32_A_MASK, IM_COL32_WHITE, IM_COL32_BLACK, IM_COL32_BLACK_TRANS, ImColor, ImGuiInputTextDefaultSize, ImGuiInputTextCallbackData, ImGuiSizeCallbackData, ImGuiListClipper, ImGuiTableColumnSortSpecs, ImGuiTableSortSpecs, ImDrawCallback_ResetRenderState, ImDrawCmd, ImDrawIdxSize, ImDrawVertSize, ImDrawVertPosOffset, ImDrawVertUVOffset, ImDrawVertColOffset, ImDrawVert, ImDrawChannel, ImDrawListSharedData, ImDrawList, ImDrawData, script_ImFontConfig, ImFontConfig, script_ImFontGlyph, ImFontGlyph, ImFontAtlasFlags, ImFontAtlas, ImFont, script_ImGuiStyle, ImGuiStyle, ImGuiIO, ImGuiContext, _ImGui_DragDropPayload_data;
+    var Bind, bind, config, IMGUI_VERSION, IMGUI_VERSION_NUM, ImStringBuffer, ImGuiWindowFlags, ImGuiInputTextFlags, ImGuiTreeNodeFlags, ImGuiPopupFlags, ImGuiSelectableFlags, ImGuiComboFlags, ImGuiTabBarFlags, ImGuiTabItemFlags, ImGuiSortDirection, ImGuiTableFlags, ImGuiTableColumnFlags, ImGuiTableRowFlags, ImGuiTableBgTarget, ImGuiFocusedFlags, ImGuiHoveredFlags, ImGuiDockNodeFlags, ImGuiDragDropFlags, IMGUI_PAYLOAD_TYPE_COLOR_3F, IMGUI_PAYLOAD_TYPE_COLOR_4F, ImGuiDataType, ImGuiDir, ImGuiKey, ImGuiNavInput, ImGuiConfigFlags, ImGuiCol, ImGuiStyleVar, ImGuiBackendFlags, ImGuiColorEditFlags, ImGuiSliderFlags, ImGuiMouseCursor, ImGuiCond, ImDrawCornerFlags, ImDrawListFlags, ImVec2, ImVec4, ImVector, ImGuiTextFilter, ImGuiTextBuffer, ImGuiStorage, IM_COL32_R_SHIFT, IM_COL32_G_SHIFT, IM_COL32_B_SHIFT, IM_COL32_A_SHIFT, IM_COL32_A_MASK, IM_COL32_WHITE, IM_COL32_BLACK, IM_COL32_BLACK_TRANS, ImColor, ImGuiInputTextDefaultSize, ImGuiInputTextCallbackData, ImGuiSizeCallbackData, ImGuiListClipper, ImGuiViewport, ImGuiTableColumnSortSpecs, ImGuiTableSortSpecs, ImDrawCallback_ResetRenderState, ImDrawCmd, ImDrawIdxSize, ImDrawVertSize, ImDrawVertPosOffset, ImDrawVertUVOffset, ImDrawVertColOffset, ImDrawVert, ImDrawChannel, ImDrawListSharedData, ImDrawList, ImDrawData, script_ImFontConfig, ImFontConfig, script_ImFontGlyph, ImFontGlyph, ImFontAtlasFlags, ImFontAtlas, ImFont, script_ImGuiStyle, ImGuiStyle, ImGuiIO, ImGuiContext, _ImGui_DragDropPayload_data;
     var __moduleName = context_1 && context_1.id;
     function default_1(value) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -461,6 +461,9 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
     // IMGUI_API void          SetNextWindowBgAlpha(float alpha);                                  // set next window background color alpha. helper to easily modify ImGuiCol_WindowBg/ChildBg/PopupBg.
     function SetNextWindowBgAlpha(alpha) { bind.SetNextWindowBgAlpha(alpha); }
     exports_1("SetNextWindowBgAlpha", SetNextWindowBgAlpha);
+    // IMGUI_API void          SetNextWindowViewport(ImGuiID viewport_id);                                 // set next window viewport
+    function SetNextWindowViewport(viewport_id) { bind.SetNextWindowViewport(viewport_id); }
+    exports_1("SetNextWindowViewport", SetNextWindowViewport);
     // IMGUI_API void          SetWindowPos(const ImVec2& pos, ImGuiCond cond = 0);                // (not recommended) set current window position - call within Begin()/End(). prefer using SetNextWindowPos(), as this may incur tearing and side-effects.
     // IMGUI_API void          SetWindowSize(const ImVec2& size, ImGuiCond cond = 0);              // (not recommended) set current window size - call within Begin()/End(). set to ImVec2(0,0) to force an auto-fit. prefer using SetNextWindowSize(), as this may incur tearing and minor side-effects.
     // IMGUI_API void          SetWindowCollapsed(bool collapsed, ImGuiCond cond = 0);             // (not recommended) set current window collapsed state. prefer using SetNextWindowCollapsed().
@@ -1845,6 +1848,22 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
     // IMGUI_API void          SetTabItemClosed(const char* tab_or_docked_window_label);           // notify TabBar or Docking system of a closed tab/window ahead (useful to reduce visual flicker on reorderable tab bars). For tab-bar: call after BeginTabBar() and before Tab submissions. Otherwise call with a window name.
     function SetTabItemClosed(tab_or_docked_window_label) { bind.SetTabItemClosed(tab_or_docked_window_label); }
     exports_1("SetTabItemClosed", SetTabItemClosed);
+    // Docking
+    // [BETA API] Enable with io.ConfigFlags |= ImGuiConfigFlags_DockingEnable.
+    // Note: You can use most Docking facilities without calling any API. You DO NOT need to call DockSpace() to use Docking!
+    // - To dock windows: if io.ConfigDockingWithShift == false (default) drag window from their title bar.
+    // - To dock windows: if io.ConfigDockingWithShift == true: hold SHIFT anywhere while moving windows.
+    // About DockSpace:
+    // - Use DockSpace() to create an explicit dock node _within_ an existing window. See Docking demo for details.
+    // - DockSpace() needs to be submitted _before_ any window they can host. If you use a dockspace, submit it early in your app.
+    // IMGUI_API void          DockSpace(ImGuiID id, const ImVec2& size = ImVec2(0, 0), ImGuiDockNodeFlags flags = 0, const ImGuiWindowClass* window_class = NULL);
+    function DockSpace(id, size = new ImVec2(0, 0), flags = 0) { bind.DockSpace(id, size, flags); }
+    exports_1("DockSpace", DockSpace);
+    // IMGUI_API ImGuiID       DockSpaceOverViewport(ImGuiViewport* viewport = NULL, ImGuiDockNodeFlags flags = 0, const ImGuiWindowClass* window_class = NULL);
+    // IMGUI_API void          SetNextWindowDockID(ImGuiID dock_id, ImGuiCond cond = 0);           // set next window dock id (FIXME-DOCK)
+    // IMGUI_API void          SetNextWindowClass(const ImGuiWindowClass* window_class);           // set next window class (rare/advanced uses: provide hints to the platform backend via altered viewport flags and parent/child info)
+    // IMGUI_API ImGuiID       GetWindowDockID();
+    // IMGUI_API bool          IsWindowDocked();                                                   // is current window docked into another window?
     // Logging/Capture: all text output from interface is captured to tty/file/clipboard. By default, tree nodes are automatically opened during logging.
     // IMGUI_API void          LogToTTY(int max_depth = -1);                                       // start logging to tty
     function LogToTTY(max_depth = -1) {
@@ -2198,6 +2217,16 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
     // IMGUI_API void          MemFree(void* ptr);
     function MemFree(ptr) { bind.MemFree(ptr); }
     exports_1("MemFree", MemFree);
+    // (Optional) Platform/OS interface for multi-viewport support
+    // Read comments around the ImGuiPlatformIO structure for more details.
+    // Note: You may use GetWindowViewport() to get the current viewport of the current window.
+    // IMGUI_API ImGuiPlatformIO&  GetPlatformIO();                                                // platform/renderer functions, for backend to setup + viewports list.
+    // IMGUI_API ImGuiViewport*    GetMainViewport();                                              // main viewport. same as GetPlatformIO().MainViewport == GetPlatformIO().Viewports[0].
+    function GetMainViewport() {
+        const viewport = bind.GetMainViewport();
+        return (viewport === null) ? null : new ImGuiViewport(viewport);
+    }
+    exports_1("GetMainViewport", GetMainViewport);
     return {
         setters: [
             function (Bind_1) {
@@ -2496,6 +2525,18 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
             })(ImGuiHoveredFlags || (ImGuiHoveredFlags = {}));
             exports_1("ImGuiHoveredFlags", ImGuiHoveredFlags);
             exports_1("HoveredFlags", ImGuiHoveredFlags);
+            (function (ImGuiDockNodeFlags) {
+                ImGuiDockNodeFlags[ImGuiDockNodeFlags["None"] = 0] = "None";
+                ImGuiDockNodeFlags[ImGuiDockNodeFlags["KeepAliveOnly"] = 1] = "KeepAliveOnly";
+                //NoCentralNode              = 1 << 1,   // Shared       // Disable Central Node (the node which can stay empty)
+                ImGuiDockNodeFlags[ImGuiDockNodeFlags["NoDockingInCentralNode"] = 4] = "NoDockingInCentralNode";
+                ImGuiDockNodeFlags[ImGuiDockNodeFlags["PassthruCentralNode"] = 8] = "PassthruCentralNode";
+                ImGuiDockNodeFlags[ImGuiDockNodeFlags["NoSplit"] = 16] = "NoSplit";
+                ImGuiDockNodeFlags[ImGuiDockNodeFlags["NoResize"] = 32] = "NoResize";
+                ImGuiDockNodeFlags[ImGuiDockNodeFlags["AutoHideTabBar"] = 64] = "AutoHideTabBar"; // Shared/Local // Tab bar will automatically hide when there is a single window in the dock node.
+            })(ImGuiDockNodeFlags || (ImGuiDockNodeFlags = {}));
+            exports_1("ImGuiDockNodeFlags", ImGuiDockNodeFlags);
+            exports_1("DockNodeFlags", ImGuiDockNodeFlags);
             (function (ImGuiDragDropFlags) {
                 // BeginDragDropSource() flags
                 ImGuiDragDropFlags[ImGuiDragDropFlags["None"] = 0] = "None";
@@ -3243,6 +3284,16 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 }
             };
             exports_1("ImGuiListClipper", ImGuiListClipper);
+            ImGuiViewport = class ImGuiViewport {
+                constructor(native) {
+                    this.native = native;
+                }
+                get ID() { return this.native.ID; }
+                GetCenter() { return new ImVec2(this.native.Pos.x + this.native.Size.x * 0.5, this.native.Pos.y + this.native.Size.y * 0.5); }
+                GetWorkPos() { return new ImVec2(this.native.Pos.x + this.native.WorkOffsetMin.x, this.native.Pos.y + this.native.WorkOffsetMin.y); }
+                GetWorkSize() { return new ImVec2(this.native.Size.x - this.native.WorkOffsetMin.x + this.native.WorkOffsetMax.x, this.native.Size.y - this.native.WorkOffsetMin.y + this.native.WorkOffsetMax.y); } // This not clamped
+            };
+            exports_1("ImGuiViewport", ImGuiViewport);
             ImGuiTableColumnSortSpecs = class ImGuiTableColumnSortSpecs {
                 constructor(native) {
                     this.native = native;
@@ -4480,6 +4531,7 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
             };
             exports_1("ImGuiContext", ImGuiContext);
             ImGuiContext.current_ctx = null;
+            ;
             _ImGui_DragDropPayload_data = {};
         }
     };

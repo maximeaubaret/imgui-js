@@ -410,6 +410,21 @@ export enum ImGuiHoveredFlags {
     RootAndChildWindows           = RootWindow | ChildWindows,
 }
 
+// Flags for ImGui::DockSpace(), shared/inherited by child nodes.
+// (Some flags can be applied to individual nodes directly)
+// FIXME-DOCK: Also see ImGuiDockNodeFlagsPrivate_ which may involve using the WIP and internal DockBuilder api.
+export { ImGuiDockNodeFlags as DockNodeFlags };
+export enum ImGuiDockNodeFlags {
+    None                         = 0,
+    KeepAliveOnly                = 1 << 0,   // Shared       // Don't display the dockspace node but keep it alive. Windows docked into this dockspace node won't be undocked.
+    //NoCentralNode              = 1 << 1,   // Shared       // Disable Central Node (the node which can stay empty)
+    NoDockingInCentralNode       = 1 << 2,   // Shared       // Disable docking inside the Central Node, which will be always kept empty.
+    PassthruCentralNode          = 1 << 3,   // Shared       // Enable passthru dockspace: 1) DockSpace() will render a ImGuiCol_WindowBg background covering everything excepted the Central Node when empty. Meaning the host window should probably use SetNextWindowBgAlpha(0.0f) prior to Begin() when using this. 2) When Central Node is empty: let inputs pass-through + won't display a DockingEmptyBg background. See demo for details.
+    NoSplit                      = 1 << 4,   // Shared/Local // Disable splitting the node into smaller nodes. Useful e.g. when embedding dockspaces into a main root one (the root one may have splitting disabled to reduce confusion). Note: when turned off, existing splits will be preserved.
+    NoResize                     = 1 << 5,   // Shared/Local // Disable resizing node using the splitter/separators. Useful with programatically setup dockspaces.
+    AutoHideTabBar               = 1 << 6    // Shared/Local // Tab bar will automatically hide when there is a single window in the dock node.
+}
+
 // Flags for ImGui::BeginDragDropSource(), ImGui::AcceptDragDropPayload()
 export { ImGuiDragDropFlags as DragDropFlags };
 export enum ImGuiDragDropFlags {
@@ -1280,6 +1295,18 @@ export class ImGuiListClipper
         this.native.End();
         this.delete();
     }
+}
+
+export class ImGuiViewport
+{
+    constructor(public readonly native: Bind.reference_ImGuiViewport) {}
+    get ID(): number { return this.native.ID; }
+
+    GetCenter(): Bind.interface_ImVec2             { return new ImVec2(this.native.Pos.x + this.native.Size.x * 0.5, this.native.Pos.y + this.native.Size.y * 0.5); }
+    GetWorkPos(): Bind.interface_ImVec2            { return new ImVec2(this.native.Pos.x + this.native.WorkOffsetMin.x, this.native.Pos.y + this.native.WorkOffsetMin.y); }
+    GetWorkSize(): Bind.interface_ImVec2           { return new ImVec2(this.native.Size.x - this.native.WorkOffsetMin.x + this.native.WorkOffsetMax.x, this.native.Size.y - this.native.WorkOffsetMin.y + this.native.WorkOffsetMax.y); } // This not clamped
+
+    // TODO: figure out what is readonly or not
 }
 
 export class ImGuiTableColumnSortSpecs
@@ -2784,6 +2811,8 @@ export function SetNextWindowCollapsed(collapsed: boolean, cond: ImGuiCond = 0):
 export function SetNextWindowFocus(): void { bind.SetNextWindowFocus(); }
 // IMGUI_API void          SetNextWindowBgAlpha(float alpha);                                  // set next window background color alpha. helper to easily modify ImGuiCol_WindowBg/ChildBg/PopupBg.
 export function SetNextWindowBgAlpha(alpha: number): void { bind.SetNextWindowBgAlpha(alpha); }
+// IMGUI_API void          SetNextWindowViewport(ImGuiID viewport_id);                                 // set next window viewport
+export function SetNextWindowViewport(viewport_id: number): void { bind.SetNextWindowViewport(viewport_id); }
 // IMGUI_API void          SetWindowPos(const ImVec2& pos, ImGuiCond cond = 0);                // (not recommended) set current window position - call within Begin()/End(). prefer using SetNextWindowPos(), as this may incur tearing and side-effects.
 // IMGUI_API void          SetWindowSize(const ImVec2& size, ImGuiCond cond = 0);              // (not recommended) set current window size - call within Begin()/End(). set to ImVec2(0,0) to force an auto-fit. prefer using SetNextWindowSize(), as this may incur tearing and minor side-effects.
 // IMGUI_API void          SetWindowCollapsed(bool collapsed, ImGuiCond cond = 0);             // (not recommended) set current window collapsed state. prefer using SetNextWindowCollapsed().
@@ -3962,6 +3991,22 @@ export function EndTabItem(): void { bind.EndTabItem(); }
 // IMGUI_API void          SetTabItemClosed(const char* tab_or_docked_window_label);           // notify TabBar or Docking system of a closed tab/window ahead (useful to reduce visual flicker on reorderable tab bars). For tab-bar: call after BeginTabBar() and before Tab submissions. Otherwise call with a window name.
 export function SetTabItemClosed(tab_or_docked_window_label: string): void { bind.SetTabItemClosed(tab_or_docked_window_label); }
 
+// Docking
+// [BETA API] Enable with io.ConfigFlags |= ImGuiConfigFlags_DockingEnable.
+// Note: You can use most Docking facilities without calling any API. You DO NOT need to call DockSpace() to use Docking!
+// - To dock windows: if io.ConfigDockingWithShift == false (default) drag window from their title bar.
+// - To dock windows: if io.ConfigDockingWithShift == true: hold SHIFT anywhere while moving windows.
+// About DockSpace:
+// - Use DockSpace() to create an explicit dock node _within_ an existing window. See Docking demo for details.
+// - DockSpace() needs to be submitted _before_ any window they can host. If you use a dockspace, submit it early in your app.
+// IMGUI_API void          DockSpace(ImGuiID id, const ImVec2& size = ImVec2(0, 0), ImGuiDockNodeFlags flags = 0, const ImGuiWindowClass* window_class = NULL);
+export function DockSpace(id: number, size: Readonly<Bind.interface_ImVec2> = new ImVec2(0, 0), flags: ImGuiDockNodeFlags = 0): void { bind.DockSpace(id, size, flags) };
+// IMGUI_API ImGuiID       DockSpaceOverViewport(ImGuiViewport* viewport = NULL, ImGuiDockNodeFlags flags = 0, const ImGuiWindowClass* window_class = NULL);
+// IMGUI_API void          SetNextWindowDockID(ImGuiID dock_id, ImGuiCond cond = 0);           // set next window dock id (FIXME-DOCK)
+// IMGUI_API void          SetNextWindowClass(const ImGuiWindowClass* window_class);           // set next window class (rare/advanced uses: provide hints to the platform backend via altered viewport flags and parent/child info)
+// IMGUI_API ImGuiID       GetWindowDockID();
+// IMGUI_API bool          IsWindowDocked();                                                   // is current window docked into another window?
+
 // Logging/Capture: all text output from interface is captured to tty/file/clipboard. By default, tree nodes are automatically opened during logging.
 // IMGUI_API void          LogToTTY(int max_depth = -1);                                       // start logging to tty
 export function LogToTTY(max_depth: number = -1): void {
@@ -4251,3 +4296,18 @@ export function SetAllocatorFunctions(alloc_func: (sz: number, user_data: any) =
 export function MemAlloc(sz: number): void { bind.MemAlloc(sz); }
 // IMGUI_API void          MemFree(void* ptr);
 export function MemFree(ptr: any): void { bind.MemFree(ptr); }
+
+// (Optional) Platform/OS interface for multi-viewport support
+// Read comments around the ImGuiPlatformIO structure for more details.
+// Note: You may use GetWindowViewport() to get the current viewport of the current window.
+// IMGUI_API ImGuiPlatformIO&  GetPlatformIO();                                                // platform/renderer functions, for backend to setup + viewports list.
+// IMGUI_API ImGuiViewport*    GetMainViewport();                                              // main viewport. same as GetPlatformIO().MainViewport == GetPlatformIO().Viewports[0].
+export function GetMainViewport(): ImGuiViewport | null {
+    const viewport: Bind.reference_ImGuiViewport | null = bind.GetMainViewport();
+    return (viewport === null) ? null : new ImGuiViewport(viewport);
+}
+// IMGUI_API void              UpdatePlatformWindows();                                        // call in main loop. will call CreateWindow/ResizeWindow/etc. platform functions for each secondary viewport, and DestroyWindow for each inactive viewport.
+// IMGUI_API void              RenderPlatformWindowsDefault(void* platform_render_arg = NULL, void* renderer_render_arg = NULL); // call in main loop. will call RenderWindow/SwapBuffers platform functions for each secondary viewport which doesn't have the ImGuiViewportFlags_Minimized flag set. May be reimplemented by user for custom rendering needs.
+// IMGUI_API void              DestroyPlatformWindows();                                       // call DestroyWindow platform functions for all viewports. call from backend Shutdown() if you need to close platform windows before imgui shutdown. otherwise will be called by DestroyContext().
+// IMGUI_API ImGuiViewport*    FindViewportByID(ImGuiID id);                                   // this is a helper for backends.
+// IMGUI_API ImGuiViewport*    FindViewportByPlatformHandle(void* platform_handle);            // this is a helper for backends. the type platform_handle is decided by the backend (e.g. HWND, MyWindow*, GLFWwindow* etc.)
