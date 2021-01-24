@@ -1297,10 +1297,34 @@ export class ImGuiListClipper
     }
 }
 
+// Flags stored in ImGuiViewport::Flags, giving indications to the platform backends.
+// NOTE: This is probably not used when targeting the browser but may be needed for native via electron or whatnot
+export { ImGuiViewportFlags as ViewportFlags };
+export enum ImGuiViewportFlags {
+    None                     = 0,
+    NoDecoration             = 1 << 0,   // Platform Window: Disable platform decorations: title bar, borders, etc. (generally set all windows, but if ImGuiConfigFlags_ViewportsDecoration is set we only set this on popups/tooltips)
+    NoTaskBarIcon            = 1 << 1,   // Platform Window: Disable platform task bar icon (generally set on popups/tooltips, or all windows if ImGuiConfigFlags_ViewportsNoTaskBarIcon is set)
+    NoFocusOnAppearing       = 1 << 2,   // Platform Window: Don't take focus when created.
+    NoFocusOnClick           = 1 << 3,   // Platform Window: Don't take focus when clicked on.
+    NoInputs                 = 1 << 4,   // Platform Window: Make mouse pass through so we can drag this window while peaking behind it.
+    NoRendererClear          = 1 << 5,   // Platform Window: Renderer doesn't need to clear the framebuffer ahead (because we will fill it entirely).
+    TopMost                  = 1 << 6,   // Platform Window: Display on top (for tooltips only).
+    Minimized                = 1 << 7,   // Platform Window: Window is minimized, can skip render. When minimized we tend to avoid using the viewport pos/size for clipping window or testing if they are contained in the viewport.
+    NoAutoMerge              = 1 << 8,   // Platform Window: Avoid merging this window into another host window. This can only be set via ImGuiWindowClass viewport flags override (because we need to now ahead if we are going to create a viewport in the first place!).
+    CanHostOtherWindows      = 1 << 9    // Main viewport: can host multiple imgui windows (secondary viewports are associated to a single window).
+}
+
 export class ImGuiViewport
 {
     constructor(public readonly native: Bind.reference_ImGuiViewport) {}
     get ID(): number { return this.native.ID; }
+    get Flags(): ImGuiViewportFlags { return this.native.Flags; }
+    get Pos(): Bind.interface_ImVec2 { return this.native.Pos; }
+    get Size(): Bind.interface_ImVec2 { return this.native.Size; }
+    get WorkOffsetMin(): Bind.interface_ImVec2 { return this.native.WorkOffsetMin; }
+    get WorkOffsetMax(): Bind.interface_ImVec2 { return this.native.WorkOffsetMax; }
+    get DpiScale(): number { return this.native.DpiScale; }
+    // TODO: DrawData, ParentViewportId
 
     GetCenter(): Bind.interface_ImVec2             { return new ImVec2(this.native.Pos.x + this.native.Size.x * 0.5, this.native.Pos.y + this.native.Size.y * 0.5); }
     GetWorkPos(): Bind.interface_ImVec2            { return new ImVec2(this.native.Pos.x + this.native.WorkOffsetMin.x, this.native.Pos.y + this.native.WorkOffsetMin.y); }
@@ -4018,6 +4042,12 @@ export function SetTabItemClosed(tab_or_docked_window_label: string): void { bin
 // IMGUI_API void          DockSpace(ImGuiID id, const ImVec2& size = ImVec2(0, 0), ImGuiDockNodeFlags flags = 0, const ImGuiWindowClass* window_class = NULL);
 export function DockSpace(id: number, size: Readonly<Bind.interface_ImVec2> = new ImVec2(0, 0), flags: ImGuiDockNodeFlags = 0): void { bind.DockSpace(id, size, flags) };
 // IMGUI_API ImGuiID       DockSpaceOverViewport(ImGuiViewport* viewport = NULL, ImGuiDockNodeFlags flags = 0, const ImGuiWindowClass* window_class = NULL);
+export function DockSpaceOverMainViewport(flags: ImGuiDockNodeFlags = 0): Bind.ImGuiID {
+    return bind.DockSpaceOverMainViewport(flags);
+}
+export function DockSpaceOverViewportID(viewport_id: Bind.ImGuiID, flags: ImGuiDockNodeFlags = 0): Bind.ImGuiID {
+    return bind.DockSpaceOverViewportID(viewport_id, flags);
+}
 // IMGUI_API void          SetNextWindowDockID(ImGuiID dock_id, ImGuiCond cond = 0);           // set next window dock id (FIXME-DOCK)
 // IMGUI_API void          SetNextWindowClass(const ImGuiWindowClass* window_class);           // set next window class (rare/advanced uses: provide hints to the platform backend via altered viewport flags and parent/child info)
 // IMGUI_API ImGuiID       GetWindowDockID();

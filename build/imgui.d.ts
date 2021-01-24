@@ -699,10 +699,30 @@ export declare class ImGuiListClipper {
     Begin(items_count: number, items_height?: number): void;
     End(): void;
 }
+export { ImGuiViewportFlags as ViewportFlags };
+export declare enum ImGuiViewportFlags {
+    None = 0,
+    NoDecoration = 1,
+    NoTaskBarIcon = 2,
+    NoFocusOnAppearing = 4,
+    NoFocusOnClick = 8,
+    NoInputs = 16,
+    NoRendererClear = 32,
+    TopMost = 64,
+    Minimized = 128,
+    NoAutoMerge = 256,
+    CanHostOtherWindows = 512
+}
 export declare class ImGuiViewport {
     readonly native: Bind.reference_ImGuiViewport;
     constructor(native: Bind.reference_ImGuiViewport);
     get ID(): number;
+    get Flags(): ImGuiViewportFlags;
+    get Pos(): Bind.interface_ImVec2;
+    get Size(): Bind.interface_ImVec2;
+    get WorkOffsetMin(): Bind.interface_ImVec2;
+    get WorkOffsetMax(): Bind.interface_ImVec2;
+    get DpiScale(): number;
     GetCenter(): Bind.interface_ImVec2;
     GetWorkPos(): Bind.interface_ImVec2;
     GetWorkSize(): Bind.interface_ImVec2;
@@ -1427,6 +1447,8 @@ export declare function BeginTabItem(label: string, p_open?: Bind.ImScalar<boole
 export declare function EndTabItem(): void;
 export declare function SetTabItemClosed(tab_or_docked_window_label: string): void;
 export declare function DockSpace(id: number, size?: Readonly<Bind.interface_ImVec2>, flags?: ImGuiDockNodeFlags): void;
+export declare function DockSpaceOverMainViewport(flags?: ImGuiDockNodeFlags): Bind.ImGuiID;
+export declare function DockSpaceOverViewportID(viewport_id: Bind.ImGuiID, flags?: ImGuiDockNodeFlags): Bind.ImGuiID;
 export declare function LogToTTY(max_depth?: number): void;
 export declare function LogToFile(max_depth?: number, filename?: string | null): void;
 export declare function LogToClipboard(max_depth?: number): void;

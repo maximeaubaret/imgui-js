@@ -5440,6 +5440,64 @@ Without an explicit value, inner_width is == outer_size.x and therefore using St
         }
         ImGui.End();
     }
+    // An alternative way of creating a main dockspace.
+    function ShowExampleAppDockspaceAlt(p_open) {
+        const dockspace_flags = STATIC("dockspace_flags#dockspace", imgui_js_9.ImGuiDockNodeFlags.None);
+        // DockSpace
+        let io = ImGui.GetIO();
+        if (ImGui.BeginMainMenuBar()) {
+            if (ImGui.BeginMenu("Options")) {
+                if (ImGui.MenuItem("Flag: NoSplit", "", (dockspace_flags.value & imgui_js_9.ImGuiDockNodeFlags.NoSplit) != 0)) {
+                    dockspace_flags.value ^= imgui_js_9.ImGuiDockNodeFlags.NoSplit;
+                }
+                if (ImGui.MenuItem("Flag: NoResize", "", (dockspace_flags.value & imgui_js_9.ImGuiDockNodeFlags.NoResize) != 0)) {
+                    dockspace_flags.value ^= imgui_js_9.ImGuiDockNodeFlags.NoResize;
+                }
+                if (ImGui.MenuItem("Flag: NoDockingInCentralNode", "", (dockspace_flags.value & imgui_js_9.ImGuiDockNodeFlags.NoDockingInCentralNode) != 0)) {
+                    dockspace_flags.value ^= imgui_js_9.ImGuiDockNodeFlags.NoDockingInCentralNode;
+                }
+                if (ImGui.MenuItem("Flag: AutoHideTabBar", "", (dockspace_flags.value & imgui_js_9.ImGuiDockNodeFlags.AutoHideTabBar) != 0)) {
+                    dockspace_flags.value ^= imgui_js_9.ImGuiDockNodeFlags.AutoHideTabBar;
+                }
+                if (ImGui.MenuItem("Flag: PassthruCentralNode", "", (dockspace_flags.value & imgui_js_9.ImGuiDockNodeFlags.PassthruCentralNode) != 0)) {
+                    dockspace_flags.value ^= imgui_js_9.ImGuiDockNodeFlags.PassthruCentralNode;
+                }
+                ImGui.Separator();
+                if (ImGui.MenuItem("Close", null, false, p_open()))
+                    p_open(false);
+                ImGui.EndMenu();
+            }
+            HelpMarker("When docking is enabled, you can ALWAYS dock MOST window into another! Try it now!" + "\n\n"
+                + " > if io.ConfigDockingWithShift==false (default):" + "\n"
+                + "   drag windows from title bar to dock" + "\n"
+                + " > if io.ConfigDockingWithShift==true:" + "\n"
+                + "   drag windows from anywhere and hold Shift to dock" + "\n\n"
+                + "This demo app has nothing to do with it!" + "\n\n"
+                + "This demo app only demonstrate the use of ImGui.DockSpace() which allows you to manually create a docking node _within_ another window. This is useful so you can decorate your main application window (e.g. with a menu bar)." + "\n\n"
+                + "ImGui.DockSpace() comes with one hard constraint: it needs to be submitted _before_ any window which may be docked into it. Therefore, if you use a dock spot as the central point of your application, you'll probably want it to be part of the very first window you are submitting to imgui every frame." + "\n\n"
+                + "(NB: because of this constraint, the implicit \"Debug\" window can not be docked into an explicit DockSpace() node, because that window is submitted as part of the NewFrame() call. An easy workaround is that you can create your own implicit \"Debug##2\" window after calling DockSpace() and leave it in the window stack for anyone to use.)");
+            ImGui.EndMenuBar();
+        }
+        if (io.ConfigFlags & ImGui.ConfigFlags.DockingEnable) {
+            if (false) {
+                let dockspace_id = ImGui.GetID("MyDockSpace");
+                ImGui.DockSpace(dockspace_id, new imgui_js_25.ImVec2(0.0, 0.0), dockspace_flags.value);
+            }
+            else {
+                let vp = ImGui.GetMainViewport();
+                if (!vp) {
+                    imgui_js_2.IM_ASSERT(0);
+                    return;
+                }
+                //ImGui.DockSpaceOverViewport(vp);
+                //ImGui.DockSpaceOverViewportID(vp.ID, dockspace_flags.value);
+                ImGui.DockSpaceOverMainViewport(dockspace_flags.value);
+            }
+        }
+        else {
+            ShowDockingDisabledMessage();
+        }
+    }
     //-----------------------------------------------------------------------------
     // [SECTION] Example App: Documents Handling / ShowExampleAppDocuments()
     //-----------------------------------------------------------------------------

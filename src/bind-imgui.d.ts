@@ -1436,6 +1436,7 @@ EndTabItem(): void;
 SetTabItemClosed(tab_or_docked_window_label: string): void;
 
 // Docking
+// NOTE: ImGuiWindowClass is not implemented. I think this is only useful on native.
 // [BETA API] Enable with io.ConfigFlags |= ImGuiConfigFlags_DockingEnable.
 // Note: You can use most Docking facilities without calling any API. You DO NOT need to call DockSpace() to use Docking!
 // - To dock windows: if io.ConfigDockingWithShift == false (default) drag window from their title bar.
@@ -1444,12 +1445,17 @@ SetTabItemClosed(tab_or_docked_window_label: string): void;
 // - Use DockSpace() to create an explicit dock node _within_ an existing window. See Docking demo for details.
 // - DockSpace() needs to be submitted _before_ any window they can host. If you use a dockspace, submit it early in your app.
 // IMGUI_API void          DockSpace(ImGuiID id, const ImVec2& size = ImVec2(0, 0), ImGuiDockNodeFlags flags = 0, const ImGuiWindowClass* window_class = NULL);
-DockSpace(id: number, size: Readonly<interface_ImVec2>, flags: ImGuiDockNodeFlags): void;
+DockSpace(id: ImGuiID, size: Readonly<interface_ImVec2>, flags: ImGuiDockNodeFlags): void;
 // IMGUI_API ImGuiID       DockSpaceOverViewport(ImGuiViewport* viewport = NULL, ImGuiDockNodeFlags flags = 0, const ImGuiWindowClass* window_class = NULL);
+DockSpaceOverMainViewport(flags: ImGuiDockNodeFlags): ImGuiID;
+DockSpaceOverViewportID(viewport_id: ImGuiID, flags: ImGuiDockNodeFlags): ImGuiID;
 // IMGUI_API void          SetNextWindowDockID(ImGuiID dock_id, ImGuiCond cond = 0);           // set next window dock id (FIXME-DOCK)
+SetNextWindowDockID(dock_id: ImGuiID, cond: ImGuiCond): void;
 // IMGUI_API void          SetNextWindowClass(const ImGuiWindowClass* window_class);           // set next window class (rare/advanced uses: provide hints to the platform backend via altered viewport flags and parent/child info)
 // IMGUI_API ImGuiID       GetWindowDockID();
+GetWindowDockID(): ImGuiID;
 // IMGUI_API bool          IsWindowDocked();                                                   // is current window docked into another window?
+IsWindowDocked(): boolean;
 
 // Logging/Capture: all text output from interface is captured to tty/file/clipboard. By default, tree nodes are automatically opened during logging.
 // IMGUI_API void          LogToTTY(int max_depth = -1);                                       // start logging to tty

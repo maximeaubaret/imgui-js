@@ -2832,10 +2832,22 @@ EMSCRIPTEN_BINDINGS(ImGui) {
         ImGui::DockSpace(id.as<ImGuiID>(), import_ImVec2(size), flags);
     }));
     // IMGUI_API ImGuiID       DockSpaceOverViewport(ImGuiViewport* viewport = NULL, ImGuiDockNodeFlags flags = 0, const ImGuiWindowClass* window_class = NULL);
+    emscripten::function("DockSpaceOverMainViewport", FUNCTION(ImGuiID, (ImGuiDockNodeFlags flags), {
+          ImGuiViewport* vp = ImGui::GetMainViewport();
+          return ImGui::DockSpaceOverViewport(vp, flags);
+    }));
+    emscripten::function("DockSpaceOverViewportID", FUNCTION(ImGuiID, (ImGuiID viewport_id, ImGuiDockNodeFlags flags), {
+          ImGuiViewport* vp = ImGui::FindViewportByID(viewport_id);
+          //return ImGui::DockSpaceOverViewport(vp, flags);
+          return ImGui::DockSpaceOverViewport(NULL, flags);
+    }));
     // IMGUI_API void          SetNextWindowDockID(ImGuiID dock_id, ImGuiCond cond = 0);           // set next window dock id (FIXME-DOCK)
+    emscripten::function("SetNextWindowDockID", &ImGui::SetNextWindowDockID);
     // IMGUI_API void          SetNextWindowClass(const ImGuiWindowClass* window_class);           // set next window class (rare/advanced uses: provide hints to the platform backend via altered viewport flags and parent/child info)
     // IMGUI_API ImGuiID       GetWindowDockID();
+    emscripten::function("GetWindowDockID", &ImGui::GetWindowDockID);
     // IMGUI_API bool          IsWindowDocked();                                                   // is current window docked into another window?
+    emscripten::function("IsWindowDocked", &ImGui::IsWindowDocked);
 
     // Logging/Capture: all text output from interface is captured to tty/file/clipboard. By default, tree nodes are automatically opened during logging.
     // IMGUI_API void          LogToTTY(int max_depth = -1);                                       // start logging to tty

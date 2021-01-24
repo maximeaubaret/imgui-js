@@ -9,7 +9,7 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
             step((generator = generator.apply(thisArg, _arguments || [])).next());
         });
     };
-    var Bind, bind, config, IMGUI_VERSION, IMGUI_VERSION_NUM, ImStringBuffer, ImGuiWindowFlags, ImGuiInputTextFlags, ImGuiTreeNodeFlags, ImGuiPopupFlags, ImGuiSelectableFlags, ImGuiComboFlags, ImGuiTabBarFlags, ImGuiTabItemFlags, ImGuiSortDirection, ImGuiTableFlags, ImGuiTableColumnFlags, ImGuiTableRowFlags, ImGuiTableBgTarget, ImGuiFocusedFlags, ImGuiHoveredFlags, ImGuiDockNodeFlags, ImGuiDragDropFlags, IMGUI_PAYLOAD_TYPE_COLOR_3F, IMGUI_PAYLOAD_TYPE_COLOR_4F, ImGuiDataType, ImGuiDir, ImGuiKey, ImGuiNavInput, ImGuiConfigFlags, ImGuiCol, ImGuiStyleVar, ImGuiBackendFlags, ImGuiColorEditFlags, ImGuiSliderFlags, ImGuiMouseCursor, ImGuiCond, ImDrawCornerFlags, ImDrawListFlags, ImVec2, ImVec4, ImVector, ImGuiTextFilter, ImGuiTextBuffer, ImGuiStorage, IM_COL32_R_SHIFT, IM_COL32_G_SHIFT, IM_COL32_B_SHIFT, IM_COL32_A_SHIFT, IM_COL32_A_MASK, IM_COL32_WHITE, IM_COL32_BLACK, IM_COL32_BLACK_TRANS, ImColor, ImGuiInputTextDefaultSize, ImGuiInputTextCallbackData, ImGuiSizeCallbackData, ImGuiListClipper, ImGuiViewport, ImGuiTableColumnSortSpecs, ImGuiTableSortSpecs, ImDrawCallback_ResetRenderState, ImDrawCmd, ImDrawIdxSize, ImDrawVertSize, ImDrawVertPosOffset, ImDrawVertUVOffset, ImDrawVertColOffset, ImDrawVert, ImDrawChannel, ImDrawListSharedData, ImDrawList, ImDrawData, script_ImFontConfig, ImFontConfig, script_ImFontGlyph, ImFontGlyph, ImFontAtlasFlags, ImFontAtlas, ImFont, script_ImGuiStyle, ImGuiStyle, ImGuiIO, ImGuiContext, _ImGui_DragDropPayload_data;
+    var Bind, bind, config, IMGUI_VERSION, IMGUI_VERSION_NUM, ImStringBuffer, ImGuiWindowFlags, ImGuiInputTextFlags, ImGuiTreeNodeFlags, ImGuiPopupFlags, ImGuiSelectableFlags, ImGuiComboFlags, ImGuiTabBarFlags, ImGuiTabItemFlags, ImGuiSortDirection, ImGuiTableFlags, ImGuiTableColumnFlags, ImGuiTableRowFlags, ImGuiTableBgTarget, ImGuiFocusedFlags, ImGuiHoveredFlags, ImGuiDockNodeFlags, ImGuiDragDropFlags, IMGUI_PAYLOAD_TYPE_COLOR_3F, IMGUI_PAYLOAD_TYPE_COLOR_4F, ImGuiDataType, ImGuiDir, ImGuiKey, ImGuiNavInput, ImGuiConfigFlags, ImGuiCol, ImGuiStyleVar, ImGuiBackendFlags, ImGuiColorEditFlags, ImGuiSliderFlags, ImGuiMouseCursor, ImGuiCond, ImDrawCornerFlags, ImDrawListFlags, ImVec2, ImVec4, ImVector, ImGuiTextFilter, ImGuiTextBuffer, ImGuiStorage, IM_COL32_R_SHIFT, IM_COL32_G_SHIFT, IM_COL32_B_SHIFT, IM_COL32_A_SHIFT, IM_COL32_A_MASK, IM_COL32_WHITE, IM_COL32_BLACK, IM_COL32_BLACK_TRANS, ImColor, ImGuiInputTextDefaultSize, ImGuiInputTextCallbackData, ImGuiSizeCallbackData, ImGuiListClipper, ImGuiViewportFlags, ImGuiViewport, ImGuiTableColumnSortSpecs, ImGuiTableSortSpecs, ImDrawCallback_ResetRenderState, ImDrawCmd, ImDrawIdxSize, ImDrawVertSize, ImDrawVertPosOffset, ImDrawVertUVOffset, ImDrawVertColOffset, ImDrawVert, ImDrawChannel, ImDrawListSharedData, ImDrawList, ImDrawData, script_ImFontConfig, ImFontConfig, script_ImFontGlyph, ImFontGlyph, ImFontAtlasFlags, ImFontAtlas, ImFont, script_ImGuiStyle, ImGuiStyle, ImGuiIO, ImGuiContext, _ImGui_DragDropPayload_data;
     var __moduleName = context_1 && context_1.id;
     function default_1(value) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -1876,6 +1876,14 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
     function DockSpace(id, size = new ImVec2(0, 0), flags = 0) { bind.DockSpace(id, size, flags); }
     exports_1("DockSpace", DockSpace);
     // IMGUI_API ImGuiID       DockSpaceOverViewport(ImGuiViewport* viewport = NULL, ImGuiDockNodeFlags flags = 0, const ImGuiWindowClass* window_class = NULL);
+    function DockSpaceOverMainViewport(flags = 0) {
+        return bind.DockSpaceOverMainViewport(flags);
+    }
+    exports_1("DockSpaceOverMainViewport", DockSpaceOverMainViewport);
+    function DockSpaceOverViewportID(viewport_id, flags = 0) {
+        return bind.DockSpaceOverViewportID(viewport_id, flags);
+    }
+    exports_1("DockSpaceOverViewportID", DockSpaceOverViewportID);
     // IMGUI_API void          SetNextWindowDockID(ImGuiID dock_id, ImGuiCond cond = 0);           // set next window dock id (FIXME-DOCK)
     // IMGUI_API void          SetNextWindowClass(const ImGuiWindowClass* window_class);           // set next window class (rare/advanced uses: provide hints to the platform backend via altered viewport flags and parent/child info)
     // IMGUI_API ImGuiID       GetWindowDockID();
@@ -3300,11 +3308,33 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 }
             };
             exports_1("ImGuiListClipper", ImGuiListClipper);
+            (function (ImGuiViewportFlags) {
+                ImGuiViewportFlags[ImGuiViewportFlags["None"] = 0] = "None";
+                ImGuiViewportFlags[ImGuiViewportFlags["NoDecoration"] = 1] = "NoDecoration";
+                ImGuiViewportFlags[ImGuiViewportFlags["NoTaskBarIcon"] = 2] = "NoTaskBarIcon";
+                ImGuiViewportFlags[ImGuiViewportFlags["NoFocusOnAppearing"] = 4] = "NoFocusOnAppearing";
+                ImGuiViewportFlags[ImGuiViewportFlags["NoFocusOnClick"] = 8] = "NoFocusOnClick";
+                ImGuiViewportFlags[ImGuiViewportFlags["NoInputs"] = 16] = "NoInputs";
+                ImGuiViewportFlags[ImGuiViewportFlags["NoRendererClear"] = 32] = "NoRendererClear";
+                ImGuiViewportFlags[ImGuiViewportFlags["TopMost"] = 64] = "TopMost";
+                ImGuiViewportFlags[ImGuiViewportFlags["Minimized"] = 128] = "Minimized";
+                ImGuiViewportFlags[ImGuiViewportFlags["NoAutoMerge"] = 256] = "NoAutoMerge";
+                ImGuiViewportFlags[ImGuiViewportFlags["CanHostOtherWindows"] = 512] = "CanHostOtherWindows"; // Main viewport: can host multiple imgui windows (secondary viewports are associated to a single window).
+            })(ImGuiViewportFlags || (ImGuiViewportFlags = {}));
+            exports_1("ImGuiViewportFlags", ImGuiViewportFlags);
+            exports_1("ViewportFlags", ImGuiViewportFlags);
             ImGuiViewport = class ImGuiViewport {
                 constructor(native) {
                     this.native = native;
                 }
                 get ID() { return this.native.ID; }
+                get Flags() { return this.native.Flags; }
+                get Pos() { return this.native.Pos; }
+                get Size() { return this.native.Size; }
+                get WorkOffsetMin() { return this.native.WorkOffsetMin; }
+                get WorkOffsetMax() { return this.native.WorkOffsetMax; }
+                get DpiScale() { return this.native.DpiScale; }
+                // TODO: DrawData, ParentViewportId
                 GetCenter() { return new ImVec2(this.native.Pos.x + this.native.Size.x * 0.5, this.native.Pos.y + this.native.Size.y * 0.5); }
                 GetWorkPos() { return new ImVec2(this.native.Pos.x + this.native.WorkOffsetMin.x, this.native.Pos.y + this.native.WorkOffsetMin.y); }
                 GetWorkSize() { return new ImVec2(this.native.Size.x - this.native.WorkOffsetMin.x + this.native.WorkOffsetMax.x, this.native.Size.y - this.native.WorkOffsetMin.y + this.native.WorkOffsetMax.y); } // This not clamped
