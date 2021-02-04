@@ -4049,9 +4049,12 @@ export function DockSpaceOverViewportID(viewport_id: Bind.ImGuiID, flags: ImGuiD
     return bind.DockSpaceOverViewportID(viewport_id, flags);
 }
 // IMGUI_API void          SetNextWindowDockID(ImGuiID dock_id, ImGuiCond cond = 0);           // set next window dock id (FIXME-DOCK)
+export function SetNextWindowDockID(dock_id: Bind.ImGuiID, cond: ImGuiCond = 0): void { bind.SetNextWindowDockID(dock_id, cond); }
 // IMGUI_API void          SetNextWindowClass(const ImGuiWindowClass* window_class);           // set next window class (rare/advanced uses: provide hints to the platform backend via altered viewport flags and parent/child info)
 // IMGUI_API ImGuiID       GetWindowDockID();
+export function GetWindowDockID(): Bind.ImGuiID { return bind.GetWindowDockID(); }
 // IMGUI_API bool          IsWindowDocked();                                                   // is current window docked into another window?
+export function IsWindowDocked(): boolean { return bind.IsWindowDocked(); }
 
 // Logging/Capture: all text output from interface is captured to tty/file/clipboard. By default, tree nodes are automatically opened during logging.
 // IMGUI_API void          LogToTTY(int max_depth = -1);                                       // start logging to tty

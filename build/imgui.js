@@ -1885,9 +1885,15 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
     }
     exports_1("DockSpaceOverViewportID", DockSpaceOverViewportID);
     // IMGUI_API void          SetNextWindowDockID(ImGuiID dock_id, ImGuiCond cond = 0);           // set next window dock id (FIXME-DOCK)
+    function SetNextWindowDockID(dock_id, cond = 0) { bind.SetNextWindowDockID(dock_id, cond); }
+    exports_1("SetNextWindowDockID", SetNextWindowDockID);
     // IMGUI_API void          SetNextWindowClass(const ImGuiWindowClass* window_class);           // set next window class (rare/advanced uses: provide hints to the platform backend via altered viewport flags and parent/child info)
     // IMGUI_API ImGuiID       GetWindowDockID();
+    function GetWindowDockID() { return bind.GetWindowDockID(); }
+    exports_1("GetWindowDockID", GetWindowDockID);
     // IMGUI_API bool          IsWindowDocked();                                                   // is current window docked into another window?
+    function IsWindowDocked() { return bind.IsWindowDocked(); }
+    exports_1("IsWindowDocked", IsWindowDocked);
     // Logging/Capture: all text output from interface is captured to tty/file/clipboard. By default, tree nodes are automatically opened during logging.
     // IMGUI_API void          LogToTTY(int max_depth = -1);                                       // start logging to tty
     function LogToTTY(max_depth = -1) {

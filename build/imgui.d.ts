@@ -1449,6 +1449,9 @@ export declare function SetTabItemClosed(tab_or_docked_window_label: string): vo
 export declare function DockSpace(id: number, size?: Readonly<Bind.interface_ImVec2>, flags?: ImGuiDockNodeFlags): void;
 export declare function DockSpaceOverMainViewport(flags?: ImGuiDockNodeFlags): Bind.ImGuiID;
 export declare function DockSpaceOverViewportID(viewport_id: Bind.ImGuiID, flags?: ImGuiDockNodeFlags): Bind.ImGuiID;
+export declare function SetNextWindowDockID(dock_id: Bind.ImGuiID, cond?: ImGuiCond): void;
+export declare function GetWindowDockID(): Bind.ImGuiID;
+export declare function IsWindowDocked(): boolean;
 export declare function LogToTTY(max_depth?: number): void;
 export declare function LogToFile(max_depth?: number, filename?: string | null): void;
 export declare function LogToClipboard(max_depth?: number): void;
