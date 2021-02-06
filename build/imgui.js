@@ -2214,6 +2214,10 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
     // IMGUI_API void          MemFree(void* ptr);
     function MemFree(ptr) { bind.MemFree(ptr); }
     exports_1("MemFree", MemFree);
+    function GlyphRangeAlloc(glyph_ranges) { return bind.GlyphRangeAlloc(glyph_ranges); }
+    exports_1("GlyphRangeAlloc", GlyphRangeAlloc);
+    function GlyphRangeExport(glyph_ranges) { return bind.GlyphRangeExport(glyph_ranges); }
+    exports_1("GlyphRangeExport", GlyphRangeExport);
     return {
         setters: [
             function (Bind_1) {
@@ -3653,6 +3657,7 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 get OversampleV() { return this.internal.OversampleV; }
                 // bool            PixelSnapH;                 // false    // Align every glyph to pixel boundary. Useful e.g. if you are merging a non-pixel aligned font with the default font. If enabled, you can set OversampleH/V to 1.
                 get PixelSnapH() { return this.internal.PixelSnapH; }
+                set PixelSnapH(value) { this.internal.PixelSnapH = value; }
                 // ImVec2          GlyphExtraSpacing;          // 0, 0     // Extra spacing (in pixels) between glyphs. Only X axis is supported for now.
                 get GlyphExtraSpacing() { return this.internal.GlyphExtraSpacing; }
                 // ImVec2          GlyphOffset;                // 0, 0     // Offset all glyphs from this font input.
@@ -3665,6 +3670,7 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 get GlyphMaxAdvanceX() { return this.internal.GlyphMaxAdvanceX; }
                 // bool            MergeMode;                  // false    // Merge into previous ImFont, so you can combine multiple inputs font into one ImFont (e.g. ASCII font + icons + Japanese glyphs). You may want to use GlyphOffset.y when merge font of different heights.
                 get MergeMode() { return this.internal.MergeMode; }
+                set MergeMode(value) { this.internal.MergeMode = value; }
                 // unsigned int    RasterizerFlags;            // 0x00     // Settings for custom font rasterizer (e.g. ImGuiFreeType). Leave as zero if you aren't using one.
                 get RasterizerFlags() { return this.internal.RasterizerFlags; }
                 // float           RasterizerMultiply;         // 1.0f     // Brighten (>1.0f) or darken (<1.0f) font output. Brightening small fonts may be a good workaround to make them more readable.

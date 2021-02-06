@@ -1716,6 +1716,7 @@ export class ImFontConfig {
     get OversampleV(): number { return this.internal.OversampleV; }
     // bool            PixelSnapH;                 // false    // Align every glyph to pixel boundary. Useful e.g. if you are merging a non-pixel aligned font with the default font. If enabled, you can set OversampleH/V to 1.
     get PixelSnapH(): boolean { return this.internal.PixelSnapH; }
+    set PixelSnapH(value: boolean) { this.internal.PixelSnapH = value; }
     // ImVec2          GlyphExtraSpacing;          // 0, 0     // Extra spacing (in pixels) between glyphs. Only X axis is supported for now.
     get GlyphExtraSpacing(): ImVec2 { return this.internal.GlyphExtraSpacing; }
     // ImVec2          GlyphOffset;                // 0, 0     // Offset all glyphs from this font input.
@@ -1728,6 +1729,7 @@ export class ImFontConfig {
     get GlyphMaxAdvanceX(): number { return this.internal.GlyphMaxAdvanceX; }
     // bool            MergeMode;                  // false    // Merge into previous ImFont, so you can combine multiple inputs font into one ImFont (e.g. ASCII font + icons + Japanese glyphs). You may want to use GlyphOffset.y when merge font of different heights.
     get MergeMode(): boolean { return this.internal.MergeMode; }
+    set MergeMode(value: boolean) { this.internal.MergeMode = value; }
     // unsigned int    RasterizerFlags;            // 0x00     // Settings for custom font rasterizer (e.g. ImGuiFreeType). Leave as zero if you aren't using one.
     get RasterizerFlags(): number { return this.internal.RasterizerFlags; }
     // float           RasterizerMultiply;         // 1.0f     // Brighten (>1.0f) or darken (<1.0f) font output. Brightening small fonts may be a good workaround to make them more readable.
@@ -4249,3 +4251,5 @@ export function SetAllocatorFunctions(alloc_func: (sz: number, user_data: any) =
 export function MemAlloc(sz: number): void { bind.MemAlloc(sz); }
 // IMGUI_API void          MemFree(void* ptr);
 export function MemFree(ptr: any): void { bind.MemFree(ptr); }
+export function GlyphRangeAlloc(glyph_ranges: Uint16Array): number { return bind.GlyphRangeAlloc(glyph_ranges); }
+export function GlyphRangeExport(glyph_ranges: number): Uint16Array { return bind.GlyphRangeExport(glyph_ranges); }

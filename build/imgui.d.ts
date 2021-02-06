@@ -837,12 +837,14 @@ export declare class ImFontConfig {
     get OversampleH(): number;
     get OversampleV(): number;
     get PixelSnapH(): boolean;
+    set PixelSnapH(value: boolean);
     get GlyphExtraSpacing(): ImVec2;
     get GlyphOffset(): ImVec2;
     get GlyphRanges(): number | null;
     get GlyphMinAdvanceX(): number;
     get GlyphMaxAdvanceX(): number;
     get MergeMode(): boolean;
+    set MergeMode(value: boolean);
     get RasterizerFlags(): number;
     get RasterizerMultiply(): number;
     get Name(): string;
@@ -1476,3 +1478,5 @@ export declare function SaveIniSettingsToMemory(out_ini_size?: Bind.ImScalar<num
 export declare function SetAllocatorFunctions(alloc_func: (sz: number, user_data: any) => number, free_func: (ptr: number, user_data: any) => void, user_data?: any): void;
 export declare function MemAlloc(sz: number): void;
 export declare function MemFree(ptr: any): void;
+export declare function GlyphRangeAlloc(glyph_ranges: Uint16Array): number;
+export declare function GlyphRangeExport(glyph_ranges: number): Uint16Array;

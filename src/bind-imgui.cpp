@@ -3053,4 +3053,23 @@ EMSCRIPTEN_BINDINGS(ImGui) {
         void* _ptr = ptr.as<void*>(emscripten::allow_raw_pointers());
         ImGui::MemFree(_ptr);
     }));
+    emscripten::function("GlyphRangeAlloc", FUNCTION(emscripten::val, (emscripten::val glyph_ranges), {
+        ImWchar* src_glyph_ranges = access_typed_array<ImWchar>(glyph_ranges).data();
+        size_t ln = access_typed_array<ImWchar>(glyph_ranges).size();
+        size_t sz = 2 * (ln + 1);
+        void* p = ImGui::MemAlloc(sz);
+        ImWchar* ch = (ImWchar*)p;
+        for (int i = 0; i < ln; i++) {
+            ch[i] = src_glyph_ranges[i];
+        }
+        ch[ln] = 0;
+        return emscripten::val((intptr_t) ch);
+    }), emscripten::allow_raw_pointers());
+    emscripten::function("GlyphRangeExport", FUNCTION(emscripten::val, (emscripten::val glyph_ranges), {
+        const ImWchar* p = (ImWchar*) glyph_ranges.as<intptr_t>();
+        int length = 0;
+        for (const ImWchar* pp = p; *pp != 0; pp++)
+            length++;
+        return emscripten::val(emscripten::typed_memory_view((size_t)length, p));
+    }), emscripten::allow_raw_pointers());
 }

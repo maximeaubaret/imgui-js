@@ -1587,5 +1587,6 @@ SetAllocatorFunctions(alloc_func: (sz: number, user_data: any) => number, free_f
 MemAlloc(sz: number): any;
 // IMGUI_API void          MemFree(void* ptr);
 MemFree(ptr: any): void;
-
+GlyphRangeAlloc(glyph_ranges: Uint16Array): number;
+GlyphRangeExport(glyph_ranges: number): Uint16Array;
 }
