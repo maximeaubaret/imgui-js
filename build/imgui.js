@@ -2247,6 +2247,10 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
     // IMGUI_API void          MemFree(void* ptr);
     function MemFree(ptr) { bind.MemFree(ptr); }
     exports_1("MemFree", MemFree);
+    function GlyphRangeAlloc(glyph_ranges) { return bind.GlyphRangeAlloc(glyph_ranges); }
+    exports_1("GlyphRangeAlloc", GlyphRangeAlloc);
+    function GlyphRangeExport(glyph_ranges) { return bind.GlyphRangeExport(glyph_ranges); }
+    exports_1("GlyphRangeExport", GlyphRangeExport);
     // (Optional) Platform/OS interface for multi-viewport support
     // Read comments around the ImGuiPlatformIO structure for more details.
     // Note: You may use GetWindowViewport() to get the current viewport of the current window.
@@ -3581,9 +3585,9 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 AddConvexPolyFilled(points, num_points, col) {
                     this.native.AddConvexPolyFilled(points, num_points, col);
                 }
-                // IMGUI_API void  AddBezierCurve(const ImVec2& pos0, const ImVec2& cp0, const ImVec2& cp1, const ImVec2& pos1, ImU32 col, float thickness, int num_segments = 0);
-                AddBezierCurve(pos0, cp0, cp1, pos1, col, thickness = 1.0, num_segments = 0) {
-                    this.native.AddBezierCurve(pos0, cp0, cp1, pos1, col, thickness, num_segments);
+                // IMGUI_API void  AddBezierCubic(const ImVec2& pos0, const ImVec2& cp0, const ImVec2& cp1, const ImVec2& pos1, ImU32 col, float thickness, int num_segments = 0);
+                AddBezierCubic(pos0, cp0, cp1, pos1, col, thickness = 1.0, num_segments = 0) {
+                    this.native.AddBezierCubic(pos0, cp0, cp1, pos1, col, thickness, num_segments);
                 }
                 // Stateful path API, add points then finish with PathFill() or PathStroke()
                 // inline    void  PathClear()                                                 { _Path.resize(0); }
@@ -3600,8 +3604,8 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 PathArcTo(centre, radius, a_min, a_max, num_segments = 10) { this.native.PathArcTo(centre, radius, a_min, a_max, num_segments); }
                 // IMGUI_API void  PathArcToFast(const ImVec2& centre, float radius, int a_min_of_12, int a_max_of_12);                                // Use precomputed angles for a 12 steps circle
                 PathArcToFast(centre, radius, a_min_of_12, a_max_of_12) { this.native.PathArcToFast(centre, radius, a_min_of_12, a_max_of_12); }
-                // IMGUI_API void  PathBezierCurveTo(const ImVec2& p1, const ImVec2& p2, const ImVec2& p3, int num_segments = 0);
-                PathBezierCurveTo(p1, p2, p3, num_segments = 0) { this.native.PathBezierCurveTo(p1, p2, p3, num_segments); }
+                // IMGUI_API void  PathBezierCubicCurveTo(const ImVec2& p1, const ImVec2& p2, const ImVec2& p3, int num_segments = 0);
+                PathBezierCubicCurveTo(p1, p2, p3, num_segments = 0) { this.native.PathBezierCubicCurveTo(p1, p2, p3, num_segments); }
                 // IMGUI_API void  PathRect(const ImVec2& rect_min, const ImVec2& rect_max, float rounding = 0.0f, int rounding_corners_flags = ImDrawCornerFlags_All);
                 PathRect(rect_min, rect_max, rounding = 0.0, rounding_corners_flags = ImDrawCornerFlags.All) { this.native.PathRect(rect_min, rect_max, rounding, rounding_corners_flags); }
                 // Channels
@@ -3743,6 +3747,7 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 get OversampleV() { return this.internal.OversampleV; }
                 // bool            PixelSnapH;                 // false    // Align every glyph to pixel boundary. Useful e.g. if you are merging a non-pixel aligned font with the default font. If enabled, you can set OversampleH/V to 1.
                 get PixelSnapH() { return this.internal.PixelSnapH; }
+                set PixelSnapH(value) { this.internal.PixelSnapH = value; }
                 // ImVec2          GlyphExtraSpacing;          // 0, 0     // Extra spacing (in pixels) between glyphs. Only X axis is supported for now.
                 get GlyphExtraSpacing() { return this.internal.GlyphExtraSpacing; }
                 // ImVec2          GlyphOffset;                // 0, 0     // Offset all glyphs from this font input.
@@ -3755,6 +3760,7 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 get GlyphMaxAdvanceX() { return this.internal.GlyphMaxAdvanceX; }
                 // bool            MergeMode;                  // false    // Merge into previous ImFont, so you can combine multiple inputs font into one ImFont (e.g. ASCII font + icons + Japanese glyphs). You may want to use GlyphOffset.y when merge font of different heights.
                 get MergeMode() { return this.internal.MergeMode; }
+                set MergeMode(value) { this.internal.MergeMode = value; }
                 // unsigned int    RasterizerFlags;            // 0x00     // Settings for custom font rasterizer (e.g. ImGuiFreeType). Leave as zero if you aren't using one.
                 get RasterizerFlags() { return this.internal.RasterizerFlags; }
                 // float           RasterizerMultiply;         // 1.0f     // Brighten (>1.0f) or darken (<1.0f) font output. Brightening small fonts may be a good workaround to make them more readable.

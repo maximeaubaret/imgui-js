@@ -1617,7 +1617,7 @@ EMSCRIPTEN_BINDINGS(ImGuiStyle) {
         CLASS_MEMBER(ImGuiStyle, AntiAliasedLines)
         // bool        AntiAliasedFill;            // Enable anti-aliasing on filled shapes (rounded rectangles, circles, etc.)
         CLASS_MEMBER(ImGuiStyle, AntiAliasedFill)
-        // float       CurveTessellationTol;       // Tessellation tolerance when using PathBezierCurveTo() without a specific number of segments. Decrease for highly tessellated curves (higher quality, more polygons), increase to reduce quality.
+        // float       CurveTessellationTol;       // Tessellation tolerance when using PathBezierCubicCurveTo() without a specific number of segments. Decrease for highly tessellated curves (higher quality, more polygons), increase to reduce quality.
         CLASS_MEMBER(ImGuiStyle, CurveTessellationTol)
         // ImVec4      Colors[ImGuiCol_COUNT];
         .function("_getAt_Colors", FUNCTION(emscripten::val, (ImGuiStyle* that, ImGuiCol index), {
@@ -3117,8 +3117,25 @@ EMSCRIPTEN_BINDINGS(ImGui) {
         void* _ptr = ptr.as<void*>(emscripten::allow_raw_pointers());
         ImGui::MemFree(_ptr);
     }));
-
-
+    emscripten::function("GlyphRangeAlloc", FUNCTION(emscripten::val, (emscripten::val glyph_ranges), {
+        ImWchar* src_glyph_ranges = access_typed_array<ImWchar>(glyph_ranges).data();
+        size_t ln = access_typed_array<ImWchar>(glyph_ranges).size();
+        size_t sz = 2 * (ln + 1);
+        void* p = ImGui::MemAlloc(sz);
+        ImWchar* ch = (ImWchar*)p;
+        for (int i = 0; i < ln; i++) {
+            ch[i] = src_glyph_ranges[i];
+        }
+        ch[ln] = 0;
+        return emscripten::val((intptr_t) ch);
+    }), emscripten::allow_raw_pointers());
+    emscripten::function("GlyphRangeExport", FUNCTION(emscripten::val, (emscripten::val glyph_ranges), {
+        const ImWchar* p = (ImWchar*) glyph_ranges.as<intptr_t>();
+        int length = 0;
+        for (const ImWchar* pp = p; *pp != 0; pp++)
+            length++;
+        return emscripten::val(emscripten::typed_memory_view((size_t)length, p));
+    }), emscripten::allow_raw_pointers());
     // (Optional) Platform/OS interface for multi-viewport support
     // Read comments around the ImGuiPlatformIO structure for more details.
     // Note: You may use GetWindowViewport() to get the current viewport of the current window.

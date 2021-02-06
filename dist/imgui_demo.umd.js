@@ -5637,7 +5637,7 @@ Without an explicit value, inner_width is == outer_size.x and therefore using St
                         x += spacing; // Vertical line (note: drawing a filled rectangle will be faster!)
                         draw_list.AddLine(new ImGui.ImVec2(x, y), new ImGui.ImVec2(x + sz.value, y + sz.value), col32, curr_thickness);
                         x += sz.value + spacing; // Diagonal line
-                        draw_list.AddBezierCurve(new ImGui.ImVec2(x, y), new ImGui.ImVec2(x + sz.value * 1.3, y + sz.value * 0.3), new ImGui.ImVec2(x + sz.value - sz.value * 1.3, y + sz.value - sz.value * 0.3), new ImGui.ImVec2(x + sz.value, y + sz.value), col32, curr_thickness);
+                        draw_list.AddBezierCubic(new ImGui.ImVec2(x, y), new ImGui.ImVec2(x + sz.value * 1.3, y + sz.value * 0.3), new ImGui.ImVec2(x + sz.value - sz.value * 1.3, y + sz.value - sz.value * 0.3), new ImGui.ImVec2(x + sz.value, y + sz.value), col32, curr_thickness);
                         x = p.x + 4;
                         y += sz.value + spacing;
                     }

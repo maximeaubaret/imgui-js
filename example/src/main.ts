@@ -79,6 +79,11 @@ async function _init(): Promise<void> {
     // font = await AddFontFromFileTTF("../imgui/misc/fonts/ProggyTiny.ttf", 10.0);
     // font = await AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0, null, io.Fonts.GetGlyphRangesJapanese());
     // font = await AddFontFromFileTTF("https://raw.githubusercontent.com/googlei18n/noto-cjk/master/NotoSansJP-Regular.otf", 18.0, null, io.Fonts.GetGlyphRangesJapanese());
+    // Custom glyph ranges example:
+    // This is most useful for importing in icon font files.
+    // let gr: number = ImGui.GlyphRangeAlloc(new Uint16Array([32, 100]));
+    // console.log(ImGui.GlyphRangeExport(gr));
+    // font = await AddFontFromFileTTF("../imgui/misc/fonts/Roboto-Medium.ttf", 16.0, null, gr);
     ImGui.IM_ASSERT(font !== null);
 
     if (typeof(window) !== "undefined") {
