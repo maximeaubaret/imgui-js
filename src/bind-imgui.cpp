@@ -514,6 +514,35 @@ EMSCRIPTEN_BINDINGS(ImGuiListClipper) {
     ;
 }
 
+EMSCRIPTEN_BINDINGS(ImGuiWindowClass) {
+    emscripten::class_<ImGuiWindowClass>("ImGuiWindowClass")
+        .constructor()
+        CLASS_MEMBER(ImGuiWindowClass, ClassId)
+        //CLASS_MEMBER(ImGuiWindowClass, ParentViewportId)
+        //CLASS_MEMBER(ImGuiWindowClass, ViewportFlagsOverrideSet)
+        //CLASS_MEMBER(ImGuiWindowClass, ViewportFlagsOverrideClear)
+        CLASS_MEMBER(ImGuiWindowClass, TabItemFlagsOverrideSet)
+        CLASS_MEMBER(ImGuiWindowClass, DockNodeFlagsOverrideSet)
+        CLASS_MEMBER(ImGuiWindowClass, DockNodeFlagsOverrideClear)
+        CLASS_MEMBER(ImGuiWindowClass, DockingAlwaysTabBar)
+        CLASS_MEMBER(ImGuiWindowClass, DockingAllowUnclassed)
+    ;
+}
+
+ImGuiWindowClass& import_ImGuiWindowClass(const emscripten::val& value, ImGuiWindowClass& out) {
+    out.ClassId = import_value<ImGuiID>(value["ClassId"]);
+    out.TabItemFlagsOverrideSet = import_value<ImGuiTabItemFlags>(value["TabItemFlagsOverrideSet"]);
+    out.DockNodeFlagsOverrideSet = import_value<ImGuiDockNodeFlags>(value["DockNodeFlagsOverrideSet"]);
+    out.DockNodeFlagsOverrideClear = import_value<ImGuiDockNodeFlags>(value["DockNodeFlagsOverrideClear"]);
+    out.DockingAlwaysTabBar = import_value<bool>(value["DockingAlwaysTabBar"]);
+    out.DockingAllowUnclassed = import_value<bool>(value["DockingAllowUnclassed"]);
+    return out;
+}
+
+ImGuiWindowClass import_ImGuiWindowClass(const emscripten::val& value) {
+    ImGuiWindowClass out; import_ImGuiWindowClass(value, out); return out;
+}
+
 EMSCRIPTEN_BINDINGS(ImGuiViewport) {
     emscripten::class_<ImGuiViewport>("ImGuiViewport")
         .constructor()
@@ -2828,8 +2857,13 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // - Use DockSpace() to create an explicit dock node _within_ an existing window. See Docking demo for details.
     // - DockSpace() needs to be submitted _before_ any window they can host. If you use a dockspace, submit it early in your app.
     // IMGUI_API void          DockSpace(ImGuiID id, const ImVec2& size = ImVec2(0, 0), ImGuiDockNodeFlags flags = 0, const ImGuiWindowClass* window_class = NULL);
-    emscripten::function("DockSpace", FUNCTION(void, (emscripten::val id, emscripten::val size, ImGuiDockNodeFlags flags), {
-        ImGui::DockSpace(id.as<ImGuiID>(), import_ImVec2(size), flags);
+    emscripten::function("DockSpace", FUNCTION(void, (emscripten::val id, emscripten::val size, ImGuiDockNodeFlags flags, emscripten::val window_class), {
+        if (window_class.isNull()) {
+            ImGui::DockSpace(id.as<ImGuiID>(), import_ImVec2(size), flags, NULL);
+        } else {
+            ImGuiWindowClass wc = import_ImGuiWindowClass(window_class);
+            ImGui::DockSpace(id.as<ImGuiID>(), import_ImVec2(size), flags, &wc);
+        }
     }));
     // IMGUI_API ImGuiID       DockSpaceOverViewport(ImGuiViewport* viewport = NULL, ImGuiDockNodeFlags flags = 0, const ImGuiWindowClass* window_class = NULL);
     emscripten::function("DockSpaceOverMainViewport", FUNCTION(ImGuiID, (ImGuiDockNodeFlags flags), {
@@ -2844,6 +2878,10 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // IMGUI_API void          SetNextWindowDockID(ImGuiID dock_id, ImGuiCond cond = 0);           // set next window dock id (FIXME-DOCK)
     emscripten::function("SetNextWindowDockID", &ImGui::SetNextWindowDockID);
     // IMGUI_API void          SetNextWindowClass(const ImGuiWindowClass* window_class);           // set next window class (rare/advanced uses: provide hints to the platform backend via altered viewport flags and parent/child info)
+    emscripten::function("SetNextWindowClass", FUNCTION(void, (emscripten::val window_class), {
+        ImGuiWindowClass wc = import_ImGuiWindowClass(window_class);
+        ImGui::SetNextWindowClass(&wc);
+    }));
     // IMGUI_API ImGuiID       GetWindowDockID();
     emscripten::function("GetWindowDockID", &ImGui::GetWindowDockID);
     // IMGUI_API bool          IsWindowDocked();                                                   // is current window docked into another window?

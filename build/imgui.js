@@ -9,7 +9,7 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
             step((generator = generator.apply(thisArg, _arguments || [])).next());
         });
     };
-    var Bind, bind, config, IMGUI_VERSION, IMGUI_VERSION_NUM, ImStringBuffer, ImGuiWindowFlags, ImGuiInputTextFlags, ImGuiTreeNodeFlags, ImGuiPopupFlags, ImGuiSelectableFlags, ImGuiComboFlags, ImGuiTabBarFlags, ImGuiTabItemFlags, ImGuiSortDirection, ImGuiTableFlags, ImGuiTableColumnFlags, ImGuiTableRowFlags, ImGuiTableBgTarget, ImGuiFocusedFlags, ImGuiHoveredFlags, ImGuiDockNodeFlags, ImGuiDragDropFlags, IMGUI_PAYLOAD_TYPE_COLOR_3F, IMGUI_PAYLOAD_TYPE_COLOR_4F, ImGuiDataType, ImGuiDir, ImGuiKey, ImGuiNavInput, ImGuiConfigFlags, ImGuiCol, ImGuiStyleVar, ImGuiBackendFlags, ImGuiColorEditFlags, ImGuiSliderFlags, ImGuiMouseCursor, ImGuiCond, ImDrawCornerFlags, ImDrawListFlags, ImVec2, ImVec4, ImVector, ImGuiTextFilter, ImGuiTextBuffer, ImGuiStorage, IM_COL32_R_SHIFT, IM_COL32_G_SHIFT, IM_COL32_B_SHIFT, IM_COL32_A_SHIFT, IM_COL32_A_MASK, IM_COL32_WHITE, IM_COL32_BLACK, IM_COL32_BLACK_TRANS, ImColor, ImGuiInputTextDefaultSize, ImGuiInputTextCallbackData, ImGuiSizeCallbackData, ImGuiListClipper, ImGuiViewportFlags, ImGuiViewport, ImGuiTableColumnSortSpecs, ImGuiTableSortSpecs, ImDrawCallback_ResetRenderState, ImDrawCmd, ImDrawIdxSize, ImDrawVertSize, ImDrawVertPosOffset, ImDrawVertUVOffset, ImDrawVertColOffset, ImDrawVert, ImDrawChannel, ImDrawListSharedData, ImDrawList, ImDrawData, script_ImFontConfig, ImFontConfig, script_ImFontGlyph, ImFontGlyph, ImFontAtlasFlags, ImFontAtlas, ImFont, script_ImGuiStyle, ImGuiStyle, ImGuiIO, ImGuiContext, _ImGui_DragDropPayload_data;
+    var Bind, bind, config, IMGUI_VERSION, IMGUI_VERSION_NUM, ImStringBuffer, ImGuiWindowFlags, ImGuiInputTextFlags, ImGuiTreeNodeFlags, ImGuiPopupFlags, ImGuiSelectableFlags, ImGuiComboFlags, ImGuiTabBarFlags, ImGuiTabItemFlags, ImGuiSortDirection, ImGuiTableFlags, ImGuiTableColumnFlags, ImGuiTableRowFlags, ImGuiTableBgTarget, ImGuiFocusedFlags, ImGuiHoveredFlags, ImGuiDockNodeFlags, ImGuiDragDropFlags, IMGUI_PAYLOAD_TYPE_COLOR_3F, IMGUI_PAYLOAD_TYPE_COLOR_4F, ImGuiDataType, ImGuiDir, ImGuiKey, ImGuiNavInput, ImGuiConfigFlags, ImGuiCol, ImGuiStyleVar, ImGuiBackendFlags, ImGuiColorEditFlags, ImGuiSliderFlags, ImGuiMouseCursor, ImGuiCond, ImDrawCornerFlags, ImDrawListFlags, ImVec2, ImVec4, ImVector, ImGuiTextFilter, ImGuiTextBuffer, ImGuiStorage, ImGuiWindowClass, IM_COL32_R_SHIFT, IM_COL32_G_SHIFT, IM_COL32_B_SHIFT, IM_COL32_A_SHIFT, IM_COL32_A_MASK, IM_COL32_WHITE, IM_COL32_BLACK, IM_COL32_BLACK_TRANS, ImColor, ImGuiInputTextDefaultSize, ImGuiInputTextCallbackData, ImGuiSizeCallbackData, ImGuiListClipper, ImGuiViewportFlags, ImGuiViewport, ImGuiTableColumnSortSpecs, ImGuiTableSortSpecs, ImDrawCallback_ResetRenderState, ImDrawCmd, ImDrawIdxSize, ImDrawVertSize, ImDrawVertPosOffset, ImDrawVertUVOffset, ImDrawVertColOffset, ImDrawVert, ImDrawChannel, ImDrawListSharedData, ImDrawList, ImDrawData, script_ImFontConfig, ImFontConfig, script_ImFontGlyph, ImFontGlyph, ImFontAtlasFlags, ImFontAtlas, ImFont, script_ImGuiStyle, ImGuiStyle, ImGuiIO, ImGuiContext, _ImGui_DragDropPayload_data;
     var __moduleName = context_1 && context_1.id;
     function default_1(value) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -1876,7 +1876,7 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
     // - Use DockSpace() to create an explicit dock node _within_ an existing window. See Docking demo for details.
     // - DockSpace() needs to be submitted _before_ any window they can host. If you use a dockspace, submit it early in your app.
     // IMGUI_API void          DockSpace(ImGuiID id, const ImVec2& size = ImVec2(0, 0), ImGuiDockNodeFlags flags = 0, const ImGuiWindowClass* window_class = NULL);
-    function DockSpace(id, size = new ImVec2(0, 0), flags = 0) { bind.DockSpace(id, size, flags); }
+    function DockSpace(id, size = new ImVec2(0, 0), flags = 0, window_class = null) { bind.DockSpace(id, size, flags, window_class); }
     exports_1("DockSpace", DockSpace);
     // IMGUI_API ImGuiID       DockSpaceOverViewport(ImGuiViewport* viewport = NULL, ImGuiDockNodeFlags flags = 0, const ImGuiWindowClass* window_class = NULL);
     function DockSpaceOverMainViewport(flags = 0) {
@@ -1891,6 +1891,8 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
     function SetNextWindowDockID(dock_id, cond = 0) { bind.SetNextWindowDockID(dock_id, cond); }
     exports_1("SetNextWindowDockID", SetNextWindowDockID);
     // IMGUI_API void          SetNextWindowClass(const ImGuiWindowClass* window_class);           // set next window class (rare/advanced uses: provide hints to the platform backend via altered viewport flags and parent/child info)
+    function SetNextWindowClass(window_class) { bind.SetNextWindowClass(window_class); }
+    exports_1("SetNextWindowClass", SetNextWindowClass);
     // IMGUI_API ImGuiID       GetWindowDockID();
     function GetWindowDockID() { return bind.GetWindowDockID(); }
     exports_1("GetWindowDockID", GetWindowDockID);
@@ -3143,6 +3145,17 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
             ImGuiStorage = class ImGuiStorage {
             };
             exports_1("ImGuiStorage", ImGuiStorage);
+            ImGuiWindowClass = class ImGuiWindowClass {
+                constructor(ClassId = 0, TabItemFlagsOverrideSet = 0, DockNodeFlagsOverrideSet = 0, DockNodeFlagsOverrideClear = 0, DockingAlwaysTabBar = false, DockingAllowUnclassed = false) {
+                    this.ClassId = ClassId;
+                    this.TabItemFlagsOverrideSet = TabItemFlagsOverrideSet;
+                    this.DockNodeFlagsOverrideSet = DockNodeFlagsOverrideSet;
+                    this.DockNodeFlagsOverrideClear = DockNodeFlagsOverrideClear;
+                    this.DockingAlwaysTabBar = DockingAlwaysTabBar;
+                    this.DockingAllowUnclassed = DockingAllowUnclassed;
+                }
+            };
+            exports_1("ImGuiWindowClass", ImGuiWindowClass);
             // Helpers macros to generate 32-bits encoded colors
             exports_1("IM_COL32_R_SHIFT", IM_COL32_R_SHIFT = config.IMGUI_USE_BGRA_PACKED_COLOR ? 16 : 0);
             exports_1("IM_COL32_G_SHIFT", IM_COL32_G_SHIFT = 8);

@@ -622,6 +622,17 @@ export declare class ImGuiTextBuffer {
 }
 export declare class ImGuiStorage {
 }
+export { interface_ImGuiWindowClass } from "bind-imgui";
+export { reference_ImGuiWindowClass } from "bind-imgui";
+export declare class ImGuiWindowClass implements Bind.interface_ImGuiWindowClass {
+    ClassId: number;
+    TabItemFlagsOverrideSet: ImGuiTabItemFlags;
+    DockNodeFlagsOverrideSet: ImGuiDockNodeFlags;
+    DockNodeFlagsOverrideClear: ImGuiDockNodeFlags;
+    DockingAlwaysTabBar: boolean;
+    DockingAllowUnclassed: boolean;
+    constructor(ClassId?: number, TabItemFlagsOverrideSet?: ImGuiTabItemFlags, DockNodeFlagsOverrideSet?: ImGuiDockNodeFlags, DockNodeFlagsOverrideClear?: ImGuiDockNodeFlags, DockingAlwaysTabBar?: boolean, DockingAllowUnclassed?: boolean);
+}
 export interface ImGuiPayload<T> {
     Data: T;
 }
@@ -1448,10 +1459,11 @@ export declare function EndTabBar(): void;
 export declare function BeginTabItem(label: string, p_open?: Bind.ImScalar<boolean> | Bind.ImAccess<boolean> | null, flags?: ImGuiTabItemFlags): boolean;
 export declare function EndTabItem(): void;
 export declare function SetTabItemClosed(tab_or_docked_window_label: string): void;
-export declare function DockSpace(id: number, size?: Readonly<Bind.interface_ImVec2>, flags?: ImGuiDockNodeFlags): void;
+export declare function DockSpace(id: number, size?: Readonly<Bind.interface_ImVec2>, flags?: ImGuiDockNodeFlags, window_class?: Readonly<Bind.interface_ImGuiWindowClass> | null): void;
 export declare function DockSpaceOverMainViewport(flags?: ImGuiDockNodeFlags): Bind.ImGuiID;
 export declare function DockSpaceOverViewportID(viewport_id: Bind.ImGuiID, flags?: ImGuiDockNodeFlags): Bind.ImGuiID;
 export declare function SetNextWindowDockID(dock_id: Bind.ImGuiID, cond?: ImGuiCond): void;
+export declare function SetNextWindowClass(window_class: Readonly<Bind.interface_ImGuiWindowClass>): void;
 export declare function GetWindowDockID(): Bind.ImGuiID;
 export declare function IsWindowDocked(): boolean;
 export declare function LogToTTY(max_depth?: number): void;

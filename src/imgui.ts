@@ -85,6 +85,14 @@ function export_Color4(tuple: Bind.ImTuple4<number>, col: RGBA | Bind.ImTuple4<n
     col.x = tuple[0]; col.y = tuple[1]; col.z = tuple[2]; col.w = tuple[3];
 }
 
+/*
+function import_WindowClass(window_class: Bind.interface_ImGuiWindowClass): Bind.ImGuiWindowClass {
+    //if (Array.isArray(vec)) { return [ vec[0], vec[1] ]; }
+    //return [ vec.x, vec.y ];
+}
+*/
+
+
 import * as config from "./imconfig.js";
 
 export const IMGUI_VERSION: string = "1.80"; //r bind.IMGUI_VERSION;
@@ -1073,6 +1081,19 @@ export class ImGuiStorage
 
     // For quicker full rebuild of a storage (instead of an incremental one), you may add all your contents and then sort once.
     // IMGUI_API void      BuildSortByKey();
+}
+
+
+export { interface_ImGuiWindowClass } from "bind-imgui";
+export { reference_ImGuiWindowClass } from "bind-imgui";
+
+export class ImGuiWindowClass implements Bind.interface_ImGuiWindowClass {
+    constructor(public ClassId: number = 0,
+                public TabItemFlagsOverrideSet: ImGuiTabItemFlags = 0,
+                public DockNodeFlagsOverrideSet: ImGuiDockNodeFlags = 0,
+                public DockNodeFlagsOverrideClear: ImGuiDockNodeFlags = 0,
+                public DockingAlwaysTabBar: boolean = false,
+                public DockingAllowUnclassed: boolean = false) {}
 }
 
 // Data payload for Drag and Drop operations
@@ -4042,7 +4063,7 @@ export function SetTabItemClosed(tab_or_docked_window_label: string): void { bin
 // - Use DockSpace() to create an explicit dock node _within_ an existing window. See Docking demo for details.
 // - DockSpace() needs to be submitted _before_ any window they can host. If you use a dockspace, submit it early in your app.
 // IMGUI_API void          DockSpace(ImGuiID id, const ImVec2& size = ImVec2(0, 0), ImGuiDockNodeFlags flags = 0, const ImGuiWindowClass* window_class = NULL);
-export function DockSpace(id: number, size: Readonly<Bind.interface_ImVec2> = new ImVec2(0, 0), flags: ImGuiDockNodeFlags = 0): void { bind.DockSpace(id, size, flags) };
+export function DockSpace(id: number, size: Readonly<Bind.interface_ImVec2> = new ImVec2(0, 0), flags: ImGuiDockNodeFlags = 0, window_class: Readonly<Bind.interface_ImGuiWindowClass> | null = null): void { bind.DockSpace(id, size, flags, window_class) };
 // IMGUI_API ImGuiID       DockSpaceOverViewport(ImGuiViewport* viewport = NULL, ImGuiDockNodeFlags flags = 0, const ImGuiWindowClass* window_class = NULL);
 export function DockSpaceOverMainViewport(flags: ImGuiDockNodeFlags = 0): Bind.ImGuiID {
     return bind.DockSpaceOverMainViewport(flags);
@@ -4053,6 +4074,7 @@ export function DockSpaceOverViewportID(viewport_id: Bind.ImGuiID, flags: ImGuiD
 // IMGUI_API void          SetNextWindowDockID(ImGuiID dock_id, ImGuiCond cond = 0);           // set next window dock id (FIXME-DOCK)
 export function SetNextWindowDockID(dock_id: Bind.ImGuiID, cond: ImGuiCond = 0): void { bind.SetNextWindowDockID(dock_id, cond); }
 // IMGUI_API void          SetNextWindowClass(const ImGuiWindowClass* window_class);           // set next window class (rare/advanced uses: provide hints to the platform backend via altered viewport flags and parent/child info)
+export function SetNextWindowClass(window_class: Readonly<Bind.interface_ImGuiWindowClass>): void { bind.SetNextWindowClass(window_class); }
 // IMGUI_API ImGuiID       GetWindowDockID();
 export function GetWindowDockID(): Bind.ImGuiID { return bind.GetWindowDockID(); }
 // IMGUI_API bool          IsWindowDocked();                                                   // is current window docked into another window?
