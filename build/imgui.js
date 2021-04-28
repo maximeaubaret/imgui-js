@@ -3768,6 +3768,7 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 get GlyphExtraSpacing() { return this.internal.GlyphExtraSpacing; }
                 // ImVec2          GlyphOffset;                // 0, 0     // Offset all glyphs from this font input.
                 get GlyphOffset() { return this.internal.GlyphOffset; }
+                set GlyphOffset(value) { this.internal.GlyphOffset.x = value.x; this.internal.GlyphOffset.y = value.y; }
                 // const ImWchar*  GlyphRanges;                // NULL     // Pointer to a user-provided list of Unicode range (2 value per range, values are inclusive, zero-terminated list). THE ARRAY DATA NEEDS TO PERSIST AS LONG AS THE FONT IS ALIVE.
                 get GlyphRanges() { return this.internal.GlyphRanges; }
                 // float           GlyphMinAdvanceX;           // 0        // Minimum AdvanceX for glyphs, set Min to align font icons, set both Min/Max to enforce mono-space font
@@ -4008,8 +4009,6 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
                 // float                       Scale;              // = 1.f        // Base font scale, multiplied by the per-window font scale which you can adjust with SetFontScale()
                 get Scale() { return this.native.Scale; }
                 set Scale(value) { this.native.Scale = value; }
-                // ImVec2                      DisplayOffset;      // = (0.f,1.f)  // Offset font rendering by xx pixels
-                get DisplayOffset() { return this.native.DisplayOffset; }
                 // ImVector<ImFontGlyph>       Glyphs;             //              // All glyphs.
                 get Glyphs() {
                     const glyphs = new ImVector();

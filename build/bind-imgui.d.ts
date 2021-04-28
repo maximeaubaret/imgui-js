@@ -556,8 +556,6 @@ export interface reference_ImFont extends Emscripten.EmscriptenClassReference {
     FontSize: number;
     // float                       Scale;              // = 1.f        // Base font scale, multiplied by the per-window font scale which you can adjust with SetFontScale()
     Scale: number;
-    // ImVec2                      DisplayOffset;      // = (0.f,1.f)  // Offset font rendering by xx pixels
-    readonly DisplayOffset: reference_ImVec2;
     // ImVector<ImFontGlyph>       Glyphs;             //              // All glyphs.
     IterateGlyphs(callback: (cfg: reference_ImFontGlyph) => void): void;
     // ImVector<float>             IndexAdvanceX;      //              // Sparse. Glyphs->AdvanceX in a directly indexable way (more cache-friendly, for CalcTextSize functions which are often bottleneck in large UI).

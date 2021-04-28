@@ -1145,6 +1145,16 @@ EMSCRIPTEN_BINDINGS(ImFontAtlas) {
             memcpy(_data_copy, _data.data(), _data_size);
             ImFontConfig _font_cfg = font_cfg.isNull() ? ImFontConfig() : import_ImFontConfig(font_cfg);
             ImWchar* _glyph_ranges = glyph_ranges.isNull() ? NULL : (ImWchar*) glyph_ranges.as<intptr_t>();
+            if (!font_cfg.isNull()) {
+                int i = 0;
+                while (true) {
+                  ImWchar ch = _glyph_ranges[i];
+                  if (ch == 0) {
+                      break;
+                  }
+                  ++i;
+                }
+            }
             ImFont* font = that.AddFontFromMemoryTTF(_data_copy, _data_size, size_pixels, font_cfg.isNull() ? NULL : &_font_cfg, _glyph_ranges);
             return emscripten::val(font);
         }), emscripten::allow_raw_pointers())
@@ -3155,18 +3165,22 @@ EMSCRIPTEN_BINDINGS(ImGui) {
         void* _ptr = ptr.as<void*>(emscripten::allow_raw_pointers());
         ImGui::MemFree(_ptr);
     }));
+    // No equivalent in ImGUI.
+    // Allocate memory for a glyph range. Copy over the glyph range sent from javascript.
+    // Return a pointer to the glyph range.
+    // Can free the pointer using MemFree.
     emscripten::function("GlyphRangeAlloc", FUNCTION(emscripten::val, (emscripten::val glyph_ranges), {
-        ImWchar* src_glyph_ranges = access_typed_array<ImWchar>(glyph_ranges).data();
-        size_t ln = access_typed_array<ImWchar>(glyph_ranges).size();
-        size_t sz = 2 * (ln + 1);
+        const size_t ln = glyph_ranges["length"].as<size_t>();
+        size_t sz = sizeof(ImWchar) * (ln + 1);
         void* p = ImGui::MemAlloc(sz);
         ImWchar* ch = (ImWchar*)p;
-        for (int i = 0; i < ln; i++) {
-            ch[i] = src_glyph_ranges[i];
-        }
+        for (int i = 0; i < ln; i++)
+            ch[i] = glyph_ranges[i].as<ImWchar>();
         ch[ln] = 0;
         return emscripten::val((intptr_t) ch);
     }), emscripten::allow_raw_pointers());
+    // No equivalent in ImGUI.
+    // Given a pointer to a glyph range return the actual glyph range.
     emscripten::function("GlyphRangeExport", FUNCTION(emscripten::val, (emscripten::val glyph_ranges), {
         const ImWchar* p = (ImWchar*) glyph_ranges.as<intptr_t>();
         int length = 0;

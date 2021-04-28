@@ -891,6 +891,7 @@ export declare class ImFontConfig {
     set PixelSnapH(value: boolean);
     get GlyphExtraSpacing(): ImVec2;
     get GlyphOffset(): ImVec2;
+    set GlyphOffset(value: ImVec2);
     get GlyphRanges(): number | null;
     get GlyphMinAdvanceX(): number;
     get GlyphMaxAdvanceX(): number;
@@ -987,7 +988,6 @@ export declare class ImFont {
     get FontSize(): number;
     get Scale(): number;
     set Scale(value: number);
-    get DisplayOffset(): Bind.interface_ImVec2;
     get Glyphs(): ImVector<ImFontGlyph>;
     get FallbackGlyph(): ImFontGlyph | null;
     set FallbackGlyph(value: ImFontGlyph | null);
