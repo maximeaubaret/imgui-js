@@ -4,6 +4,28 @@
     (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.ImGui_Impl = {}, global.ImGui));
 }(this, (function (exports, ImGui) { 'use strict';
 
+    function _interopNamespace(e) {
+        if (e && e.__esModule) return e;
+        var n = Object.create(null);
+        if (e) {
+            Object.keys(e).forEach(function (k) {
+                if (k !== 'default') {
+                    var d = Object.getOwnPropertyDescriptor(e, k);
+                    Object.defineProperty(n, k, d.get ? d : {
+                        enumerable: true,
+                        get: function () {
+                            return e[k];
+                        }
+                    });
+                }
+            });
+        }
+        n['default'] = e;
+        return Object.freeze(n);
+    }
+
+    var ImGui__namespace = /*#__PURE__*/_interopNamespace(ImGui);
+
     let clipboard_text = "";
     let canvas = null;
     exports.gl = null;
@@ -55,7 +77,7 @@
         console.log("Gamepad disconnected at index %d: %s.", event.gamepad.index, event.gamepad.id);
     }
     function canvas_on_blur(event) {
-        const io = ImGui.GetIO();
+        const io = ImGui__namespace.GetIO();
         io.KeyCtrl = false;
         io.KeyShift = false;
         io.KeyAlt = false;
@@ -67,43 +89,48 @@
             io.MouseDown[i] = false;
         }
     }
+    const key_code_to_index = {
+        "NumpadEnter": 176,
+    };
     function canvas_on_keydown(event) {
-        // console.log(event.type, event.key, event.keyCode);
-        const io = ImGui.GetIO();
+        // console.log(event.type, event.key, event.code, event.keyCode);
+        const io = ImGui__namespace.GetIO();
         io.KeyCtrl = event.ctrlKey;
         io.KeyShift = event.shiftKey;
         io.KeyAlt = event.altKey;
         io.KeySuper = event.metaKey;
-        ImGui.IM_ASSERT(event.keyCode >= 0 && event.keyCode < ImGui.IM_ARRAYSIZE(io.KeysDown));
-        io.KeysDown[event.keyCode] = true;
+        const key_index = key_code_to_index[event.code] || event.keyCode;
+        ImGui__namespace.ASSERT(key_index >= 0 && key_index < ImGui__namespace.ARRAYSIZE(io.KeysDown));
+        io.KeysDown[key_index] = true;
         // forward to the keypress event
         if ( /*io.WantCaptureKeyboard ||*/event.key === "Tab") {
             event.preventDefault();
         }
     }
     function canvas_on_keyup(event) {
-        // console.log(event.type, event.key, event.keyCode);
-        const io = ImGui.GetIO();
+        // console.log(event.type, event.key, event.code, event.keyCode);
+        const io = ImGui__namespace.GetIO();
         io.KeyCtrl = event.ctrlKey;
         io.KeyShift = event.shiftKey;
         io.KeyAlt = event.altKey;
         io.KeySuper = event.metaKey;
-        ImGui.IM_ASSERT(event.keyCode >= 0 && event.keyCode < ImGui.IM_ARRAYSIZE(io.KeysDown));
-        io.KeysDown[event.keyCode] = false;
+        const key_index = key_code_to_index[event.code] || event.keyCode;
+        ImGui__namespace.ASSERT(key_index >= 0 && key_index < ImGui__namespace.ARRAYSIZE(io.KeysDown));
+        io.KeysDown[key_index] = false;
         if (io.WantCaptureKeyboard) {
             event.preventDefault();
         }
     }
     function canvas_on_keypress(event) {
-        // console.log(event.type, event.key, event.keyCode);
-        const io = ImGui.GetIO();
+        // console.log(event.type, event.key, event.code, event.keyCode);
+        const io = ImGui__namespace.GetIO();
         io.AddInputCharacter(event.charCode);
         if (io.WantCaptureKeyboard) {
             event.preventDefault();
         }
     }
     function canvas_on_pointermove(event) {
-        const io = ImGui.GetIO();
+        const io = ImGui__namespace.GetIO();
         io.MousePos.x = event.offsetX;
         io.MousePos.y = event.offsetY;
         if (io.WantCaptureMouse) {
@@ -119,7 +146,7 @@
     // 4: Fifth button, typically the Browser Forward button
     const mouse_button_map = [0, 2, 1, 3, 4];
     function canvas_on_pointerdown(event) {
-        const io = ImGui.GetIO();
+        const io = ImGui__namespace.GetIO();
         io.MousePos.x = event.offsetX;
         io.MousePos.y = event.offsetY;
         io.MouseDown[mouse_button_map[event.button]] = true;
@@ -128,20 +155,20 @@
         // }
     }
     function canvas_on_contextmenu(event) {
-        const io = ImGui.GetIO();
+        const io = ImGui__namespace.GetIO();
         if (io.WantCaptureMouse) {
             event.preventDefault();
         }
     }
     function canvas_on_pointerup(event) {
-        const io = ImGui.GetIO();
+        const io = ImGui__namespace.GetIO();
         io.MouseDown[mouse_button_map[event.button]] = false;
         if (io.WantCaptureMouse) {
             event.preventDefault();
         }
     }
     function canvas_on_wheel(event) {
-        const io = ImGui.GetIO();
+        const io = ImGui__namespace.GetIO();
         let scale = 1.0;
         switch (event.deltaMode) {
             case event.DOM_DELTA_PIXEL:
@@ -161,10 +188,13 @@
         }
     }
     function Init(value) {
-        const io = ImGui.GetIO();
+        const io = ImGui__namespace.GetIO();
         if (typeof (window) !== "undefined") {
-            io.BackendPlatformName = "imgui_impl_html5";
-            ImGui.LoadIniSettingsFromMemory(window.localStorage.getItem("imgui.ini") || "");
+            io.BackendPlatformName = "imgui_impl_browser";
+            ImGui__namespace.LoadIniSettingsFromMemory(window.localStorage.getItem("imgui.ini") || "");
+        }
+        else {
+            io.BackendPlatformName = "imgui_impl_console";
         }
         if (typeof (navigator) !== "undefined") {
             io.ConfigMacOSXBehaviors = navigator.platform.match(/Mac/) !== null;
@@ -203,16 +233,22 @@
         }
         if (typeof (window) !== "undefined") {
             if (value instanceof (HTMLCanvasElement)) {
-                value = value.getContext("webgl", { alpha: false }) || value.getContext("2d");
+                canvas = value;
+                value = canvas.getContext("webgl2", { alpha: false }) || canvas.getContext("webgl", { alpha: false }) || canvas.getContext("2d");
             }
-            if (value instanceof (WebGLRenderingContext)) {
-                io.BackendRendererName = "imgui_impl_webgl";
-                canvas = value.canvas;
+            if (typeof WebGL2RenderingContext !== "undefined" && value instanceof (WebGL2RenderingContext)) {
+                io.BackendRendererName = "imgui_impl_webgl2";
+                canvas = canvas || value.canvas;
                 exports.gl = value;
             }
-            if (value instanceof (CanvasRenderingContext2D)) {
-                io.BackendRendererName = "imgui_impl_ctx2d";
-                canvas = value.canvas;
+            else if (typeof WebGLRenderingContext !== "undefined" && value instanceof (WebGLRenderingContext)) {
+                io.BackendRendererName = "imgui_impl_webgl";
+                canvas = canvas || value.canvas;
+                exports.gl = value;
+            }
+            else if (typeof CanvasRenderingContext2D !== "undefined" && value instanceof (CanvasRenderingContext2D)) {
+                io.BackendRendererName = "imgui_impl_2d";
+                canvas = canvas || value.canvas;
                 exports.ctx = value;
             }
         }
@@ -230,29 +266,30 @@
             canvas.addEventListener("wheel", canvas_on_wheel);
         }
         // Setup back-end capabilities flags
-        io.BackendFlags |= ImGui.BackendFlags.HasMouseCursors; // We can honor GetMouseCursor() values (optional)
+        io.BackendFlags |= ImGui__namespace.BackendFlags.HasMouseCursors; // We can honor GetMouseCursor() values (optional)
         // Keyboard mapping. ImGui will use those indices to peek into the io.KeyDown[] array.
-        io.KeyMap[ImGui.Key.Tab] = 9;
-        io.KeyMap[ImGui.Key.LeftArrow] = 37;
-        io.KeyMap[ImGui.Key.RightArrow] = 39;
-        io.KeyMap[ImGui.Key.UpArrow] = 38;
-        io.KeyMap[ImGui.Key.DownArrow] = 40;
-        io.KeyMap[ImGui.Key.PageUp] = 33;
-        io.KeyMap[ImGui.Key.PageDown] = 34;
-        io.KeyMap[ImGui.Key.Home] = 36;
-        io.KeyMap[ImGui.Key.End] = 35;
-        io.KeyMap[ImGui.Key.Insert] = 45;
-        io.KeyMap[ImGui.Key.Delete] = 46;
-        io.KeyMap[ImGui.Key.Backspace] = 8;
-        io.KeyMap[ImGui.Key.Space] = 32;
-        io.KeyMap[ImGui.Key.Enter] = 13;
-        io.KeyMap[ImGui.Key.Escape] = 27;
-        io.KeyMap[ImGui.Key.A] = 65;
-        io.KeyMap[ImGui.Key.C] = 67;
-        io.KeyMap[ImGui.Key.V] = 86;
-        io.KeyMap[ImGui.Key.X] = 88;
-        io.KeyMap[ImGui.Key.Y] = 89;
-        io.KeyMap[ImGui.Key.Z] = 90;
+        io.KeyMap[ImGui__namespace.Key.Tab] = 9;
+        io.KeyMap[ImGui__namespace.Key.LeftArrow] = 37;
+        io.KeyMap[ImGui__namespace.Key.RightArrow] = 39;
+        io.KeyMap[ImGui__namespace.Key.UpArrow] = 38;
+        io.KeyMap[ImGui__namespace.Key.DownArrow] = 40;
+        io.KeyMap[ImGui__namespace.Key.PageUp] = 33;
+        io.KeyMap[ImGui__namespace.Key.PageDown] = 34;
+        io.KeyMap[ImGui__namespace.Key.Home] = 36;
+        io.KeyMap[ImGui__namespace.Key.End] = 35;
+        io.KeyMap[ImGui__namespace.Key.Insert] = 45;
+        io.KeyMap[ImGui__namespace.Key.Delete] = 46;
+        io.KeyMap[ImGui__namespace.Key.Backspace] = 8;
+        io.KeyMap[ImGui__namespace.Key.Space] = 32;
+        io.KeyMap[ImGui__namespace.Key.Enter] = 13;
+        io.KeyMap[ImGui__namespace.Key.Escape] = 27;
+        io.KeyMap[ImGui__namespace.Key.KeyPadEnter] = key_code_to_index["NumpadEnter"];
+        io.KeyMap[ImGui__namespace.Key.A] = 65;
+        io.KeyMap[ImGui__namespace.Key.C] = 67;
+        io.KeyMap[ImGui__namespace.Key.V] = 86;
+        io.KeyMap[ImGui__namespace.Key.X] = 88;
+        io.KeyMap[ImGui__namespace.Key.Y] = 89;
+        io.KeyMap[ImGui__namespace.Key.Z] = 90;
         CreateDeviceObjects();
     }
     function Shutdown() {
@@ -283,11 +320,11 @@
         }
     }
     function NewFrame(time) {
-        const io = ImGui.GetIO();
+        const io = ImGui__namespace.GetIO();
         if (io.WantSaveIniSettings) {
             io.WantSaveIniSettings = false;
             if (typeof (window) !== "undefined") {
-                window.localStorage.setItem("imgui.ini", ImGui.SaveIniSettingsToMemory());
+                window.localStorage.setItem("imgui.ini", ImGui__namespace.SaveIniSettingsToMemory());
             }
         }
         const w = canvas && canvas.scrollWidth || 640;
@@ -309,34 +346,37 @@
                 document.body.style.cursor = "none";
             }
             else {
-                switch (ImGui.GetMouseCursor()) {
-                    case ImGui.MouseCursor.None:
+                switch (ImGui__namespace.GetMouseCursor()) {
+                    case ImGui__namespace.MouseCursor.None:
                         document.body.style.cursor = "none";
                         break;
                     default:
-                    case ImGui.MouseCursor.Arrow:
+                    case ImGui__namespace.MouseCursor.Arrow:
                         document.body.style.cursor = "default";
                         break;
-                    case ImGui.MouseCursor.TextInput:
+                    case ImGui__namespace.MouseCursor.TextInput:
                         document.body.style.cursor = "text";
                         break; // When hovering over InputText, etc.
-                    case ImGui.MouseCursor.ResizeAll:
-                        document.body.style.cursor = "move";
+                    case ImGui__namespace.MouseCursor.ResizeAll:
+                        document.body.style.cursor = "all-scroll";
                         break; // Unused
-                    case ImGui.MouseCursor.ResizeNS:
+                    case ImGui__namespace.MouseCursor.ResizeNS:
                         document.body.style.cursor = "ns-resize";
                         break; // When hovering over an horizontal border
-                    case ImGui.MouseCursor.ResizeEW:
+                    case ImGui__namespace.MouseCursor.ResizeEW:
                         document.body.style.cursor = "ew-resize";
                         break; // When hovering over a vertical border or a column
-                    case ImGui.MouseCursor.ResizeNESW:
+                    case ImGui__namespace.MouseCursor.ResizeNESW:
                         document.body.style.cursor = "nesw-resize";
                         break; // When hovering over the bottom-left corner of a window
-                    case ImGui.MouseCursor.ResizeNWSE:
+                    case ImGui__namespace.MouseCursor.ResizeNWSE:
                         document.body.style.cursor = "nwse-resize";
                         break; // When hovering over the bottom-right corner of a window
-                    case ImGui.MouseCursor.Hand:
+                    case ImGui__namespace.MouseCursor.Hand:
                         document.body.style.cursor = "move";
+                        break;
+                    case ImGui__namespace.MouseCursor.NotAllowed:
+                        document.body.style.cursor = "not-allowed";
                         break;
                 }
             }
@@ -349,7 +389,7 @@
             //       so I am not sure if the following is even necessary.
             //io.NavInputs[i] = 0.0;
         }
-        if (io.ConfigFlags & ImGui.ConfigFlags.NavEnableGamepad) {
+        if (io.ConfigFlags & ImGui__namespace.ConfigFlags.NavEnableGamepad) {
             // Update gamepad inputs
             const gamepads = (typeof (navigator) !== "undefined" && typeof (navigator.getGamepads) === "function") ? navigator.getGamepads() : [];
             for (let i = 0; i < gamepads.length; ++i) {
@@ -357,6 +397,7 @@
                 if (!gamepad) {
                     continue;
                 }
+                io.BackendFlags |= ImGui__namespace.BackendFlags.HasGamepad;
                 const buttons_count = gamepad.buttons.length;
                 const axes_count = gamepad.axes.length;
                 function MAP_BUTTON(NAV_NO, BUTTON_NO) {
@@ -385,84 +426,84 @@
                 const product = (match && match[2]) || (match_chrome && match_chrome[2]) || "0000";
                 switch (vendor + product) {
                     case "046dc216": // Logitech Logitech Dual Action (Vendor: 046d Product: c216)
-                        MAP_BUTTON(ImGui.NavInput.Activate, 1); // Cross / A
-                        MAP_BUTTON(ImGui.NavInput.Cancel, 2); // Circle / B
-                        MAP_BUTTON(ImGui.NavInput.Menu, 0); // Square / X
-                        MAP_BUTTON(ImGui.NavInput.Input, 3); // Triangle / Y
-                        MAP_ANALOG(ImGui.NavInput.DpadLeft, 4, -0.3, -0.9); // D-Pad Left
-                        MAP_ANALOG(ImGui.NavInput.DpadRight, 4, +0.3, +0.9); // D-Pad Right
-                        MAP_ANALOG(ImGui.NavInput.DpadUp, 5, -0.3, -0.9); // D-Pad Up
-                        MAP_ANALOG(ImGui.NavInput.DpadDown, 5, +0.3, +0.9); // D-Pad Down
-                        MAP_BUTTON(ImGui.NavInput.FocusPrev, 4); // L1 / LB
-                        MAP_BUTTON(ImGui.NavInput.FocusNext, 5); // R1 / RB
-                        MAP_BUTTON(ImGui.NavInput.TweakSlow, 6); // L2 / LT
-                        MAP_BUTTON(ImGui.NavInput.TweakFast, 7); // R2 / RT
-                        MAP_ANALOG(ImGui.NavInput.LStickLeft, 0, -0.3, -0.9);
-                        MAP_ANALOG(ImGui.NavInput.LStickRight, 0, +0.3, +0.9);
-                        MAP_ANALOG(ImGui.NavInput.LStickUp, 1, -0.3, -0.9);
-                        MAP_ANALOG(ImGui.NavInput.LStickDown, 1, +0.3, +0.9);
+                        MAP_BUTTON(ImGui__namespace.NavInput.Activate, 1); // Cross / A
+                        MAP_BUTTON(ImGui__namespace.NavInput.Cancel, 2); // Circle / B
+                        MAP_BUTTON(ImGui__namespace.NavInput.Menu, 0); // Square / X
+                        MAP_BUTTON(ImGui__namespace.NavInput.Input, 3); // Triangle / Y
+                        MAP_ANALOG(ImGui__namespace.NavInput.DpadLeft, 4, -0.3, -0.9); // D-Pad Left
+                        MAP_ANALOG(ImGui__namespace.NavInput.DpadRight, 4, +0.3, +0.9); // D-Pad Right
+                        MAP_ANALOG(ImGui__namespace.NavInput.DpadUp, 5, -0.3, -0.9); // D-Pad Up
+                        MAP_ANALOG(ImGui__namespace.NavInput.DpadDown, 5, +0.3, +0.9); // D-Pad Down
+                        MAP_BUTTON(ImGui__namespace.NavInput.FocusPrev, 4); // L1 / LB
+                        MAP_BUTTON(ImGui__namespace.NavInput.FocusNext, 5); // R1 / RB
+                        MAP_BUTTON(ImGui__namespace.NavInput.TweakSlow, 6); // L2 / LT
+                        MAP_BUTTON(ImGui__namespace.NavInput.TweakFast, 7); // R2 / RT
+                        MAP_ANALOG(ImGui__namespace.NavInput.LStickLeft, 0, -0.3, -0.9);
+                        MAP_ANALOG(ImGui__namespace.NavInput.LStickRight, 0, +0.3, +0.9);
+                        MAP_ANALOG(ImGui__namespace.NavInput.LStickUp, 1, -0.3, -0.9);
+                        MAP_ANALOG(ImGui__namespace.NavInput.LStickDown, 1, +0.3, +0.9);
                         break;
                     case "046dc21d": // Logitech Gamepad F310 (STANDARD GAMEPAD Vendor: 046d Product: c21d)
-                        MAP_BUTTON(ImGui.NavInput.Activate, 0); // Cross / A
-                        MAP_BUTTON(ImGui.NavInput.Cancel, 1); // Circle / B
-                        MAP_BUTTON(ImGui.NavInput.Menu, 2); // Square / X
-                        MAP_BUTTON(ImGui.NavInput.Input, 3); // Triangle / Y
-                        MAP_BUTTON(ImGui.NavInput.DpadLeft, 14); // D-Pad Left
-                        MAP_BUTTON(ImGui.NavInput.DpadRight, 15); // D-Pad Right
-                        MAP_BUTTON(ImGui.NavInput.DpadUp, 12); // D-Pad Up
-                        MAP_BUTTON(ImGui.NavInput.DpadDown, 13); // D-Pad Down
-                        MAP_BUTTON(ImGui.NavInput.FocusPrev, 4); // L1 / LB
-                        MAP_BUTTON(ImGui.NavInput.FocusNext, 5); // R1 / RB
-                        MAP_ANALOG(ImGui.NavInput.TweakSlow, 6, +0.3, +0.9); // L2 / LT
-                        MAP_ANALOG(ImGui.NavInput.TweakFast, 7, +0.3, +0.9); // R2 / RT
-                        MAP_ANALOG(ImGui.NavInput.LStickLeft, 0, -0.3, -0.9);
-                        MAP_ANALOG(ImGui.NavInput.LStickRight, 0, +0.3, +0.9);
-                        MAP_ANALOG(ImGui.NavInput.LStickUp, 1, -0.3, -0.9);
-                        MAP_ANALOG(ImGui.NavInput.LStickDown, 1, +0.3, +0.9);
+                        MAP_BUTTON(ImGui__namespace.NavInput.Activate, 0); // Cross / A
+                        MAP_BUTTON(ImGui__namespace.NavInput.Cancel, 1); // Circle / B
+                        MAP_BUTTON(ImGui__namespace.NavInput.Menu, 2); // Square / X
+                        MAP_BUTTON(ImGui__namespace.NavInput.Input, 3); // Triangle / Y
+                        MAP_BUTTON(ImGui__namespace.NavInput.DpadLeft, 14); // D-Pad Left
+                        MAP_BUTTON(ImGui__namespace.NavInput.DpadRight, 15); // D-Pad Right
+                        MAP_BUTTON(ImGui__namespace.NavInput.DpadUp, 12); // D-Pad Up
+                        MAP_BUTTON(ImGui__namespace.NavInput.DpadDown, 13); // D-Pad Down
+                        MAP_BUTTON(ImGui__namespace.NavInput.FocusPrev, 4); // L1 / LB
+                        MAP_BUTTON(ImGui__namespace.NavInput.FocusNext, 5); // R1 / RB
+                        MAP_ANALOG(ImGui__namespace.NavInput.TweakSlow, 6, +0.3, +0.9); // L2 / LT
+                        MAP_ANALOG(ImGui__namespace.NavInput.TweakFast, 7, +0.3, +0.9); // R2 / RT
+                        MAP_ANALOG(ImGui__namespace.NavInput.LStickLeft, 0, -0.3, -0.9);
+                        MAP_ANALOG(ImGui__namespace.NavInput.LStickRight, 0, +0.3, +0.9);
+                        MAP_ANALOG(ImGui__namespace.NavInput.LStickUp, 1, -0.3, -0.9);
+                        MAP_ANALOG(ImGui__namespace.NavInput.LStickDown, 1, +0.3, +0.9);
                         break;
                     case "2dc86001": // 8Bitdo SN30 Pro  8Bitdo SN30 Pro (Vendor: 2dc8 Product: 6001)
                     case "2dc86101": // 8Bitdo SN30 Pro (Vendor: 2dc8 Product: 6101)
-                        MAP_BUTTON(ImGui.NavInput.Activate, 1); // Cross / A
-                        MAP_BUTTON(ImGui.NavInput.Cancel, 0); // Circle / B
-                        MAP_BUTTON(ImGui.NavInput.Menu, 4); // Square / X
-                        MAP_BUTTON(ImGui.NavInput.Input, 3); // Triangle / Y
-                        MAP_ANALOG(ImGui.NavInput.DpadLeft, 6, -0.3, -0.9); // D-Pad Left
-                        MAP_ANALOG(ImGui.NavInput.DpadRight, 6, +0.3, +0.9); // D-Pad Right
-                        MAP_ANALOG(ImGui.NavInput.DpadUp, 7, -0.3, -0.9); // D-Pad Up
-                        MAP_ANALOG(ImGui.NavInput.DpadDown, 7, +0.3, +0.9); // D-Pad Down
-                        MAP_BUTTON(ImGui.NavInput.FocusPrev, 6); // L1 / LB
-                        MAP_BUTTON(ImGui.NavInput.FocusNext, 7); // R1 / RB
-                        MAP_BUTTON(ImGui.NavInput.TweakSlow, 8); // L2 / LT
-                        MAP_BUTTON(ImGui.NavInput.TweakFast, 9); // R2 / RT
-                        MAP_ANALOG(ImGui.NavInput.LStickLeft, 0, -0.3, -0.9);
-                        MAP_ANALOG(ImGui.NavInput.LStickRight, 0, +0.3, +0.9);
-                        MAP_ANALOG(ImGui.NavInput.LStickUp, 1, -0.3, -0.9);
-                        MAP_ANALOG(ImGui.NavInput.LStickDown, 1, +0.3, +0.9);
+                        MAP_BUTTON(ImGui__namespace.NavInput.Activate, 1); // Cross / A
+                        MAP_BUTTON(ImGui__namespace.NavInput.Cancel, 0); // Circle / B
+                        MAP_BUTTON(ImGui__namespace.NavInput.Menu, 4); // Square / X
+                        MAP_BUTTON(ImGui__namespace.NavInput.Input, 3); // Triangle / Y
+                        MAP_ANALOG(ImGui__namespace.NavInput.DpadLeft, 6, -0.3, -0.9); // D-Pad Left
+                        MAP_ANALOG(ImGui__namespace.NavInput.DpadRight, 6, +0.3, +0.9); // D-Pad Right
+                        MAP_ANALOG(ImGui__namespace.NavInput.DpadUp, 7, -0.3, -0.9); // D-Pad Up
+                        MAP_ANALOG(ImGui__namespace.NavInput.DpadDown, 7, +0.3, +0.9); // D-Pad Down
+                        MAP_BUTTON(ImGui__namespace.NavInput.FocusPrev, 6); // L1 / LB
+                        MAP_BUTTON(ImGui__namespace.NavInput.FocusNext, 7); // R1 / RB
+                        MAP_BUTTON(ImGui__namespace.NavInput.TweakSlow, 8); // L2 / LT
+                        MAP_BUTTON(ImGui__namespace.NavInput.TweakFast, 9); // R2 / RT
+                        MAP_ANALOG(ImGui__namespace.NavInput.LStickLeft, 0, -0.3, -0.9);
+                        MAP_ANALOG(ImGui__namespace.NavInput.LStickRight, 0, +0.3, +0.9);
+                        MAP_ANALOG(ImGui__namespace.NavInput.LStickUp, 1, -0.3, -0.9);
+                        MAP_ANALOG(ImGui__namespace.NavInput.LStickDown, 1, +0.3, +0.9);
                         break;
                     default: // standard gamepad: https://w3c.github.io/gamepad/#remapping
-                        MAP_BUTTON(ImGui.NavInput.Activate, 0); // Cross / A
-                        MAP_BUTTON(ImGui.NavInput.Cancel, 1); // Circle / B
-                        MAP_BUTTON(ImGui.NavInput.Menu, 2); // Square / X
-                        MAP_BUTTON(ImGui.NavInput.Input, 3); // Triangle / Y
-                        MAP_BUTTON(ImGui.NavInput.DpadLeft, 14); // D-Pad Left
-                        MAP_BUTTON(ImGui.NavInput.DpadRight, 15); // D-Pad Right
-                        MAP_BUTTON(ImGui.NavInput.DpadUp, 12); // D-Pad Up
-                        MAP_BUTTON(ImGui.NavInput.DpadDown, 13); // D-Pad Down
-                        MAP_BUTTON(ImGui.NavInput.FocusPrev, 4); // L1 / LB
-                        MAP_BUTTON(ImGui.NavInput.FocusNext, 5); // R1 / RB
-                        MAP_BUTTON(ImGui.NavInput.TweakSlow, 6); // L2 / LT
-                        MAP_BUTTON(ImGui.NavInput.TweakFast, 7); // R2 / RT
-                        MAP_ANALOG(ImGui.NavInput.LStickLeft, 0, -0.3, -0.9);
-                        MAP_ANALOG(ImGui.NavInput.LStickRight, 0, +0.3, +0.9);
-                        MAP_ANALOG(ImGui.NavInput.LStickUp, 1, -0.3, -0.9);
-                        MAP_ANALOG(ImGui.NavInput.LStickDown, 1, +0.3, +0.9);
+                        MAP_BUTTON(ImGui__namespace.NavInput.Activate, 0); // Cross / A
+                        MAP_BUTTON(ImGui__namespace.NavInput.Cancel, 1); // Circle / B
+                        MAP_BUTTON(ImGui__namespace.NavInput.Menu, 2); // Square / X
+                        MAP_BUTTON(ImGui__namespace.NavInput.Input, 3); // Triangle / Y
+                        MAP_BUTTON(ImGui__namespace.NavInput.DpadLeft, 14); // D-Pad Left
+                        MAP_BUTTON(ImGui__namespace.NavInput.DpadRight, 15); // D-Pad Right
+                        MAP_BUTTON(ImGui__namespace.NavInput.DpadUp, 12); // D-Pad Up
+                        MAP_BUTTON(ImGui__namespace.NavInput.DpadDown, 13); // D-Pad Down
+                        MAP_BUTTON(ImGui__namespace.NavInput.FocusPrev, 4); // L1 / LB
+                        MAP_BUTTON(ImGui__namespace.NavInput.FocusNext, 5); // R1 / RB
+                        MAP_BUTTON(ImGui__namespace.NavInput.TweakSlow, 6); // L2 / LT
+                        MAP_BUTTON(ImGui__namespace.NavInput.TweakFast, 7); // R2 / RT
+                        MAP_ANALOG(ImGui__namespace.NavInput.LStickLeft, 0, -0.3, -0.9);
+                        MAP_ANALOG(ImGui__namespace.NavInput.LStickRight, 0, +0.3, +0.9);
+                        MAP_ANALOG(ImGui__namespace.NavInput.LStickUp, 1, -0.3, -0.9);
+                        MAP_ANALOG(ImGui__namespace.NavInput.LStickDown, 1, +0.3, +0.9);
                         break;
                 }
             }
         }
     }
-    function RenderDrawData(draw_data = ImGui.GetDrawData()) {
-        const io = ImGui.GetIO();
+    function RenderDrawData(draw_data = ImGui__namespace.GetDrawData()) {
+        const io = ImGui__namespace.GetIO();
         if (draw_data === null) {
             throw new Error();
         }
@@ -474,12 +515,15 @@
             return;
         }
         draw_data.ScaleClipRects(io.DisplayFramebufferScale);
+        const gl2 = typeof WebGL2RenderingContext !== "undefined" && exports.gl instanceof WebGL2RenderingContext && exports.gl || null;
+        const gl_vao = exports.gl && exports.gl.getExtension("OES_vertex_array_object") || null;
         // Backup GL state
         const last_active_texture = exports.gl && exports.gl.getParameter(exports.gl.ACTIVE_TEXTURE) || null;
         const last_program = exports.gl && exports.gl.getParameter(exports.gl.CURRENT_PROGRAM) || null;
         const last_texture = exports.gl && exports.gl.getParameter(exports.gl.TEXTURE_BINDING_2D) || null;
         const last_array_buffer = exports.gl && exports.gl.getParameter(exports.gl.ARRAY_BUFFER_BINDING) || null;
         const last_element_array_buffer = exports.gl && exports.gl.getParameter(exports.gl.ELEMENT_ARRAY_BUFFER_BINDING) || null;
+        const last_vertex_array_object = gl2 && gl2.getParameter(gl2.VERTEX_ARRAY_BINDING) || exports.gl && gl_vao && exports.gl.getParameter(gl_vao.VERTEX_ARRAY_BINDING_OES) || null;
         // GLint last_polygon_mode[2]; glGetIntegerv(GL_POLYGON_MODE, last_polygon_mode);
         const last_viewport = exports.gl && exports.gl.getParameter(exports.gl.VIEWPORT) || null;
         const last_scissor_box = exports.gl && exports.gl.getParameter(exports.gl.SCISSOR_BOX) || null;
@@ -493,6 +537,10 @@
         const last_enable_cull_face = exports.gl && exports.gl.getParameter(exports.gl.CULL_FACE) || null;
         const last_enable_depth_test = exports.gl && exports.gl.getParameter(exports.gl.DEPTH_TEST) || null;
         const last_enable_scissor_test = exports.gl && exports.gl.getParameter(exports.gl.SCISSOR_TEST) || null;
+        // Setup desired GL state
+        // Recreate the VAO every time (this is to easily allow multiple GL contexts to be rendered to. VAO are not shared among GL contexts)
+        // The renderer would actually work without any VAO bound, but then our VertexAttrib calls would overwrite the default one currently bound.
+        const vertex_array_object = gl2 && gl2.createVertexArray() || gl_vao && gl_vao.createVertexArrayOES();
         // Setup render state: alpha-blending enabled, no face culling, no depth testing, scissor enabled, polygon fill
         exports.gl && exports.gl.enable(exports.gl.BLEND);
         exports.gl && exports.gl.blendEquation(exports.gl.FUNC_ADD);
@@ -517,17 +565,18 @@
         exports.gl && exports.gl.useProgram(g_ShaderHandle);
         exports.gl && exports.gl.uniform1i(g_AttribLocationTex, 0);
         exports.gl && g_AttribLocationProjMtx && exports.gl.uniformMatrix4fv(g_AttribLocationProjMtx, false, ortho_projection);
+        gl2 && gl2.bindVertexArray(vertex_array_object) || gl_vao && gl_vao.bindVertexArrayOES(vertex_array_object);
         // Render command lists
         exports.gl && exports.gl.bindBuffer(exports.gl.ARRAY_BUFFER, g_VboHandle);
         exports.gl && exports.gl.enableVertexAttribArray(g_AttribLocationPosition);
         exports.gl && exports.gl.enableVertexAttribArray(g_AttribLocationUV);
         exports.gl && exports.gl.enableVertexAttribArray(g_AttribLocationColor);
-        exports.gl && exports.gl.vertexAttribPointer(g_AttribLocationPosition, 2, exports.gl.FLOAT, false, ImGui.ImDrawVertSize, ImGui.ImDrawVertPosOffset);
-        exports.gl && exports.gl.vertexAttribPointer(g_AttribLocationUV, 2, exports.gl.FLOAT, false, ImGui.ImDrawVertSize, ImGui.ImDrawVertUVOffset);
-        exports.gl && exports.gl.vertexAttribPointer(g_AttribLocationColor, 4, exports.gl.UNSIGNED_BYTE, true, ImGui.ImDrawVertSize, ImGui.ImDrawVertColOffset);
+        exports.gl && exports.gl.vertexAttribPointer(g_AttribLocationPosition, 2, exports.gl.FLOAT, false, ImGui__namespace.DrawVertSize, ImGui__namespace.DrawVertPosOffset);
+        exports.gl && exports.gl.vertexAttribPointer(g_AttribLocationUV, 2, exports.gl.FLOAT, false, ImGui__namespace.DrawVertSize, ImGui__namespace.DrawVertUVOffset);
+        exports.gl && exports.gl.vertexAttribPointer(g_AttribLocationColor, 4, exports.gl.UNSIGNED_BYTE, true, ImGui__namespace.DrawVertSize, ImGui__namespace.DrawVertColOffset);
         // Draw
         const pos = draw_data.DisplayPos;
-        const idx_buffer_type = exports.gl && ((ImGui.ImDrawIdxSize === 4) ? exports.gl.UNSIGNED_INT : exports.gl.UNSIGNED_SHORT) || 0;
+        const idx_buffer_type = exports.gl && ((ImGui__namespace.DrawIdxSize === 4) ? exports.gl.UNSIGNED_INT : exports.gl.UNSIGNED_SHORT) || 0;
         draw_data.IterateDrawLists((draw_list) => {
             exports.gl || exports.ctx || console.log(draw_list);
             exports.gl || exports.ctx || console.log("VtxBuffer.length", draw_list.VtxBuffer.length);
@@ -545,7 +594,7 @@
                 if (!exports.gl && !exports.ctx) {
                     console.log("i: pos.x pos.y uv.x uv.y col");
                     for (let i = 0; i < Math.min(3, draw_cmd.ElemCount); ++i) {
-                        const view = new ImGui.ImDrawVert(draw_list.VtxBuffer.buffer, draw_list.VtxBuffer.byteOffset + i * ImGui.ImDrawVertSize);
+                        const view = new ImGui__namespace.DrawVert(draw_list.VtxBuffer.buffer, draw_list.VtxBuffer.byteOffset + i * ImGui__namespace.DrawVertSize);
                         console.log(`${i}: ${view.pos[0].toFixed(2)} ${view.pos[1].toFixed(2)} ${view.uv[0].toFixed(5)} ${view.uv[1].toFixed(5)} ${("00000000" + view.col[0].toString(16)).substr(-8)}`);
                     }
                 }
@@ -554,7 +603,7 @@
                     draw_cmd.UserCallback(draw_list, draw_cmd);
                 }
                 else {
-                    const clip_rect = new ImGui.ImVec4(draw_cmd.ClipRect.x - pos.x, draw_cmd.ClipRect.y - pos.y, draw_cmd.ClipRect.z - pos.x, draw_cmd.ClipRect.w - pos.y);
+                    const clip_rect = new ImGui__namespace.Vec4(draw_cmd.ClipRect.x - pos.x, draw_cmd.ClipRect.y - pos.y, draw_cmd.ClipRect.z - pos.x, draw_cmd.ClipRect.w - pos.y);
                     if (clip_rect.x < fb_width && clip_rect.y < fb_height && clip_rect.z >= 0.0 && clip_rect.w >= 0.0) {
                         // Apply scissor/clipping rectangle
                         exports.gl && exports.gl.scissor(clip_rect.x, fb_height - clip_rect.w, clip_rect.z - clip_rect.x, clip_rect.w - clip_rect.y);
@@ -567,22 +616,22 @@
                             exports.ctx.beginPath();
                             exports.ctx.rect(clip_rect.x, clip_rect.y, clip_rect.z - clip_rect.x, clip_rect.w - clip_rect.y);
                             exports.ctx.clip();
-                            const idx = ImGui.ImDrawIdxSize === 4 ?
+                            const idx = ImGui__namespace.DrawIdxSize === 4 ?
                                 new Uint32Array(draw_list.IdxBuffer.buffer, draw_list.IdxBuffer.byteOffset + idx_buffer_offset) :
                                 new Uint16Array(draw_list.IdxBuffer.buffer, draw_list.IdxBuffer.byteOffset + idx_buffer_offset);
                             for (let i = 0; i < draw_cmd.ElemCount; i += 3) {
                                 const i0 = idx[i + 0];
                                 const i1 = idx[i + 1];
                                 const i2 = idx[i + 2];
-                                const v0 = new ImGui.ImDrawVert(draw_list.VtxBuffer.buffer, draw_list.VtxBuffer.byteOffset + i0 * ImGui.ImDrawVertSize);
-                                const v1 = new ImGui.ImDrawVert(draw_list.VtxBuffer.buffer, draw_list.VtxBuffer.byteOffset + i1 * ImGui.ImDrawVertSize);
-                                const v2 = new ImGui.ImDrawVert(draw_list.VtxBuffer.buffer, draw_list.VtxBuffer.byteOffset + i2 * ImGui.ImDrawVertSize);
+                                const v0 = new ImGui__namespace.DrawVert(draw_list.VtxBuffer.buffer, draw_list.VtxBuffer.byteOffset + i0 * ImGui__namespace.DrawVertSize);
+                                const v1 = new ImGui__namespace.DrawVert(draw_list.VtxBuffer.buffer, draw_list.VtxBuffer.byteOffset + i1 * ImGui__namespace.DrawVertSize);
+                                const v2 = new ImGui__namespace.DrawVert(draw_list.VtxBuffer.buffer, draw_list.VtxBuffer.byteOffset + i2 * ImGui__namespace.DrawVertSize);
                                 const i3 = idx[i + 3];
                                 const i4 = idx[i + 4];
                                 const i5 = idx[i + 5];
-                                const v3 = new ImGui.ImDrawVert(draw_list.VtxBuffer.buffer, draw_list.VtxBuffer.byteOffset + i3 * ImGui.ImDrawVertSize);
-                                const v4 = new ImGui.ImDrawVert(draw_list.VtxBuffer.buffer, draw_list.VtxBuffer.byteOffset + i4 * ImGui.ImDrawVertSize);
-                                const v5 = new ImGui.ImDrawVert(draw_list.VtxBuffer.buffer, draw_list.VtxBuffer.byteOffset + i5 * ImGui.ImDrawVertSize);
+                                const v3 = new ImGui__namespace.DrawVert(draw_list.VtxBuffer.buffer, draw_list.VtxBuffer.byteOffset + i3 * ImGui__namespace.DrawVertSize);
+                                const v4 = new ImGui__namespace.DrawVert(draw_list.VtxBuffer.buffer, draw_list.VtxBuffer.byteOffset + i4 * ImGui__namespace.DrawVertSize);
+                                const v5 = new ImGui__namespace.DrawVert(draw_list.VtxBuffer.buffer, draw_list.VtxBuffer.byteOffset + i5 * ImGui__namespace.DrawVertSize);
                                 let quad = true;
                                 let minmin = v0;
                                 let minmax = v0;
@@ -615,7 +664,7 @@
                                 quad = quad && (minmin.pos[1] === maxmin.pos[1]);
                                 quad = quad && (minmax.pos[1] === maxmax.pos[1]);
                                 if (quad) {
-                                    if (minmin.uv[0] < 0.01 && minmin.uv[1] < 0.01) {
+                                    if (minmin.uv[0] === maxmax.uv[0] || minmin.uv[1] === maxmax.uv[1]) {
                                         // one vertex color
                                         exports.ctx.beginPath();
                                         exports.ctx.rect(minmin.pos[0], minmin.pos[1], maxmax.pos[0] - minmin.pos[0], maxmax.pos[1] - minmin.pos[1]);
@@ -624,8 +673,10 @@
                                     }
                                     else {
                                         // no vertex color
-                                        const image = draw_cmd.TextureId;
-                                        exports.ctx.drawImage(image, minmin.uv[0] * image.width, minmin.uv[1] * image.height, (maxmax.uv[0] - minmin.uv[0]) * image.width, (maxmax.uv[1] - minmin.uv[1]) * image.height, minmin.pos[0], minmin.pos[1], maxmax.pos[0] - minmin.pos[0], maxmax.pos[1] - minmin.pos[1]);
+                                        const image = draw_cmd.TextureId; // HACK
+                                        const width = image instanceof HTMLVideoElement ? image.videoWidth : image.width;
+                                        const height = image instanceof HTMLVideoElement ? image.videoHeight : image.height;
+                                        image && exports.ctx.drawImage(image, minmin.uv[0] * width, minmin.uv[1] * height, (maxmax.uv[0] - minmin.uv[0]) * width, (maxmax.uv[1] - minmin.uv[1]) * height, minmin.pos[0], minmin.pos[1], maxmax.pos[0] - minmin.pos[0], maxmax.pos[1] - minmin.pos[1]);
                                         // ctx.beginPath();
                                         // ctx.rect(minmin.pos[0], minmin.pos[1], maxmax.pos[0] - minmin.pos[0], maxmax.pos[1] - minmin.pos[1]);
                                         // ctx.strokeStyle = "yellow";
@@ -648,16 +699,16 @@
                         }
                     }
                 }
-                idx_buffer_offset += draw_cmd.ElemCount * ImGui.ImDrawIdxSize;
+                idx_buffer_offset += draw_cmd.ElemCount * ImGui__namespace.DrawIdxSize;
             });
         });
+        // Destroy the temporary VAO
+        gl2 && gl2.deleteVertexArray(vertex_array_object) || gl_vao && gl_vao.deleteVertexArrayOES(vertex_array_object);
         // Restore modified GL state
         exports.gl && (last_program !== null) && exports.gl.useProgram(last_program);
         exports.gl && (last_texture !== null) && exports.gl.bindTexture(exports.gl.TEXTURE_2D, last_texture);
         exports.gl && (last_active_texture !== null) && exports.gl.activeTexture(last_active_texture);
-        exports.gl && exports.gl.disableVertexAttribArray(g_AttribLocationPosition);
-        exports.gl && exports.gl.disableVertexAttribArray(g_AttribLocationUV);
-        exports.gl && exports.gl.disableVertexAttribArray(g_AttribLocationColor);
+        gl2 && gl2.bindVertexArray(last_vertex_array_object) || gl_vao && gl_vao.bindVertexArrayOES(last_vertex_array_object);
         exports.gl && (last_array_buffer !== null) && exports.gl.bindBuffer(exports.gl.ARRAY_BUFFER, last_array_buffer);
         exports.gl && (last_element_array_buffer !== null) && exports.gl.bindBuffer(exports.gl.ELEMENT_ARRAY_BUFFER, last_element_array_buffer);
         exports.gl && (last_blend_equation_rgb !== null && last_blend_equation_alpha !== null) && exports.gl.blendEquationSeparate(last_blend_equation_rgb, last_blend_equation_alpha);
@@ -671,7 +722,7 @@
         exports.gl && (last_scissor_box !== null) && exports.gl.scissor(last_scissor_box[0], last_scissor_box[1], last_scissor_box[2], last_scissor_box[3]);
     }
     function CreateFontsTexture() {
-        const io = ImGui.GetIO();
+        const io = ImGui__namespace.GetIO();
         // Backup GL state
         const last_texture = exports.gl && exports.gl.getParameter(exports.gl.TEXTURE_BINDING_2D);
         // Build texture atlas
@@ -707,7 +758,7 @@
         exports.gl && last_texture && exports.gl.bindTexture(exports.gl.TEXTURE_2D, last_texture);
     }
     function DestroyFontsTexture() {
-        const io = ImGui.GetIO();
+        const io = ImGui__namespace.GetIO();
         io.Fonts.TexID = null;
         exports.gl && exports.gl.deleteTexture(g_FontTexture);
         g_FontTexture = null;

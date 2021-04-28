@@ -4,7 +4,7 @@ let clipboard_text: string = "";
 
 let canvas: HTMLCanvasElement | null = null;
 
-export let gl: WebGLRenderingContext | null = null;
+export let gl: WebGL2RenderingContext | WebGLRenderingContext | null = null;
 let g_ShaderHandle: WebGLProgram | null = null;
 let g_VertHandle: WebGLShader | null = null;
 let g_FragHandle: WebGLShader | null = null;
@@ -78,15 +78,20 @@ function canvas_on_blur(event: FocusEvent): void {
     }
 }
 
+const key_code_to_index: Record<string, number> = {
+    "NumpadEnter": 176,
+};
+
 function canvas_on_keydown(event: KeyboardEvent): void {
-    // console.log(event.type, event.key, event.keyCode);
+    // console.log(event.type, event.key, event.code, event.keyCode);
     const io = ImGui.GetIO();
     io.KeyCtrl = event.ctrlKey;
     io.KeyShift = event.shiftKey;
     io.KeyAlt = event.altKey;
     io.KeySuper = event.metaKey;
-    ImGui.IM_ASSERT(event.keyCode >= 0 && event.keyCode < ImGui.IM_ARRAYSIZE(io.KeysDown));
-    io.KeysDown[event.keyCode] = true;
+    const key_index: number = key_code_to_index[event.code] || event.keyCode;
+    ImGui.ASSERT(key_index >= 0 && key_index < ImGui.ARRAYSIZE(io.KeysDown));
+    io.KeysDown[key_index] = true;
     // forward to the keypress event
     if (/*io.WantCaptureKeyboard ||*/ event.key === "Tab") {
         event.preventDefault();
@@ -94,21 +99,22 @@ function canvas_on_keydown(event: KeyboardEvent): void {
 }
 
 function canvas_on_keyup(event: KeyboardEvent): void  {
-    // console.log(event.type, event.key, event.keyCode);
+    // console.log(event.type, event.key, event.code, event.keyCode);
     const io = ImGui.GetIO();
     io.KeyCtrl = event.ctrlKey;
     io.KeyShift = event.shiftKey;
     io.KeyAlt = event.altKey;
     io.KeySuper = event.metaKey;
-    ImGui.IM_ASSERT(event.keyCode >= 0 && event.keyCode < ImGui.IM_ARRAYSIZE(io.KeysDown));
-    io.KeysDown[event.keyCode] = false;
+    const key_index: number = key_code_to_index[event.code] || event.keyCode;
+    ImGui.ASSERT(key_index >= 0 && key_index < ImGui.ARRAYSIZE(io.KeysDown));
+    io.KeysDown[key_index] = false;
     if (io.WantCaptureKeyboard) {
         event.preventDefault();
     }
 }
 
 function canvas_on_keypress(event: KeyboardEvent): void  {
-    // console.log(event.type, event.key, event.keyCode);
+    // console.log(event.type, event.key, event.code, event.keyCode);
     const io = ImGui.GetIO();
     io.AddInputCharacter(event.charCode);
     if (io.WantCaptureKeyboard) {
@@ -173,12 +179,15 @@ function canvas_on_wheel(event: WheelEvent): void  {
     }
 }
 
-export function Init(value: HTMLCanvasElement | WebGLRenderingContext | CanvasRenderingContext2D | null): void {
+export function Init(value: HTMLCanvasElement | WebGL2RenderingContext | WebGLRenderingContext | CanvasRenderingContext2D | null): void {
     const io = ImGui.GetIO();
 
     if (typeof(window) !== "undefined") {
-        io.BackendPlatformName = "imgui_impl_html5";
+        io.BackendPlatformName = "imgui_impl_browser";
         ImGui.LoadIniSettingsFromMemory(window.localStorage.getItem("imgui.ini") || "");
+    }
+    else {
+        io.BackendPlatformName = "imgui_impl_console";
     }
 
     if (typeof(navigator) !== "undefined") {
@@ -222,16 +231,22 @@ export function Init(value: HTMLCanvasElement | WebGLRenderingContext | CanvasRe
 
     if (typeof(window) !== "undefined") {
         if (value instanceof(HTMLCanvasElement)) {
-            value = value.getContext("webgl", { alpha: false }) || value.getContext("2d");
+            canvas = value;
+            value = canvas.getContext("webgl2", { alpha: false }) || canvas.getContext("webgl", { alpha: false }) || canvas.getContext("2d");
         }
-        if (value instanceof(WebGLRenderingContext)) {
-            io.BackendRendererName = "imgui_impl_webgl";
-            canvas = value.canvas as HTMLCanvasElement;
+        if (typeof WebGL2RenderingContext !== "undefined" && value instanceof(WebGL2RenderingContext)) {
+            io.BackendRendererName = "imgui_impl_webgl2";
+            canvas = canvas || value.canvas as HTMLCanvasElement;
             gl = value;
         }
-        if (value instanceof(CanvasRenderingContext2D)) {
-            io.BackendRendererName = "imgui_impl_ctx2d";
-            canvas = value.canvas;
+        else if (typeof WebGLRenderingContext !== "undefined" && value instanceof(WebGLRenderingContext)) {
+            io.BackendRendererName = "imgui_impl_webgl";
+            canvas = canvas || value.canvas as HTMLCanvasElement;
+            gl = value;
+        }
+        else if (typeof CanvasRenderingContext2D !== "undefined" && value instanceof(CanvasRenderingContext2D)) {
+            io.BackendRendererName = "imgui_impl_2d";
+            canvas = canvas || value.canvas;
             ctx = value;
         }
     }
@@ -269,6 +284,7 @@ export function Init(value: HTMLCanvasElement | WebGLRenderingContext | CanvasRe
     io.KeyMap[ImGui.Key.Space] = 32;
     io.KeyMap[ImGui.Key.Enter] = 13;
     io.KeyMap[ImGui.Key.Escape] = 27;
+    io.KeyMap[ImGui.Key.KeyPadEnter] = key_code_to_index["NumpadEnter"];
     io.KeyMap[ImGui.Key.A] = 65;
     io.KeyMap[ImGui.Key.C] = 67;
     io.KeyMap[ImGui.Key.V] = 86;
@@ -346,12 +362,13 @@ export function NewFrame(time: number): void {
                 case ImGui.MouseCursor.None: document.body.style.cursor = "none"; break;
                 default: case ImGui.MouseCursor.Arrow: document.body.style.cursor = "default"; break;
                 case ImGui.MouseCursor.TextInput: document.body.style.cursor = "text"; break;         // When hovering over InputText, etc.
-                case ImGui.MouseCursor.ResizeAll: document.body.style.cursor = "move"; break;         // Unused
+                case ImGui.MouseCursor.ResizeAll: document.body.style.cursor = "all-scroll"; break;         // Unused
                 case ImGui.MouseCursor.ResizeNS: document.body.style.cursor = "ns-resize"; break;     // When hovering over an horizontal border
                 case ImGui.MouseCursor.ResizeEW: document.body.style.cursor = "ew-resize"; break;     // When hovering over a vertical border or a column
                 case ImGui.MouseCursor.ResizeNESW: document.body.style.cursor = "nesw-resize"; break; // When hovering over the bottom-left corner of a window
                 case ImGui.MouseCursor.ResizeNWSE: document.body.style.cursor = "nwse-resize"; break; // When hovering over the bottom-right corner of a window
                 case ImGui.MouseCursor.Hand: document.body.style.cursor = "move"; break;
+                case ImGui.MouseCursor.NotAllowed: document.body.style.cursor = "not-allowed"; break;
             }
         }
     }
@@ -370,6 +387,7 @@ export function NewFrame(time: number): void {
         for (let i = 0; i < gamepads.length; ++i) {
             const gamepad: Gamepad | null = gamepads[i];
             if (!gamepad) { continue; }
+            io.BackendFlags |= ImGui.BackendFlags.HasGamepad;
             const buttons_count: number = gamepad.buttons.length;
             const axes_count: number = gamepad.axes.length;
             function MAP_BUTTON(NAV_NO: number, BUTTON_NO: number): void {
@@ -469,7 +487,7 @@ export function NewFrame(time: number): void {
     }
 }
 
-export function RenderDrawData(draw_data: ImGui.ImDrawData | null = ImGui.GetDrawData()): void {
+export function RenderDrawData(draw_data: ImGui.DrawData | null = ImGui.GetDrawData()): void {
     const io = ImGui.GetIO();
     if (draw_data === null) { throw new Error(); }
 
@@ -483,12 +501,16 @@ export function RenderDrawData(draw_data: ImGui.ImDrawData | null = ImGui.GetDra
     }
     draw_data.ScaleClipRects(io.DisplayFramebufferScale);
 
+    const gl2: WebGL2RenderingContext | null = typeof WebGL2RenderingContext !== "undefined" && gl instanceof WebGL2RenderingContext && gl || null;
+    const gl_vao: OES_vertex_array_object | null = gl && gl.getExtension("OES_vertex_array_object") || null;
+
     // Backup GL state
     const last_active_texture: GLenum | null = gl && gl.getParameter(gl.ACTIVE_TEXTURE) || null;
     const last_program: WebGLProgram | null = gl && gl.getParameter(gl.CURRENT_PROGRAM) || null;
     const last_texture: WebGLTexture | null = gl && gl.getParameter(gl.TEXTURE_BINDING_2D) || null;
     const last_array_buffer: WebGLBuffer | null = gl && gl.getParameter(gl.ARRAY_BUFFER_BINDING) || null;
     const last_element_array_buffer: WebGLBuffer | null = gl && gl.getParameter(gl.ELEMENT_ARRAY_BUFFER_BINDING) || null;
+    const last_vertex_array_object: WebGLVertexArrayObject | WebGLVertexArrayObjectOES | null = gl2 && gl2.getParameter(gl2.VERTEX_ARRAY_BINDING) || gl && gl_vao && gl.getParameter(gl_vao.VERTEX_ARRAY_BINDING_OES) || null;
     // GLint last_polygon_mode[2]; glGetIntegerv(GL_POLYGON_MODE, last_polygon_mode);
     const last_viewport: Int32Array | null = gl && gl.getParameter(gl.VIEWPORT) || null;
     const last_scissor_box: Int32Array | null = gl && gl.getParameter(gl.SCISSOR_BOX) || null;
@@ -502,6 +524,11 @@ export function RenderDrawData(draw_data: ImGui.ImDrawData | null = ImGui.GetDra
     const last_enable_cull_face: GLboolean | null = gl && gl.getParameter(gl.CULL_FACE) || null;
     const last_enable_depth_test: GLboolean | null = gl && gl.getParameter(gl.DEPTH_TEST) || null;
     const last_enable_scissor_test: GLboolean | null = gl && gl.getParameter(gl.SCISSOR_TEST) || null;
+
+    // Setup desired GL state
+    // Recreate the VAO every time (this is to easily allow multiple GL contexts to be rendered to. VAO are not shared among GL contexts)
+    // The renderer would actually work without any VAO bound, but then our VertexAttrib calls would overwrite the default one currently bound.
+    const vertex_array_object: WebGLVertexArrayObject | WebGLVertexArrayObjectOES | null = gl2 && gl2.createVertexArray() || gl_vao && gl_vao.createVertexArrayOES();
 
     // Setup render state: alpha-blending enabled, no face culling, no depth testing, scissor enabled, polygon fill
     gl && gl.enable(gl.BLEND);
@@ -529,20 +556,22 @@ export function RenderDrawData(draw_data: ImGui.ImDrawData | null = ImGui.GetDra
     gl && gl.uniform1i(g_AttribLocationTex, 0);
     gl && g_AttribLocationProjMtx && gl.uniformMatrix4fv(g_AttribLocationProjMtx, false, ortho_projection);
 
+    gl2 && gl2.bindVertexArray(vertex_array_object) || gl_vao && gl_vao.bindVertexArrayOES(vertex_array_object);
+
     // Render command lists
     gl && gl.bindBuffer(gl.ARRAY_BUFFER, g_VboHandle);
     gl && gl.enableVertexAttribArray(g_AttribLocationPosition);
     gl && gl.enableVertexAttribArray(g_AttribLocationUV);
     gl && gl.enableVertexAttribArray(g_AttribLocationColor);
 
-    gl && gl.vertexAttribPointer(g_AttribLocationPosition, 2, gl.FLOAT, false, ImGui.ImDrawVertSize, ImGui.ImDrawVertPosOffset);
-    gl && gl.vertexAttribPointer(g_AttribLocationUV, 2, gl.FLOAT, false, ImGui.ImDrawVertSize, ImGui.ImDrawVertUVOffset);
-    gl && gl.vertexAttribPointer(g_AttribLocationColor, 4, gl.UNSIGNED_BYTE, true, ImGui.ImDrawVertSize, ImGui.ImDrawVertColOffset);
+    gl && gl.vertexAttribPointer(g_AttribLocationPosition, 2, gl.FLOAT, false, ImGui.DrawVertSize, ImGui.DrawVertPosOffset);
+    gl && gl.vertexAttribPointer(g_AttribLocationUV, 2, gl.FLOAT, false, ImGui.DrawVertSize, ImGui.DrawVertUVOffset);
+    gl && gl.vertexAttribPointer(g_AttribLocationColor, 4, gl.UNSIGNED_BYTE, true, ImGui.DrawVertSize, ImGui.DrawVertColOffset);
 
     // Draw
     const pos = draw_data.DisplayPos;
-    const idx_buffer_type: GLenum = gl && ((ImGui.ImDrawIdxSize === 4) ? gl.UNSIGNED_INT : gl.UNSIGNED_SHORT) || 0;
-    draw_data.IterateDrawLists((draw_list: ImGui.ImDrawList): void => {
+    const idx_buffer_type: GLenum = gl && ((ImGui.DrawIdxSize === 4) ? gl.UNSIGNED_INT : gl.UNSIGNED_SHORT) || 0;
+    draw_data.IterateDrawLists((draw_list: ImGui.DrawList): void => {
         gl || ctx || console.log(draw_list);
         gl || ctx || console.log("VtxBuffer.length", draw_list.VtxBuffer.length);
         gl || ctx || console.log("IdxBuffer.length", draw_list.IdxBuffer.length);
@@ -554,7 +583,7 @@ export function RenderDrawData(draw_data: ImGui.ImDrawData | null = ImGui.GetDra
         gl && gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, g_ElementsHandle);
         gl && gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, draw_list.IdxBuffer, gl.STREAM_DRAW);
 
-        draw_list.IterateDrawCmds((draw_cmd: ImGui.ImDrawCmd): void => {
+        draw_list.IterateDrawCmds((draw_cmd: ImGui.DrawCmd): void => {
             gl || ctx || console.log(draw_cmd);
             gl || ctx || console.log("ElemCount", draw_cmd.ElemCount);
             gl || ctx || console.log("ClipRect", draw_cmd.ClipRect.x, fb_height - draw_cmd.ClipRect.w, draw_cmd.ClipRect.z - draw_cmd.ClipRect.x, draw_cmd.ClipRect.w - draw_cmd.ClipRect.y);
@@ -562,7 +591,7 @@ export function RenderDrawData(draw_data: ImGui.ImDrawData | null = ImGui.GetDra
             if (!gl && !ctx) {
                 console.log("i: pos.x pos.y uv.x uv.y col");
                 for (let i = 0; i < Math.min(3, draw_cmd.ElemCount); ++i) {
-                    const view: ImGui.ImDrawVert = new ImGui.ImDrawVert(draw_list.VtxBuffer.buffer, draw_list.VtxBuffer.byteOffset + i * ImGui.ImDrawVertSize);
+                    const view: ImGui.DrawVert = new ImGui.DrawVert(draw_list.VtxBuffer.buffer, draw_list.VtxBuffer.byteOffset + i * ImGui.DrawVertSize);
                     console.log(`${i}: ${view.pos[0].toFixed(2)} ${view.pos[1].toFixed(2)} ${view.uv[0].toFixed(5)} ${view.uv[1].toFixed(5)} ${("00000000" + view.col[0].toString(16)).substr(-8)}`);
                 }
             }
@@ -571,7 +600,7 @@ export function RenderDrawData(draw_data: ImGui.ImDrawData | null = ImGui.GetDra
                 // User callback (registered via ImDrawList::AddCallback)
                 draw_cmd.UserCallback(draw_list, draw_cmd);
             } else {
-                const clip_rect = new ImGui.ImVec4(draw_cmd.ClipRect.x - pos.x, draw_cmd.ClipRect.y - pos.y, draw_cmd.ClipRect.z - pos.x, draw_cmd.ClipRect.w - pos.y);
+                const clip_rect = new ImGui.Vec4(draw_cmd.ClipRect.x - pos.x, draw_cmd.ClipRect.y - pos.y, draw_cmd.ClipRect.z - pos.x, draw_cmd.ClipRect.w - pos.y);
                 if (clip_rect.x < fb_width && clip_rect.y < fb_height && clip_rect.z >= 0.0 && clip_rect.w >= 0.0) {
                     // Apply scissor/clipping rectangle
                     gl && gl.scissor(clip_rect.x, fb_height - clip_rect.w, clip_rect.z - clip_rect.x, clip_rect.w - clip_rect.y);
@@ -586,27 +615,27 @@ export function RenderDrawData(draw_data: ImGui.ImDrawData | null = ImGui.GetDra
                         ctx.beginPath();
                         ctx.rect(clip_rect.x, clip_rect.y, clip_rect.z - clip_rect.x, clip_rect.w - clip_rect.y);
                         ctx.clip();
-                        const idx = ImGui.ImDrawIdxSize === 4 ? 
+                        const idx = ImGui.DrawIdxSize === 4 ? 
                             new Uint32Array(draw_list.IdxBuffer.buffer, draw_list.IdxBuffer.byteOffset + idx_buffer_offset) : 
                             new Uint16Array(draw_list.IdxBuffer.buffer, draw_list.IdxBuffer.byteOffset + idx_buffer_offset);
                         for (let i = 0; i < draw_cmd.ElemCount; i += 3) {
                             const i0: number = idx[i + 0];
                             const i1: number = idx[i + 1];
                             const i2: number = idx[i + 2];
-                            const v0: ImGui.ImDrawVert = new ImGui.ImDrawVert(draw_list.VtxBuffer.buffer, draw_list.VtxBuffer.byteOffset + i0 * ImGui.ImDrawVertSize);
-                            const v1: ImGui.ImDrawVert = new ImGui.ImDrawVert(draw_list.VtxBuffer.buffer, draw_list.VtxBuffer.byteOffset + i1 * ImGui.ImDrawVertSize);
-                            const v2: ImGui.ImDrawVert = new ImGui.ImDrawVert(draw_list.VtxBuffer.buffer, draw_list.VtxBuffer.byteOffset + i2 * ImGui.ImDrawVertSize);
+                            const v0: ImGui.DrawVert = new ImGui.DrawVert(draw_list.VtxBuffer.buffer, draw_list.VtxBuffer.byteOffset + i0 * ImGui.DrawVertSize);
+                            const v1: ImGui.DrawVert = new ImGui.DrawVert(draw_list.VtxBuffer.buffer, draw_list.VtxBuffer.byteOffset + i1 * ImGui.DrawVertSize);
+                            const v2: ImGui.DrawVert = new ImGui.DrawVert(draw_list.VtxBuffer.buffer, draw_list.VtxBuffer.byteOffset + i2 * ImGui.DrawVertSize);
                             const i3: number = idx[i + 3];
                             const i4: number = idx[i + 4];
                             const i5: number = idx[i + 5];
-                            const v3: ImGui.ImDrawVert = new ImGui.ImDrawVert(draw_list.VtxBuffer.buffer, draw_list.VtxBuffer.byteOffset + i3 * ImGui.ImDrawVertSize);
-                            const v4: ImGui.ImDrawVert = new ImGui.ImDrawVert(draw_list.VtxBuffer.buffer, draw_list.VtxBuffer.byteOffset + i4 * ImGui.ImDrawVertSize);
-                            const v5: ImGui.ImDrawVert = new ImGui.ImDrawVert(draw_list.VtxBuffer.buffer, draw_list.VtxBuffer.byteOffset + i5 * ImGui.ImDrawVertSize);
+                            const v3: ImGui.DrawVert = new ImGui.DrawVert(draw_list.VtxBuffer.buffer, draw_list.VtxBuffer.byteOffset + i3 * ImGui.DrawVertSize);
+                            const v4: ImGui.DrawVert = new ImGui.DrawVert(draw_list.VtxBuffer.buffer, draw_list.VtxBuffer.byteOffset + i4 * ImGui.DrawVertSize);
+                            const v5: ImGui.DrawVert = new ImGui.DrawVert(draw_list.VtxBuffer.buffer, draw_list.VtxBuffer.byteOffset + i5 * ImGui.DrawVertSize);
                             let quad = true;
-                            let minmin: ImGui.ImDrawVert = v0;
-                            let minmax: ImGui.ImDrawVert = v0;
-                            let maxmin: ImGui.ImDrawVert = v0;
-                            let maxmax: ImGui.ImDrawVert = v0;
+                            let minmin: ImGui.DrawVert = v0;
+                            let minmax: ImGui.DrawVert = v0;
+                            let maxmin: ImGui.DrawVert = v0;
+                            let maxmax: ImGui.DrawVert = v0;
                             for (const v of [ v1, v2, v3, v4, v5 ]) {
                                 let found = false;
                                 if (v.pos[0] <= minmin.pos[0] && v.pos[1] <= minmin.pos[1]) { minmin = v; found = true; }
@@ -620,7 +649,7 @@ export function RenderDrawData(draw_data: ImGui.ImDrawData | null = ImGui.GetDra
                             quad = quad && (minmin.pos[1] === maxmin.pos[1]);
                             quad = quad && (minmax.pos[1] === maxmax.pos[1]);
                             if (quad) {
-                                if (minmin.uv[0] < 0.01 && minmin.uv[1] < 0.01) {
+                                if (minmin.uv[0] === maxmax.uv[0] || minmin.uv[1] === maxmax.uv[1]) {
                                     // one vertex color
                                     ctx.beginPath();
                                     ctx.rect(minmin.pos[0], minmin.pos[1], maxmax.pos[0] - minmin.pos[0], maxmax.pos[1] - minmin.pos[1]);
@@ -628,10 +657,12 @@ export function RenderDrawData(draw_data: ImGui.ImDrawData | null = ImGui.GetDra
                                     ctx.fill();
                                 } else {
                                     // no vertex color
-                                    const image = draw_cmd.TextureId as HTMLCanvasElement;
-                                    ctx.drawImage(image,
-                                        minmin.uv[0] * image.width, minmin.uv[1] * image.height,
-                                        (maxmax.uv[0] - minmin.uv[0]) * image.width, (maxmax.uv[1] - minmin.uv[1]) * image.height,
+                                    const image = draw_cmd.TextureId as CanvasImageSource; // HACK
+                                    const width = image instanceof HTMLVideoElement ? image.videoWidth : image.width as number;
+                                    const height = image instanceof HTMLVideoElement ? image.videoHeight : image.height as number;
+                                    image && ctx.drawImage(image,
+                                        minmin.uv[0] * width, minmin.uv[1] * height,
+                                        (maxmax.uv[0] - minmin.uv[0]) * width, (maxmax.uv[1] - minmin.uv[1]) * height,
                                         minmin.pos[0], minmin.pos[1], 
                                         maxmax.pos[0] - minmin.pos[0], maxmax.pos[1] - minmin.pos[1]);
                                     // ctx.beginPath();
@@ -656,17 +687,18 @@ export function RenderDrawData(draw_data: ImGui.ImDrawData | null = ImGui.GetDra
                 }
             }
 
-            idx_buffer_offset += draw_cmd.ElemCount * ImGui.ImDrawIdxSize;
+            idx_buffer_offset += draw_cmd.ElemCount * ImGui.DrawIdxSize;
         });
     });
+
+    // Destroy the temporary VAO
+    gl2 && gl2.deleteVertexArray(vertex_array_object) || gl_vao && gl_vao.deleteVertexArrayOES(vertex_array_object);
 
     // Restore modified GL state
     gl && (last_program !== null) && gl.useProgram(last_program);
     gl && (last_texture !== null) && gl.bindTexture(gl.TEXTURE_2D, last_texture);
     gl && (last_active_texture !== null) && gl.activeTexture(last_active_texture);
-    gl && gl.disableVertexAttribArray(g_AttribLocationPosition);
-    gl && gl.disableVertexAttribArray(g_AttribLocationUV);
-    gl && gl.disableVertexAttribArray(g_AttribLocationColor);
+    gl2 && gl2.bindVertexArray(last_vertex_array_object) || gl_vao && gl_vao.bindVertexArrayOES(last_vertex_array_object);
     gl && (last_array_buffer !== null) && gl.bindBuffer(gl.ARRAY_BUFFER, last_array_buffer);
     gl && (last_element_array_buffer !== null) && gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, last_element_array_buffer);
     gl && (last_blend_equation_rgb !== null && last_blend_equation_alpha !== null) && gl.blendEquationSeparate(last_blend_equation_rgb, last_blend_equation_alpha);

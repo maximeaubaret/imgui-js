@@ -21,22 +21,37 @@ export { Bind };
 declare let bind: Bind.Module;
 export default function (value?: Partial<Bind.Module>): Promise<void>;
 export { bind };
+export { IMGUI_VERSION as VERSION };
 export declare const IMGUI_VERSION: string;
+export { IMGUI_VERSION_NUM as VERSION_NUM };
 export declare const IMGUI_VERSION_NUM: number;
+export { IMGUI_CHECKVERSION as CHECKVERSION };
 export declare function IMGUI_CHECKVERSION(): boolean;
-export declare function IM_ASSERT(_EXPR: boolean | number): void;
+export declare const IMGUI_HAS_TABLE: boolean;
+export declare function ASSERT(c: any): asserts c;
+export declare function IM_ASSERT(c: any): asserts c;
+export { IM_ARRAYSIZE as ARRAYSIZE };
 export declare function IM_ARRAYSIZE(_ARR: ArrayLike<any> | ImStringBuffer): number;
+export { ImStringBuffer as StringBuffer };
 export declare class ImStringBuffer {
     size: number;
     buffer: string;
     constructor(size: number, buffer?: string);
 }
-export { ImAccess } from "bind-imgui";
-export { ImScalar } from "bind-imgui";
-export { ImTuple2 } from "bind-imgui";
-export { ImTuple3 } from "bind-imgui";
-export { ImTuple4 } from "bind-imgui";
+export declare type ImAccess<T> = Bind.ImAccess<T>;
+export { ImAccess as Access };
+export declare type ImScalar<T> = Bind.ImScalar<T>;
+export { ImScalar as Scalar };
+export declare type ImTuple2<T> = Bind.ImTuple2<T>;
+export { ImTuple2 as Tuple2 };
+export declare type ImTuple3<T> = Bind.ImTuple3<T>;
+export { ImTuple3 as Tuple3 };
+export declare type ImTuple4<T> = Bind.ImTuple4<T>;
+export { ImTuple4 as Tuple4 };
+export { ImTextureID as TextureID };
 export declare type ImTextureID = WebGLTexture;
+export { ImGuiID as ID };
+export declare type ImGuiID = Bind.ImGuiID;
 export { ImGuiWindowFlags as WindowFlags };
 export declare enum ImGuiWindowFlags {
     None = 0,
@@ -93,6 +108,7 @@ export declare enum ImGuiInputTextFlags {
     NoUndoRedo = 65536,
     CharsScientific = 131072,
     CallbackResize = 262144,
+    CallbackEdit = 524288,
     Multiline = 1048576,
     NoMarkEdited = 2097152
 }
@@ -166,17 +182,15 @@ export declare enum ImGuiTabBarFlags {
 }
 export { ImGuiTabItemFlags as TabItemFlags };
 export declare enum ImGuiTabItemFlags {
-    ImGuiTabItemFlags_None = 0,
-    ImGuiTabItemFlags_UnsavedDocument = 1,
-    ImGuiTabItemFlags_SetSelected = 2,
-    ImGuiTabItemFlags_NoCloseWithMiddleMouseButton = 4,
-    ImGuiTabItemFlags_NoPushId = 8
-}
-export { ImGuiSortDirection as SortDirection };
-export declare enum ImGuiSortDirection {
     None = 0,
-    Ascending = 1,
-    Descending = 2
+    UnsavedDocument = 1,
+    SetSelected = 2,
+    NoCloseWithMiddleMouseButton = 4,
+    NoPushId = 8,
+    NoTooltip = 16,
+    NoReorder = 32,
+    Leading = 64,
+    Trailing = 128
 }
 export { ImGuiTableFlags as TableFlags };
 export declare enum ImGuiTableFlags {
@@ -278,6 +292,20 @@ export declare enum ImGuiHoveredFlags {
     RectOnly = 104,
     RootAndChildWindows = 3
 }
+export { ImGuiViewportFlags as ViewportFlags };
+export declare enum ImGuiViewportFlags {
+    None = 0,
+    NoDecoration = 1,
+    NoTaskBarIcon = 2,
+    NoFocusOnAppearing = 4,
+    NoFocusOnClick = 8,
+    NoInputs = 16,
+    NoRendererClear = 32,
+    TopMost = 64,
+    Minimized = 128,
+    NoAutoMerge = 256,
+    CanHostOtherWindows = 512
+}
 export { ImGuiDockNodeFlags as DockNodeFlags };
 export declare enum ImGuiDockNodeFlags {
     None = 0,
@@ -327,6 +355,12 @@ export declare enum ImGuiDir {
     Down = 3,
     COUNT = 4
 }
+export { ImGuiSortDirection as SortDirection };
+export declare enum ImGuiSortDirection {
+    None = 0,
+    Ascending = 1,
+    Descending = 2
+}
 export { ImGuiKey as Key };
 export declare enum ImGuiKey {
     Tab = 0,
@@ -344,13 +378,22 @@ export declare enum ImGuiKey {
     Space = 12,
     Enter = 13,
     Escape = 14,
-    A = 15,
-    C = 16,
-    V = 17,
-    X = 18,
-    Y = 19,
-    Z = 20,
-    COUNT = 21
+    KeyPadEnter = 15,
+    A = 16,
+    C = 17,
+    V = 18,
+    X = 19,
+    Y = 20,
+    Z = 21,
+    COUNT = 22
+}
+export { ImGuiKeyModFlags as KeyModFlags };
+export declare enum ImGuiKeyModFlags {
+    None = 0,
+    Ctrl = 1,
+    Shift = 2,
+    Alt = 4,
+    Super = 8
 }
 export { ImGuiNavInput as NavInput };
 export declare enum ImGuiNavInput {
@@ -371,12 +414,11 @@ export declare enum ImGuiNavInput {
     TweakSlow = 14,
     TweakFast = 15,
     KeyMenu_ = 16,
-    KeyTab_ = 17,
-    KeyLeft_ = 18,
-    KeyRight_ = 19,
-    KeyUp_ = 20,
-    KeyDown_ = 21,
-    COUNT = 22,
+    KeyLeft_ = 17,
+    KeyRight_ = 18,
+    KeyUp_ = 19,
+    KeyDown_ = 20,
+    COUNT = 21,
     InternalStart_ = 16
 }
 export { ImGuiConfigFlags as ConfigFlags };
@@ -436,13 +478,18 @@ export declare enum ImGuiCol {
     PlotLinesHovered = 39,
     PlotHistogram = 40,
     PlotHistogramHovered = 41,
-    TextSelectedBg = 42,
-    DragDropTarget = 43,
-    NavHighlight = 44,
-    NavWindowingHighlight = 45,
-    NavWindowingDimBg = 46,
-    ModalWindowDimBg = 47,
-    COUNT = 48
+    TableHeaderBg = 42,
+    TableBorderStrong = 43,
+    TableBorderLight = 44,
+    TableRowBg = 45,
+    TableRowBgAlt = 46,
+    TextSelectedBg = 47,
+    DragDropTarget = 48,
+    NavHighlight = 49,
+    NavWindowingHighlight = 50,
+    NavWindowingDimBg = 51,
+    ModalWindowDimBg = 52,
+    COUNT = 53
 }
 export { ImGuiStyleVar as StyleVar };
 export declare enum ImGuiStyleVar {
@@ -470,7 +517,6 @@ export declare enum ImGuiStyleVar {
     TabRounding = 21,
     ButtonTextAlign = 22,
     SelectableTextAlign = 23,
-    Count_ = 24,
     COUNT = 24
 }
 export { ImGuiBackendFlags as BackendFlags };
@@ -480,6 +526,15 @@ export declare enum ImGuiBackendFlags {
     HasMouseCursors = 2,
     HasSetMousePos = 4,
     RendererHasVtxOffset = 8
+}
+export { ImGuiButtonFlags as ButtonFlags };
+export declare enum ImGuiButtonFlags {
+    None = 0,
+    MouseButtonLeft = 1,
+    MouseButtonRight = 2,
+    MouseButtonMiddle = 4,
+    MouseButtonMask_ = 7,
+    MouseButtonDefault_ = 1
 }
 export { ImGuiColorEditFlags as ColorEditFlags };
 export declare enum ImGuiColorEditFlags {
@@ -493,6 +548,7 @@ export declare enum ImGuiColorEditFlags {
     NoLabel = 128,
     NoSidePreview = 256,
     NoDragDrop = 512,
+    NoBorder = 1024,
     AlphaBar = 65536,
     AlphaPreview = 131072,
     AlphaPreviewHalf = 262144,
@@ -521,6 +577,13 @@ export declare enum ImGuiSliderFlags {
     NoInput = 128,
     InvalidMask_ = 1879048207
 }
+export { ImGuiMouseButton as MouseButton };
+export declare enum ImGuiMouseButton {
+    Left = 0,
+    Right = 1,
+    Middle = 2,
+    COUNT = 5
+}
 export { ImGuiMouseCursor as MouseCursor };
 export declare enum ImGuiMouseCursor {
     None = -1,
@@ -532,18 +595,20 @@ export declare enum ImGuiMouseCursor {
     ResizeNESW = 5,
     ResizeNWSE = 6,
     Hand = 7,
-    Count_ = 8,
-    COUNT = 8
+    NotAllowed = 8,
+    COUNT = 9
 }
 export { ImGuiCond as Cond };
 export declare enum ImGuiCond {
+    None = 0,
     Always = 1,
     Once = 2,
     FirstUseEver = 4,
     Appearing = 8
 }
-export { ImDrawCornerFlags as wCornerFlags };
+export { ImDrawCornerFlags as DrawCornerFlags };
 export declare enum ImDrawCornerFlags {
+    None = 0,
     TopLeft = 1,
     TopRight = 2,
     BotLeft = 4,
@@ -558,11 +623,15 @@ export { ImDrawListFlags as wListFlags };
 export declare enum ImDrawListFlags {
     None = 0,
     AntiAliasedLines = 1,
-    AntiAliasedFill = 2
+    AntiAliasedLinesUseTex = 2,
+    AntiAliasedFill = 4,
+    AllowVtxOffset = 8
 }
-export { ImU32 } from "bind-imgui";
+export { ImU32 as U32 };
+export declare type ImU32 = Bind.ImU32;
 export { interface_ImVec2 } from "bind-imgui";
 export { reference_ImVec2 } from "bind-imgui";
+export { ImVec2 as Vec2 };
 export declare class ImVec2 implements Bind.interface_ImVec2 {
     x: number;
     y: number;
@@ -577,6 +646,7 @@ export declare class ImVec2 implements Bind.interface_ImVec2 {
 }
 export { interface_ImVec4 } from "bind-imgui";
 export { reference_ImVec4 } from "bind-imgui";
+export { ImVec4 as Vec4 };
 export declare class ImVec4 implements Bind.interface_ImVec4 {
     x: number;
     y: number;
@@ -595,6 +665,7 @@ export declare class ImVec4 implements Bind.interface_ImVec4 {
     Copy(other: Readonly<Bind.interface_ImVec4>): this;
     Equals(other: Readonly<Bind.interface_ImVec4>): boolean;
 }
+export { ImVector as Vector };
 export declare class ImVector<T> extends Array<T> {
     get Size(): number;
     Data: T[];
@@ -602,7 +673,16 @@ export declare class ImVector<T> extends Array<T> {
     clear(): void;
     pop_back(): T | undefined;
     push_back(value: T): void;
+    front(): T;
+    back(): T;
+    size(): number;
+    resize(new_size: number, v?: (index: number) => T): void;
+    contains(value: T): boolean;
+    find_erase_unsorted(value: T): void;
 }
+export { IM_UNICODE_CODEPOINT_MAX as UNICODE_CODEPOINT_MAX };
+export declare const IM_UNICODE_CODEPOINT_MAX: number;
+export { ImGuiTextFilter as TextFilter };
 export declare class ImGuiTextFilter {
     constructor(default_filter?: string);
     Draw(label?: string, width?: number): boolean;
@@ -613,6 +693,7 @@ export declare class ImGuiTextFilter {
     InputBuf: ImStringBuffer;
     CountGrep: number;
 }
+export { ImGuiTextBuffer as TextBuffer };
 export declare class ImGuiTextBuffer {
     Buf: string;
     begin(): string;
@@ -633,6 +714,7 @@ export declare class ImGuiWindowClass implements Bind.interface_ImGuiWindowClass
     DockingAllowUnclassed: boolean;
     constructor(ClassId?: number, TabItemFlagsOverrideSet?: ImGuiTabItemFlags, DockNodeFlagsOverrideSet?: ImGuiDockNodeFlags, DockNodeFlagsOverrideClear?: ImGuiDockNodeFlags, DockingAlwaysTabBar?: boolean, DockingAllowUnclassed?: boolean);
 }
+export { ImGuiPayload as Payload };
 export interface ImGuiPayload<T> {
     Data: T;
 }
@@ -641,10 +723,15 @@ export declare const IM_COL32_G_SHIFT: number;
 export declare const IM_COL32_B_SHIFT: number;
 export declare const IM_COL32_A_SHIFT: number;
 export declare const IM_COL32_A_MASK: number;
+export { IM_COL32 as COL32 };
 export declare function IM_COL32(R: number, G: number, B: number, A?: number): number;
 export declare const IM_COL32_WHITE: number;
+export { IM_COL32_WHITE as COL32_WHITE };
 export declare const IM_COL32_BLACK: number;
+export { IM_COL32_BLACK as COL32_BLACK };
 export declare const IM_COL32_BLACK_TRANS: number;
+export { IM_COL32_BLACK_TRANS as COL32_BLACK_TRANS };
+export { ImColor as Color };
 export declare class ImColor {
     Value: ImVec4;
     constructor();
@@ -657,12 +744,15 @@ export declare class ImColor {
     SetHSV(h: number, s: number, v: number, a?: number): void;
     static HSV(h: number, s: number, v: number, a?: number): ImColor;
 }
+export { ImGuiInputTextDefaultSize as InputTextDefaultSize };
 export declare const ImGuiInputTextDefaultSize: number;
-export declare type ImGuiInputTextCallback = (data: ImGuiInputTextCallbackData) => number;
-export declare class ImGuiInputTextCallbackData {
+export { ImGuiInputTextCallback as InputTextCallback };
+export declare type ImGuiInputTextCallback<T> = (data: ImGuiInputTextCallbackData<T>) => number;
+export { ImGuiInputTextCallbackData as InputTextCallbackData };
+export declare class ImGuiInputTextCallbackData<T> {
     readonly native: Bind.reference_ImGuiInputTextCallbackData;
-    readonly UserData: any;
-    constructor(native: Bind.reference_ImGuiInputTextCallbackData, UserData: any);
+    readonly UserData: T | null;
+    constructor(native: Bind.reference_ImGuiInputTextCallbackData, UserData?: T | null);
     get EventFlag(): ImGuiInputTextFlags;
     get Flags(): ImGuiInputTextFlags;
     get EventChar(): Bind.ImWchar;
@@ -682,47 +772,55 @@ export declare class ImGuiInputTextCallbackData {
     set SelectionEnd(value: number);
     DeleteChars(pos: number, bytes_count: number): void;
     InsertChars(pos: number, text: string, text_end?: number | null): void;
+    SelectAll(): void;
+    ClearSelection(): void;
     HasSelection(): boolean;
 }
-export declare type ImGuiSizeConstraintCallback = (data: ImGuiSizeCallbackData) => void;
-export declare class ImGuiSizeCallbackData {
+export { ImGuiSizeCallback as SizeCallback };
+export declare type ImGuiSizeCallback<T> = (data: ImGuiSizeCallbackData<T>) => void;
+export { ImGuiSizeCallbackData as SizeCallbackData };
+export declare class ImGuiSizeCallbackData<T> {
     readonly native: Bind.reference_ImGuiSizeCallbackData;
-    readonly UserData: any;
-    constructor(native: Bind.reference_ImGuiSizeCallbackData, UserData: any);
+    readonly UserData: T;
+    constructor(native: Bind.reference_ImGuiSizeCallbackData, UserData: T);
     get Pos(): Readonly<Bind.interface_ImVec2>;
     get CurrentSize(): Readonly<Bind.interface_ImVec2>;
     get DesiredSize(): Bind.interface_ImVec2;
 }
+export { ImGuiTableColumnSortSpecs as TableColumnSortSpecs };
+export declare class ImGuiTableColumnSortSpecs {
+    readonly native: Bind.reference_ImGuiTableColumnSortSpecs;
+    constructor(native: Bind.reference_ImGuiTableColumnSortSpecs);
+    get ColumnUserID(): ImGuiID;
+    get ColumnIndex(): Bind.ImS16;
+    get SortOrder(): Bind.ImS16;
+    get SortDirection(): ImGuiSortDirection;
+}
+export { ImGuiTableSortSpecs as TableSortSpecs };
+export declare class ImGuiTableSortSpecs {
+    readonly native: Bind.reference_ImGuiTableSortSpecs;
+    constructor(native: Bind.reference_ImGuiTableSortSpecs);
+    private _Specs;
+    get Specs(): Readonly<ImGuiTableColumnSortSpecs[]>;
+    get SpecsCount(): number;
+    get SpecsDirty(): boolean;
+    set SpecsDirty(value: boolean);
+}
+export { ImGuiListClipper as ListClipper };
 export declare class ImGuiListClipper {
     private _native;
     private get native();
-    private items_count;
-    private items_height;
-    get StartPosY(): number;
-    get ItemsHeight(): number;
-    get ItemsCount(): number;
-    get StepNo(): number;
     get DisplayStart(): number;
     get DisplayEnd(): number;
-    constructor();
+    get ItemsCount(): number;
+    get StepNo(): number;
+    get ItemsFrozen(): number;
+    get ItemsHeight(): number;
+    get StartPosY(): number;
     delete(): void;
-    Step(): boolean;
     Begin(items_count: number, items_height?: number): void;
     End(): void;
-}
-export { ImGuiViewportFlags as ViewportFlags };
-export declare enum ImGuiViewportFlags {
-    None = 0,
-    NoDecoration = 1,
-    NoTaskBarIcon = 2,
-    NoFocusOnAppearing = 4,
-    NoFocusOnClick = 8,
-    NoInputs = 16,
-    NoRendererClear = 32,
-    TopMost = 64,
-    Minimized = 128,
-    NoAutoMerge = 256,
-    CanHostOtherWindows = 512
+    Step(): boolean;
 }
 export declare class ImGuiViewport {
     readonly native: Bind.reference_ImGuiViewport;
@@ -738,25 +836,10 @@ export declare class ImGuiViewport {
     GetWorkPos(): Bind.interface_ImVec2;
     GetWorkSize(): Bind.interface_ImVec2;
 }
-export declare class ImGuiTableColumnSortSpecs {
-    readonly native: Bind.reference_ImGuiTableColumnSortSpecs;
-    constructor(native: Bind.reference_ImGuiTableColumnSortSpecs);
-    get ColumnUserID(): number;
-    get ColumnIndex(): number;
-    get SortOrder(): number;
-    get SortDirection(): number;
-}
-export declare class ImGuiTableSortSpecs {
-    readonly native: Bind.reference_ImGuiTableSortSpecs;
-    constructor(native: Bind.reference_ImGuiTableSortSpecs);
-    get Specs(): Readonly<ImGuiTableColumnSortSpecs[]>;
-    get SpecsCount(): number;
-    get SpecsDirty(): boolean;
-    set SpecsDirty(value: boolean);
-}
-export { reference_ImGuiTableSortSpecs } from "bind-imgui";
+export declare const IM_DRAWLIST_TEX_LINES_WIDTH_MAX: number;
 export declare type ImDrawCallback = (parent_list: Readonly<ImDrawList>, cmd: Readonly<ImDrawCmd>) => void;
 export declare const ImDrawCallback_ResetRenderState = -1;
+export { ImDrawCmd as DrawCmd };
 export declare class ImDrawCmd {
     readonly native: Bind.reference_ImDrawCmd;
     constructor(native: Bind.reference_ImDrawCmd);
@@ -768,17 +851,26 @@ export declare class ImDrawCmd {
     readonly UserCallback: ImDrawCallback | null;
     readonly UserCallbackData: any;
 }
+export { ImDrawIdxSize as DrawIdxSize };
 export declare const ImDrawIdxSize: number;
+export { ImDrawIdx as DrawIdx };
 export declare type ImDrawIdx = number;
+export { ImDrawVertSize as DrawVertSize };
 export declare const ImDrawVertSize: number;
+export { ImDrawVertPosOffset as DrawVertPosOffset };
 export declare const ImDrawVertPosOffset: number;
+export { ImDrawVertUVOffset as DrawVertUVOffset };
 export declare const ImDrawVertUVOffset: number;
+export { ImDrawVertColOffset as DrawVertColOffset };
 export declare const ImDrawVertColOffset: number;
+export { ImDrawVert as DrawVert };
 export declare class ImDrawVert {
     pos: Float32Array;
     uv: Float32Array;
     col: Uint32Array;
     constructor(buffer: ArrayBuffer, byteOffset?: number);
+}
+export declare class ImDrawCmdHeader {
 }
 export declare class ImDrawChannel {
 }
@@ -786,6 +878,7 @@ export declare class ImDrawListSharedData {
     readonly native: Bind.reference_ImDrawListSharedData;
     constructor(native: Bind.reference_ImDrawListSharedData);
 }
+export { ImDrawList as DrawList };
 export declare class ImDrawList {
     readonly native: Bind.reference_ImDrawList;
     constructor(native: Bind.reference_ImDrawList);
@@ -811,14 +904,17 @@ export declare class ImDrawList {
     AddTriangleFilled(a: Readonly<Bind.interface_ImVec2>, b: Readonly<Bind.interface_ImVec2>, c: Readonly<Bind.interface_ImVec2>, col: Bind.ImU32): void;
     AddCircle(centre: Readonly<Bind.interface_ImVec2>, radius: number, col: Bind.ImU32, num_segments?: number, thickness?: number): void;
     AddCircleFilled(centre: Readonly<Bind.interface_ImVec2>, radius: number, col: Bind.ImU32, num_segments?: number): void;
+    AddNgon(centre: Readonly<Bind.interface_ImVec2>, radius: number, col: Bind.ImU32, num_segments: number, thickness?: number): void;
+    AddNgonFilled(centre: Readonly<Bind.interface_ImVec2>, radius: number, col: Bind.ImU32, num_segments: number): void;
     AddText(pos: Readonly<Bind.interface_ImVec2>, col: Bind.ImU32, text_begin: string, text_end?: number | null): void;
     AddText(font: ImFont, font_size: number, pos: Readonly<Bind.interface_ImVec2>, col: Bind.ImU32, text_begin: string, text_end?: number | null, wrap_width?: number, cpu_fine_clip_rect?: Readonly<Bind.interface_ImVec4> | null): void;
+    AddPolyline(points: Array<Readonly<Bind.interface_ImVec2>>, num_points: number, col: Bind.ImU32, closed: boolean, thickness: number): void;
+    AddConvexPolyFilled(points: Array<Readonly<Bind.interface_ImVec2>>, num_points: number, col: Bind.ImU32): void;
+    AddBezierCubic(p1: Readonly<Bind.interface_ImVec2>, p2: Readonly<Bind.interface_ImVec2>, p3: Readonly<Bind.interface_ImVec2>, p4: Readonly<Bind.interface_ImVec2>, col: Bind.ImU32, thickness?: number, num_segments?: number): void;
+    AddBezierQuadratic(p1: Readonly<Bind.interface_ImVec2>, p2: Readonly<Bind.interface_ImVec2>, p3: Readonly<Bind.interface_ImVec2>, col: Bind.ImU32, thickness?: number, num_segments?: number): void;
     AddImage(user_texture_id: ImTextureID | null, a: Readonly<Bind.interface_ImVec2>, b: Readonly<Bind.interface_ImVec2>, uv_a?: Readonly<Bind.interface_ImVec2>, uv_b?: Readonly<Bind.interface_ImVec2>, col?: Bind.ImU32): void;
     AddImageQuad(user_texture_id: ImTextureID | null, a: Readonly<Bind.interface_ImVec2>, b: Readonly<Bind.interface_ImVec2>, c: Readonly<Bind.interface_ImVec2>, d: Readonly<Bind.interface_ImVec2>, uv_a?: Readonly<Bind.interface_ImVec2>, uv_b?: Readonly<Bind.interface_ImVec2>, uv_c?: Readonly<Bind.interface_ImVec2>, uv_d?: Readonly<Bind.interface_ImVec2>, col?: Bind.ImU32): void;
     AddImageRounded(user_texture_id: ImTextureID | null, a: Readonly<Bind.interface_ImVec2>, b: Readonly<Bind.interface_ImVec2>, uv_a: Readonly<Bind.interface_ImVec2>, uv_b: Readonly<Bind.interface_ImVec2>, col: Bind.ImU32, rounding: number, rounding_corners?: ImDrawCornerFlags): void;
-    AddPolyline(points: Array<Readonly<Bind.interface_ImVec2>>, num_points: number, col: Bind.ImU32, closed: boolean, thickness: number): void;
-    AddConvexPolyFilled(points: Array<Readonly<Bind.interface_ImVec2>>, num_points: number, col: Bind.ImU32): void;
-    AddBezierCubic(pos0: Readonly<Bind.interface_ImVec2>, cp0: Readonly<Bind.interface_ImVec2>, cp1: Readonly<Bind.interface_ImVec2>, pos1: Readonly<Bind.interface_ImVec2>, col: Bind.ImU32, thickness?: number, num_segments?: number): void;
     PathClear(): void;
     PathLineTo(pos: Readonly<Bind.interface_ImVec2>): void;
     PathLineToMergeDuplicate(pos: Readonly<Bind.interface_ImVec2>): void;
@@ -826,25 +922,24 @@ export declare class ImDrawList {
     PathStroke(col: Bind.ImU32, closed: boolean, thickness?: number): void;
     PathArcTo(centre: Readonly<Bind.interface_ImVec2>, radius: number, a_min: number, a_max: number, num_segments?: number): void;
     PathArcToFast(centre: Readonly<Bind.interface_ImVec2>, radius: number, a_min_of_12: number, a_max_of_12: number): void;
-    PathBezierCubicCurveTo(p1: Readonly<Bind.interface_ImVec2>, p2: Readonly<Bind.interface_ImVec2>, p3: Readonly<Bind.interface_ImVec2>, num_segments?: number): void;
+    PathBezierCubicCurveTo(p2: Readonly<Bind.interface_ImVec2>, p3: Readonly<Bind.interface_ImVec2>, p4: Readonly<Bind.interface_ImVec2>, num_segments?: number): void;
+    PathBezierQuadraticCurveTo(p2: Readonly<Bind.interface_ImVec2>, p3: Readonly<Bind.interface_ImVec2>, num_segments?: number): void;
     PathRect(rect_min: Readonly<Bind.interface_ImVec2>, rect_max: Readonly<Bind.interface_ImVec2>, rounding?: number, rounding_corners_flags?: ImDrawCornerFlags): void;
     ChannelsSplit(channels_count: number): void;
     ChannelsMerge(): void;
     ChannelsSetCurrent(channel_index: number): void;
     AddCallback(callback: ImDrawCallback, callback_data: any): void;
     AddDrawCmd(): void;
-    Clear(): void;
-    ClearFreeMemory(): void;
     PrimReserve(idx_count: number, vtx_count: number): void;
+    PrimUnreserve(idx_count: number, vtx_count: number): void;
     PrimRect(a: Readonly<Bind.interface_ImVec2>, b: Readonly<Bind.interface_ImVec2>, col: Bind.ImU32): void;
     PrimRectUV(a: Readonly<Bind.interface_ImVec2>, b: Readonly<Bind.interface_ImVec2>, uv_a: Readonly<Bind.interface_ImVec2>, uv_b: Readonly<Bind.interface_ImVec2>, col: Bind.ImU32): void;
     PrimQuadUV(a: Readonly<Bind.interface_ImVec2>, b: Readonly<Bind.interface_ImVec2>, c: Readonly<Bind.interface_ImVec2>, d: Readonly<Bind.interface_ImVec2>, uv_a: Readonly<Bind.interface_ImVec2>, uv_b: Readonly<Bind.interface_ImVec2>, uv_c: Readonly<Bind.interface_ImVec2>, uv_d: Readonly<Bind.interface_ImVec2>, col: Bind.ImU32): void;
     PrimWriteVtx(pos: Readonly<Bind.interface_ImVec2>, uv: Readonly<Bind.interface_ImVec2>, col: Bind.ImU32): void;
     PrimWriteIdx(idx: ImDrawIdx): void;
     PrimVtx(pos: Readonly<Bind.interface_ImVec2>, uv: Readonly<Bind.interface_ImVec2>, col: Bind.ImU32): void;
-    UpdateClipRect(): void;
-    UpdateTextureID(): void;
 }
+export { ImDrawData as DrawData };
 export declare class ImDrawData {
     readonly native: Bind.reference_ImDrawData;
     constructor(native: Bind.reference_ImDrawData);
@@ -875,9 +970,11 @@ export declare class script_ImFontConfig implements Bind.interface_ImFontConfig 
     MergeMode: boolean;
     RasterizerFlags: number;
     RasterizerMultiply: number;
+    EllipsisChar: number;
     Name: string;
     DstFont: Bind.reference_ImFont | null;
 }
+export { ImFontConfig as FontConfig };
 export declare class ImFontConfig {
     readonly internal: Bind.interface_ImFontConfig;
     constructor(internal?: Bind.interface_ImFontConfig);
@@ -905,6 +1002,7 @@ export declare class ImFontConfig {
 }
 export declare class script_ImFontGlyph implements Bind.interface_ImFontGlyph {
     Codepoint: number;
+    Visible: boolean;
     AdvanceX: number;
     X0: number;
     Y0: number;
@@ -915,10 +1013,12 @@ export declare class script_ImFontGlyph implements Bind.interface_ImFontGlyph {
     U1: number;
     V1: number;
 }
+export { ImFontGlyph as FontGlyph };
 export declare class ImFontGlyph implements Bind.interface_ImFontGlyph {
     readonly internal: Bind.interface_ImFontGlyph;
     constructor(internal?: Bind.interface_ImFontGlyph);
     get Codepoint(): number;
+    get Visible(): boolean;
     get AdvanceX(): number;
     get X0(): number;
     get Y0(): number;
@@ -929,11 +1029,16 @@ export declare class ImFontGlyph implements Bind.interface_ImFontGlyph {
     get U1(): number;
     get V1(): number;
 }
+export declare class ImFontAtlasCustomRect {
+}
+export { ImFontAtlasFlags as FontAtlasFlags };
 export declare enum ImFontAtlasFlags {
     None = 0,
     NoPowerOfTwoHeight = 1,
-    NoMouseCursors = 2
+    NoMouseCursors = 2,
+    NoBakedLines = 4
 }
+export { ImFontAtlas as FontAtlas };
 export declare class ImFontAtlas {
     readonly native: Bind.reference_ImFontAtlas;
     constructor(native: Bind.reference_ImFontAtlas);
@@ -982,6 +1087,7 @@ export declare class ImFontAtlas {
     get TexUvWhitePixel(): Readonly<Bind.reference_ImVec2>;
     get Fonts(): ImVector<ImFont>;
 }
+export { ImFont as Font };
 export declare class ImFont {
     readonly native: Bind.reference_ImFont;
     constructor(native: Bind.reference_ImFont);
@@ -993,6 +1099,7 @@ export declare class ImFont {
     set FallbackGlyph(value: ImFontGlyph | null);
     get FallbackAdvanceX(): number;
     get FallbackChar(): number;
+    get EllipsisChar(): number;
     get ConfigDataCount(): number;
     get ConfigData(): ImFontConfig[];
     get ContainerAtlas(): ImFontAtlas | null;
@@ -1011,7 +1118,9 @@ export declare class ImFont {
     CalcWordWrapPositionA(scale: number, text: string, text_end: number | null | undefined, wrap_width: number): number;
     RenderChar(draw_list: ImDrawList, size: number, pos: Readonly<Bind.interface_ImVec2>, col: Bind.ImU32, c: Bind.ImWchar): void;
     RenderText(draw_list: ImDrawList, size: number, pos: Readonly<Bind.interface_ImVec2>, col: Bind.ImU32, clip_rect: Readonly<Bind.interface_ImVec4>, text_begin: string, text_end?: number | null, wrap_width?: number, cpu_fine_clip?: boolean): void;
+    IsGlyphRangeUnused(c_begin: number, c_last: number): boolean;
 }
+export { ImGuiStyle as Style };
 export declare class ImGuiStyle {
     readonly internal: Bind.interface_ImGuiStyle;
     constructor(internal?: Bind.interface_ImGuiStyle);
@@ -1041,6 +1150,7 @@ export declare class ImGuiStyle {
     set FrameBorderSize(value: number);
     get ItemSpacing(): Bind.interface_ImVec2;
     get ItemInnerSpacing(): Bind.interface_ImVec2;
+    get CellPadding(): Bind.interface_ImVec2;
     get TouchExtraPadding(): Bind.interface_ImVec2;
     get IndentSpacing(): number;
     set IndentSpacing(value: number);
@@ -1054,10 +1164,16 @@ export declare class ImGuiStyle {
     set GrabMinSize(value: number);
     get GrabRounding(): number;
     set GrabRounding(value: number);
+    get LogSliderDeadzone(): number;
+    set LogSliderDeadzone(value: number);
     get TabRounding(): number;
     set TabRounding(value: number);
     get TabBorderSize(): number;
     set TabBorderSize(value: number);
+    get TabMinWidthForCloseButton(): number;
+    set TabMinWidthForCloseButton(value: number);
+    get ColorButtonPosition(): number;
+    set ColorButtonPosition(value: number);
     get ButtonTextAlign(): Bind.interface_ImVec2;
     get SelectableTextAlign(): Bind.interface_ImVec2;
     get DisplayWindowPadding(): Bind.interface_ImVec2;
@@ -1066,14 +1182,19 @@ export declare class ImGuiStyle {
     set MouseCursorScale(value: number);
     get AntiAliasedLines(): boolean;
     set AntiAliasedLines(value: boolean);
+    get AntiAliasedLinesUseTex(): boolean;
+    set AntiAliasedLinesUseTex(value: boolean);
     get AntiAliasedFill(): boolean;
     set AntiAliasedFill(value: boolean);
     get CurveTessellationTol(): number;
     set CurveTessellationTol(value: number);
+    get CircleSegmentMaxError(): number;
+    set CircleSegmentMaxError(value: number);
     Colors: Bind.interface_ImVec4[];
     Copy(other: Readonly<ImGuiStyle>): this;
     ScaleAllSizes(scale_factor: number): void;
 }
+export { ImGuiIO as IO };
 export declare class ImGuiIO {
     readonly native: Bind.reference_ImGuiIO;
     constructor(native: Bind.reference_ImGuiIO);
@@ -1123,10 +1244,14 @@ export declare class ImGuiIO {
     set ConfigMacOSXBehaviors(value: boolean);
     get ConfigInputTextCursorBlink(): boolean;
     set ConfigInputTextCursorBlink(value: boolean);
+    get ConfigDragClickToInputText(): boolean;
+    set ConfigDragClickToInputText(value: boolean);
     get ConfigWindowsResizeFromEdges(): boolean;
     set ConfigWindowsResizeFromEdges(value: boolean);
     get ConfigWindowsMoveFromTitleBarOnly(): boolean;
     set ConfigWindowsMoveFromTitleBarOnly(value: boolean);
+    get ConfigMemoryCompactTimer(): number;
+    set ConfigMemoryCompactTimer(value: number);
     get BackendPlatformName(): string | null;
     set BackendPlatformName(value: string | null);
     get BackendRendererName(): string | null;
@@ -1162,6 +1287,7 @@ export declare class ImGuiIO {
     KeysDown: boolean[];
     NavInputs: number[];
     AddInputCharacter(c: number): void;
+    AddInputCharacterUTF16(c: number): void;
     AddInputCharactersUTF8(utf8_chars: string): void;
     ClearInputCharacters(): void;
     get WantCaptureMouse(): boolean;
@@ -1195,7 +1321,7 @@ export declare class ImGuiContext {
     static current_ctx: ImGuiContext | null;
     static getTexture(index: number): ImTextureID | null;
     static setTexture(texture: ImTextureID | null): number;
-    private textures;
+    private static textures;
     constructor(native: Bind.WrapImGuiContext);
     private _getTexture;
     private _setTexture;
@@ -1204,7 +1330,6 @@ export declare function CreateContext(shared_font_atlas?: ImFontAtlas | null): I
 export declare function DestroyContext(ctx?: ImGuiContext | null): void;
 export declare function GetCurrentContext(): ImGuiContext | null;
 export declare function SetCurrentContext(ctx: ImGuiContext | null): void;
-export declare function DebugCheckVersionAndDataLayout(version_str: string, sz_io: number, sz_style: number, sz_vec2: number, sz_vec4: number, sz_draw_vert: number, sz_draw_idx: number): boolean;
 export declare function GetIO(): ImGuiIO;
 export declare function GetStyle(): ImGuiStyle;
 export declare function NewFrame(): void;
@@ -1212,36 +1337,33 @@ export declare function EndFrame(): void;
 export declare function Render(): void;
 export declare function GetDrawData(): ImDrawData | null;
 export declare function ShowDemoWindow(p_open?: Bind.ImScalar<boolean> | null): void;
-export declare function ShowAboutWindow(p_open?: Bind.ImScalar<boolean> | Bind.ImAccess<boolean> | null): void;
 export declare function ShowMetricsWindow(p_open?: Bind.ImScalar<boolean> | Bind.ImAccess<boolean> | null): void;
+export declare function ShowAboutWindow(p_open?: Bind.ImScalar<boolean> | Bind.ImAccess<boolean> | null): void;
 export declare function ShowStyleEditor(ref?: ImGuiStyle | null): void;
 export declare function ShowStyleSelector(label: string): boolean;
 export declare function ShowFontSelector(label: string): void;
 export declare function ShowUserGuide(): void;
 export declare function GetVersion(): string;
-export declare function StyleColorsClassic(dst?: ImGuiStyle | null): void;
 export declare function StyleColorsDark(dst?: ImGuiStyle | null): void;
 export declare function StyleColorsLight(dst?: ImGuiStyle | null): void;
+export declare function StyleColorsClassic(dst?: ImGuiStyle | null): void;
 export declare function Begin(name: string, open?: Bind.ImScalar<boolean> | Bind.ImAccess<boolean> | null, flags?: ImGuiWindowFlags): boolean;
 export declare function End(): void;
-export declare function BeginChild(id: string | Bind.ImGuiID, size?: Readonly<Bind.interface_ImVec2>, border?: boolean, extra_flags?: ImGuiWindowFlags): boolean;
+export declare function BeginChild(id: string | ImGuiID, size?: Readonly<Bind.interface_ImVec2>, border?: boolean, flags?: ImGuiWindowFlags): boolean;
 export declare function EndChild(): void;
-export declare function GetContentRegionMax(out?: Bind.interface_ImVec2): Bind.interface_ImVec2;
-export declare function GetContentRegionAvail(out?: Bind.interface_ImVec2): Bind.interface_ImVec2;
-export declare function GetWindowContentRegionMin(out?: Bind.interface_ImVec2): Bind.interface_ImVec2;
-export declare function GetWindowContentRegionMax(out?: Bind.interface_ImVec2): Bind.interface_ImVec2;
-export declare function GetWindowContentRegionWidth(): number;
+export declare function IsWindowAppearing(): boolean;
+export declare function IsWindowCollapsed(): boolean;
+export declare function IsWindowFocused(flags?: ImGuiFocusedFlags): boolean;
+export declare function IsWindowHovered(flags?: ImGuiHoveredFlags): boolean;
 export declare function GetWindowDrawList(): ImDrawList;
 export declare function GetWindowPos(out?: Bind.interface_ImVec2): Bind.interface_ImVec2;
 export declare function GetWindowSize(out?: Bind.interface_ImVec2): Bind.interface_ImVec2;
 export declare function GetWindowWidth(): number;
 export declare function GetWindowHeight(): number;
-export declare function IsWindowCollapsed(): boolean;
-export declare function IsWindowAppearing(): boolean;
-export declare function SetWindowFontScale(scale: number): void;
 export declare function SetNextWindowPos(pos: Readonly<Bind.interface_ImVec2>, cond?: ImGuiCond, pivot?: Readonly<Bind.interface_ImVec2>): void;
 export declare function SetNextWindowSize(pos: Readonly<Bind.interface_ImVec2>, cond?: ImGuiCond): void;
-export declare function SetNextWindowSizeConstraints(size_min: Readonly<Bind.interface_ImVec2>, size_max: Readonly<Bind.interface_ImVec2>, custom_callback?: ImGuiSizeConstraintCallback | null, custom_callback_data?: any): void;
+export declare function SetNextWindowSizeConstraints(size_min: Readonly<Bind.interface_ImVec2>, size_max: Readonly<Bind.interface_ImVec2>): void;
+export declare function SetNextWindowSizeConstraints<T>(size_min: Readonly<Bind.interface_ImVec2>, size_max: Readonly<Bind.interface_ImVec2>, custom_callback: ImGuiSizeCallback<T>, custom_callback_data?: T): void;
 export declare function SetNextWindowContentSize(size: Readonly<Bind.interface_ImVec2>): void;
 export declare function SetNextWindowCollapsed(collapsed: boolean, cond?: ImGuiCond): void;
 export declare function SetNextWindowFocus(): void;
@@ -1251,13 +1373,21 @@ export declare function SetWindowPos(name_or_pos: string | Readonly<Bind.interfa
 export declare function SetWindowSize(name_or_size: string | Readonly<Bind.interface_ImVec2>, size_or_cond?: Readonly<Bind.interface_ImVec2> | ImGuiCond, cond?: ImGuiCond): void;
 export declare function SetWindowCollapsed(name_or_collapsed: string | boolean, collapsed_or_cond?: boolean | ImGuiCond, cond?: ImGuiCond): void;
 export declare function SetWindowFocus(name?: string): void;
+export declare function SetWindowFontScale(scale: number): void;
+export declare function GetContentRegionAvail(out?: Bind.interface_ImVec2): Bind.interface_ImVec2;
+export declare function GetContentRegionMax(out?: Bind.interface_ImVec2): Bind.interface_ImVec2;
+export declare function GetWindowContentRegionMin(out?: Bind.interface_ImVec2): Bind.interface_ImVec2;
+export declare function GetWindowContentRegionMax(out?: Bind.interface_ImVec2): Bind.interface_ImVec2;
+export declare function GetWindowContentRegionWidth(): number;
 export declare function GetScrollX(): number;
 export declare function GetScrollY(): number;
-export declare function GetScrollMaxX(): number;
-export declare function GetScrollMaxY(): number;
 export declare function SetScrollX(scroll_x: number): void;
 export declare function SetScrollY(scroll_y: number): void;
+export declare function GetScrollMaxX(): number;
+export declare function GetScrollMaxY(): number;
+export declare function SetScrollHereX(center_x_ratio?: number): void;
 export declare function SetScrollHereY(center_y_ratio?: number): void;
+export declare function SetScrollFromPosX(pos_x: number, center_x_ratio?: number): void;
 export declare function SetScrollFromPosY(pos_y: number, center_y_ratio?: number): void;
 export declare function PushFont(font: ImFont | null): void;
 export declare function PopFont(): void;
@@ -1265,23 +1395,23 @@ export declare function PushStyleColor(idx: ImGuiCol, col: Bind.ImU32 | Readonly
 export declare function PopStyleColor(count?: number): void;
 export declare function PushStyleVar(idx: ImGuiStyleVar, val: number | Readonly<Bind.interface_ImVec2>): void;
 export declare function PopStyleVar(count?: number): void;
-export declare function GetStyleColorVec4(idx: ImGuiCol): Readonly<Bind.reference_ImVec4>;
-export declare function GetFont(): ImFont;
-export declare function GetFontSize(): number;
-export declare function GetFontTexUvWhitePixel(out?: Bind.interface_ImVec2): Bind.interface_ImVec2;
-export declare function GetColorU32(idx: ImGuiCol, alpha_mul?: number): Bind.ImU32;
-export declare function GetColorU32(col: Readonly<Bind.interface_ImVec4>): Bind.ImU32;
-export declare function GetColorU32(col: Bind.ImU32): Bind.ImU32;
+export declare function PushAllowKeyboardFocus(allow_keyboard_focus: boolean): void;
+export declare function PopAllowKeyboardFocus(): void;
+export declare function PushButtonRepeat(repeat: boolean): void;
+export declare function PopButtonRepeat(): void;
 export declare function PushItemWidth(item_width: number): void;
 export declare function PopItemWidth(): void;
 export declare function SetNextItemWidth(item_width: number): void;
 export declare function CalcItemWidth(): number;
 export declare function PushTextWrapPos(wrap_pos_x?: number): void;
 export declare function PopTextWrapPos(): void;
-export declare function PushAllowKeyboardFocus(allow_keyboard_focus: boolean): void;
-export declare function PopAllowKeyboardFocus(): void;
-export declare function PushButtonRepeat(repeat: boolean): void;
-export declare function PopButtonRepeat(): void;
+export declare function GetFont(): ImFont;
+export declare function GetFontSize(): number;
+export declare function GetFontTexUvWhitePixel(out?: Bind.interface_ImVec2): Bind.interface_ImVec2;
+export declare function GetColorU32(idx: ImGuiCol, alpha_mul?: number): Bind.ImU32;
+export declare function GetColorU32(col: Readonly<Bind.interface_ImVec4>): Bind.ImU32;
+export declare function GetColorU32(col: Bind.ImU32): Bind.ImU32;
+export declare function GetStyleColorVec4(idx: ImGuiCol): Readonly<Bind.reference_ImVec4>;
 export declare function Separator(): void;
 export declare function SameLine(pos_x?: number, spacing_w?: number): void;
 export declare function NewLine(): void;
@@ -1305,86 +1435,72 @@ export declare function GetTextLineHeight(): number;
 export declare function GetTextLineHeightWithSpacing(): number;
 export declare function GetFrameHeight(): number;
 export declare function GetFrameHeightWithSpacing(): number;
-export declare function Columns(count?: number, id?: string | null, border?: boolean): void;
-export declare function NextColumn(): void;
-export declare function GetColumnIndex(): number;
-export declare function GetColumnWidth(column_index?: number): number;
-export declare function SetColumnWidth(column_index: number, width: number): void;
-export declare function GetColumnOffset(column_index?: number): number;
-export declare function SetColumnOffset(column_index: number, offset_x: number): void;
-export declare function GetColumnsCount(): number;
 export declare function PushID(id: string | number): void;
 export declare function PopID(): void;
-export declare function GetID(id: string | number): Bind.ImGuiID;
+export declare function GetID(id: string | number): ImGuiID;
 export declare function TextUnformatted(text: string, text_end?: number | null): void;
-export declare function Text(fmt: string): void;
-export declare function TextColored(col: Readonly<Bind.interface_ImVec4> | Readonly<ImColor>, fmt: string): void;
-export declare function TextDisabled(fmt: string): void;
-export declare function TextWrapped(fmt: string): void;
-export declare function LabelText(label: string, fmt: string): void;
-export declare function BulletText(fmt: string): void;
-export declare function Bullet(): void;
+export declare function Text(text: string): void;
+export declare function TextColored(col: Readonly<Bind.interface_ImVec4> | Readonly<ImColor>, text: string): void;
+export declare function TextDisabled(text: string): void;
+export declare function TextWrapped(text: string): void;
+export declare function LabelText(label: string, text: string): void;
+export declare function BulletText(text: string): void;
 export declare function Button(label: string, size?: Readonly<Bind.interface_ImVec2>): boolean;
 export declare function SmallButton(label: string): boolean;
 export declare function ArrowButton(str_id: string, dir: ImGuiDir): boolean;
-export declare function InvisibleButton(str_id: string, size: Readonly<Bind.interface_ImVec2>): boolean;
+export declare function InvisibleButton(str_id: string, size: Readonly<Bind.interface_ImVec2>, flags?: ImGuiButtonFlags): boolean;
 export declare function Image(user_texture_id: ImTextureID | null, size: Readonly<Bind.interface_ImVec2>, uv0?: Readonly<Bind.interface_ImVec2>, uv1?: Readonly<Bind.interface_ImVec2>, tint_col?: Readonly<Bind.interface_ImVec4>, border_col?: Readonly<Bind.interface_ImVec4>): void;
-export declare function ImageButton(user_texture_id: ImTextureID | null, size: Readonly<Bind.interface_ImVec2>, uv0?: Readonly<Bind.interface_ImVec2>, uv1?: Readonly<Bind.interface_ImVec2>, frame_padding?: number, bg_col?: Readonly<Bind.interface_ImVec4>, tint_col?: Readonly<Bind.interface_ImVec4>): boolean;
+export declare function ImageButton(user_texture_id: ImTextureID | null, size?: Readonly<Bind.interface_ImVec2>, uv0?: Readonly<Bind.interface_ImVec2>, uv1?: Readonly<Bind.interface_ImVec2>, frame_padding?: number, bg_col?: Readonly<Bind.interface_ImVec4>, tint_col?: Readonly<Bind.interface_ImVec4>): boolean;
 export declare function Checkbox(label: string, v: Bind.ImScalar<boolean> | Bind.ImAccess<boolean>): boolean;
 export declare function CheckboxFlags(label: string, flags: Bind.ImAccess<number> | Bind.ImScalar<number>, flags_value: number): boolean;
 export declare function RadioButton(label: string, active: boolean): boolean;
 export declare function RadioButton(label: string, v: Bind.ImAccess<number> | Bind.ImScalar<number>, v_button: number): boolean;
-export declare type PlotLinesValueGetter = (data: any, idx: number) => number;
-export declare function PlotLines(label: string, values: ArrayLike<number>, values_count?: number, value_offset?: number, overlay_text?: string | null, scale_min?: number, scale_max?: number, graph_size?: Readonly<Bind.interface_ImVec2>, stride?: number): void;
-export declare function PlotLines(label: string, values_getter: PlotLinesValueGetter, data: any, values_count?: number, value_offset?: number, overlay_text?: string | null, scale_min?: number, scale_max?: number, graph_size?: Readonly<Bind.interface_ImVec2>): void;
-export declare type PlotHistogramValueGetter = (data: any, idx: number) => number;
-export declare function PlotHistogram(label: string, values: ArrayLike<number>, values_count?: number, value_offset?: number, overlay_text?: string | null, scale_min?: number, scale_max?: number, graph_size?: Readonly<Bind.interface_ImVec2>, stride?: number): void;
-export declare function PlotHistogram(label: string, values_getter: PlotHistogramValueGetter, data: any, values_count?: number, value_offset?: number, overlay_text?: string | null, scale_min?: number, scale_max?: number, graph_size?: Readonly<Bind.interface_ImVec2>): void;
 export declare function ProgressBar(fraction: number, size_arg?: Readonly<Bind.interface_ImVec2>, overlay?: string | null): void;
+export declare function Bullet(): void;
 export declare function BeginCombo(label: string, preview_value?: string | null, flags?: ImGuiComboFlags): boolean;
 export declare function EndCombo(): void;
-export declare type ComboValueGetter = (data: any, idx: number, out_text: [string]) => boolean;
+export declare type ComboValueGetter<T> = (data: T, idx: number, out_text: [string]) => boolean;
 export declare function Combo(label: string, current_item: Bind.ImAccess<number> | Bind.ImScalar<number>, items: string[], items_count?: number, popup_max_height_in_items?: number): boolean;
 export declare function Combo(label: string, current_item: Bind.ImAccess<number> | Bind.ImScalar<number>, items_separated_by_zeros: string, popup_max_height_in_items?: number): boolean;
-export declare function Combo(label: string, current_item: Bind.ImAccess<number> | Bind.ImScalar<number>, items_getter: ComboValueGetter, data: any, items_count: number, popup_max_height_in_items?: number): boolean;
-export declare function DragFloat(label: string, v: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_speed?: number, v_min?: number, v_max?: number, display_format?: string | null, power?: number): boolean;
-export declare function DragFloat2(label: string, v: XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number> | ImVec2, v_speed?: number, v_min?: number, v_max?: number, display_format?: string, power?: number): boolean;
-export declare function DragFloat3(label: string, v: XYZ | XYZW | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_speed?: number, v_min?: number, v_max?: number, display_format?: string, power?: number): boolean;
-export declare function DragFloat4(label: string, v: XYZW | Bind.ImTuple4<number> | ImVec4, v_speed?: number, v_min?: number, v_max?: number, display_format?: string, power?: number): boolean;
-export declare function DragFloatRange2(label: string, v_current_min: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_current_max: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_speed?: number, v_min?: number, v_max?: number, display_format?: string, display_format_max?: string | null, power?: number): boolean;
-export declare function DragInt(label: string, v: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_speed?: number, v_min?: number, v_max?: number, format?: string): boolean;
-export declare function DragInt2(label: string, v: XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_speed?: number, v_min?: number, v_max?: number, format?: string): boolean;
-export declare function DragInt3(label: string, v: XYZ | XYZW | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_speed?: number, v_min?: number, v_max?: number, format?: string): boolean;
-export declare function DragInt4(label: string, v: XYZW | Bind.ImTuple4<number>, v_speed?: number, v_min?: number, v_max?: number, format?: string): boolean;
-export declare function DragIntRange2(label: string, v_current_min: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_current_max: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_speed?: number, v_min?: number, v_max?: number, format?: string, format_max?: string | null): boolean;
-export declare function DragScalar(label: string, v: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array, v_speed: number, v_min?: number | null, v_max?: number | null, format?: string | null, power?: number): boolean;
-export declare function InputText(label: string, buf: ImStringBuffer | Bind.ImAccess<string> | Bind.ImScalar<string>, buf_size?: number, flags?: ImGuiInputTextFlags, callback?: ImGuiInputTextCallback | null, user_data?: any): boolean;
-export declare function InputTextWithHint(label: string, hint: string, buf: ImStringBuffer | Bind.ImAccess<string> | Bind.ImScalar<string>, buf_size?: number, flags?: ImGuiInputTextFlags, callback?: ImGuiInputTextCallback | null, user_data?: any): boolean;
-export declare function InputTextMultiline(label: string, buf: ImStringBuffer | Bind.ImAccess<string> | Bind.ImScalar<string>, buf_size?: number, size?: Readonly<Bind.interface_ImVec2>, flags?: ImGuiInputTextFlags, callback?: ImGuiInputTextCallback | null, user_data?: any): boolean;
-export declare function InputFloat(label: string, v: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, step?: number, step_fast?: number, format?: string, extra_flags?: ImGuiInputTextFlags): boolean;
-export declare function InputFloat2(label: string, v: XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, format?: string, extra_flags?: ImGuiInputTextFlags): boolean;
-export declare function InputFloat3(label: string, v: XYZ | XYZW | Bind.ImTuple3<number> | Bind.ImTuple4<number>, format?: string, extra_flags?: ImGuiInputTextFlags): boolean;
-export declare function InputFloat4(label: string, v: XYZW | Bind.ImTuple4<number>, format?: string, extra_flags?: ImGuiInputTextFlags): boolean;
-export declare function InputInt(label: string, v: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, step?: number, step_fast?: number, extra_flags?: ImGuiInputTextFlags): boolean;
-export declare function InputInt2(label: string, v: XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, extra_flags?: ImGuiInputTextFlags): boolean;
-export declare function InputInt3(label: string, v: XYZ | XYZW | Bind.ImTuple3<number> | Bind.ImTuple4<number>, extra_flags?: ImGuiInputTextFlags): boolean;
-export declare function InputInt4(label: string, v: XYZW | Bind.ImTuple4<number>, extra_flags?: ImGuiInputTextFlags): boolean;
-export declare function InputDouble(label: string, v: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, step?: number, step_fast?: number, format?: string, extra_flags?: ImGuiInputTextFlags): boolean;
-export declare function InputScalar(label: string, v: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array, step?: number | null, step_fast?: number | null, format?: string | null, extra_flags?: ImGuiInputTextFlags): boolean;
-export declare function SliderFloat(label: string, v: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_min: number, v_max: number, format?: string, power?: number): boolean;
-export declare function SliderFloat2(label: string, v: XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number> | Bind.interface_ImVec2, v_min: number, v_max: number, format?: string, power?: number): boolean;
-export declare function SliderFloat3(label: string, v: XYZ | XYZW | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_min: number, v_max: number, format?: string, power?: number): boolean;
-export declare function SliderFloat4(label: string, v: XYZW | Bind.ImTuple4<number> | XYZW, v_min: number, v_max: number, format?: string, power?: number): boolean;
-export declare function SliderAngle(label: string, v_rad: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_degrees_min?: number, v_degrees_max?: number): boolean;
-export declare function SliderAngle3(label: string, v_rad: XYZ | XYZW | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_degrees_min?: number, v_degrees_max?: number): boolean;
-export declare function SliderInt(label: string, v: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_min: number, v_max: number, format?: string): boolean;
-export declare function SliderInt2(label: string, v: XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_min: number, v_max: number, format?: string): boolean;
-export declare function SliderInt3(label: string, v: XYZ | XYZW | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_min: number, v_max: number, format?: string): boolean;
-export declare function SliderInt4(label: string, v: XYZW | Bind.ImTuple4<number>, v_min: number, v_max: number, format?: string): boolean;
-export declare function SliderScalar(label: string, v: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array, v_min: number, v_max: number, format?: string | null, power?: number): boolean;
-export declare function VSliderFloat(label: string, size: Readonly<Bind.interface_ImVec2>, v: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_min: number, v_max: number, format?: string, power?: number): boolean;
-export declare function VSliderInt(label: string, size: Readonly<Bind.interface_ImVec2>, v: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_min: number, v_max: number, format?: string): boolean;
-export declare function VSliderScalar(label: string, size: Readonly<Bind.interface_ImVec2>, data_type: ImGuiDataType, v: Bind.ImAccess<number> | Bind.ImScalar<number>, v_min: number, v_max: number, format?: string | null, power?: number): boolean;
+export declare function Combo<T>(label: string, current_item: Bind.ImAccess<number> | Bind.ImScalar<number>, items_getter: ComboValueGetter<T>, data: T, items_count: number, popup_max_height_in_items?: number): boolean;
+export declare function DragFloat(label: string, v: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_speed?: number, v_min?: number, v_max?: number, display_format?: string | null, flags?: ImGuiSliderFlags): boolean;
+export declare function DragFloat2(label: string, v: XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number> | ImVec2, v_speed?: number, v_min?: number, v_max?: number, display_format?: string, flags?: ImGuiSliderFlags): boolean;
+export declare function DragFloat3(label: string, v: XYZ | XYZW | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_speed?: number, v_min?: number, v_max?: number, display_format?: string, flags?: ImGuiSliderFlags): boolean;
+export declare function DragFloat4(label: string, v: XYZW | Bind.ImTuple4<number> | ImVec4, v_speed?: number, v_min?: number, v_max?: number, display_format?: string, flags?: ImGuiSliderFlags): boolean;
+export declare function DragFloatRange2(label: string, v_current_min: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_current_max: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_speed?: number, v_min?: number, v_max?: number, display_format?: string, display_format_max?: string | null, flags?: ImGuiSliderFlags): boolean;
+export declare function DragInt(label: string, v: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_speed?: number, v_min?: number, v_max?: number, format?: string, flags?: ImGuiSliderFlags): boolean;
+export declare function DragInt2(label: string, v: XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_speed?: number, v_min?: number, v_max?: number, format?: string, flags?: ImGuiSliderFlags): boolean;
+export declare function DragInt3(label: string, v: XYZ | XYZW | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_speed?: number, v_min?: number, v_max?: number, format?: string, flags?: ImGuiSliderFlags): boolean;
+export declare function DragInt4(label: string, v: XYZW | Bind.ImTuple4<number>, v_speed?: number, v_min?: number, v_max?: number, format?: string, flags?: ImGuiSliderFlags): boolean;
+export declare function DragIntRange2(label: string, v_current_min: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_current_max: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_speed?: number, v_min?: number, v_max?: number, format?: string, format_max?: string | null, flags?: ImGuiSliderFlags): boolean;
+export declare function DragScalar(label: string, v: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array, v_speed: number, v_min?: number | null, v_max?: number | null, format?: string | null, flags?: ImGuiSliderFlags): boolean;
+export declare function SliderFloat(label: string, v: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_min: number, v_max: number, format?: string, flags?: ImGuiSliderFlags): boolean;
+export declare function SliderFloat2(label: string, v: XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number> | Bind.interface_ImVec2, v_min: number, v_max: number, format?: string, flags?: ImGuiSliderFlags): boolean;
+export declare function SliderFloat3(label: string, v: XYZ | XYZW | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_min: number, v_max: number, format?: string, flags?: ImGuiSliderFlags): boolean;
+export declare function SliderFloat4(label: string, v: XYZW | Bind.ImTuple4<number> | XYZW, v_min: number, v_max: number, format?: string, flags?: ImGuiSliderFlags): boolean;
+export declare function SliderAngle(label: string, v_rad: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_degrees_min?: number, v_degrees_max?: number, format?: string, flags?: ImGuiSliderFlags): boolean;
+export declare function SliderAngle3(label: string, v_rad: XYZ | XYZW | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_degrees_min?: number, v_degrees_max?: number, format?: string, flags?: ImGuiSliderFlags): boolean;
+export declare function SliderInt(label: string, v: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_min: number, v_max: number, format?: string, flags?: ImGuiSliderFlags): boolean;
+export declare function SliderInt2(label: string, v: XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_min: number, v_max: number, format?: string, flags?: ImGuiSliderFlags): boolean;
+export declare function SliderInt3(label: string, v: XYZ | XYZW | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_min: number, v_max: number, format?: string, flags?: ImGuiSliderFlags): boolean;
+export declare function SliderInt4(label: string, v: XYZW | Bind.ImTuple4<number>, v_min: number, v_max: number, format?: string, flags?: ImGuiSliderFlags): boolean;
+export declare function SliderScalar(label: string, v: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array, v_min: number, v_max: number, format?: string | null, flags?: ImGuiSliderFlags): boolean;
+export declare function VSliderFloat(label: string, size: Readonly<Bind.interface_ImVec2>, v: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_min: number, v_max: number, format?: string, flags?: ImGuiSliderFlags): boolean;
+export declare function VSliderInt(label: string, size: Readonly<Bind.interface_ImVec2>, v: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, v_min: number, v_max: number, format?: string, flags?: ImGuiSliderFlags): boolean;
+export declare function VSliderScalar(label: string, size: Readonly<Bind.interface_ImVec2>, data_type: ImGuiDataType, v: Bind.ImAccess<number> | Bind.ImScalar<number>, v_min: number, v_max: number, format?: string | null, flags?: ImGuiSliderFlags): boolean;
+export declare function InputText<T>(label: string, buf: ImStringBuffer | Bind.ImAccess<string> | Bind.ImScalar<string>, buf_size?: number, flags?: ImGuiInputTextFlags, callback?: ImGuiInputTextCallback<T> | null, user_data?: T | null): boolean;
+export declare function InputTextMultiline<T>(label: string, buf: ImStringBuffer | Bind.ImAccess<string> | Bind.ImScalar<string>, buf_size?: number, size?: Readonly<Bind.interface_ImVec2>, flags?: ImGuiInputTextFlags, callback?: ImGuiInputTextCallback<T> | null, user_data?: T | null): boolean;
+export declare function InputTextWithHint<T>(label: string, hint: string, buf: ImStringBuffer | Bind.ImAccess<string> | Bind.ImScalar<string>, buf_size?: number, flags?: ImGuiInputTextFlags, callback?: ImGuiInputTextCallback<T> | null, user_data?: T | null): boolean;
+export declare function InputFloat(label: string, v: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, step?: number, step_fast?: number, format?: string, flags?: ImGuiInputTextFlags): boolean;
+export declare function InputFloat2(label: string, v: XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, format?: string, flags?: ImGuiInputTextFlags): boolean;
+export declare function InputFloat3(label: string, v: XYZ | XYZW | Bind.ImTuple3<number> | Bind.ImTuple4<number>, format?: string, flags?: ImGuiInputTextFlags): boolean;
+export declare function InputFloat4(label: string, v: XYZW | Bind.ImTuple4<number>, format?: string, flags?: ImGuiInputTextFlags): boolean;
+export declare function InputInt(label: string, v: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, step?: number, step_fast?: number, flags?: ImGuiInputTextFlags): boolean;
+export declare function InputInt2(label: string, v: XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, flags?: ImGuiInputTextFlags): boolean;
+export declare function InputInt3(label: string, v: XYZ | XYZW | Bind.ImTuple3<number> | Bind.ImTuple4<number>, flags?: ImGuiInputTextFlags): boolean;
+export declare function InputInt4(label: string, v: XYZW | Bind.ImTuple4<number>, flags?: ImGuiInputTextFlags): boolean;
+export declare function InputDouble(label: string, v: Bind.ImAccess<number> | Bind.ImScalar<number> | XY | XYZ | XYZW | Bind.ImTuple2<number> | Bind.ImTuple3<number> | Bind.ImTuple4<number>, step?: number, step_fast?: number, format?: string, flags?: ImGuiInputTextFlags): boolean;
+export declare function InputScalar(label: string, v: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array, step?: number | null, step_fast?: number | null, format?: string | null, flags?: ImGuiInputTextFlags): boolean;
 export declare function ColorEdit3(label: string, col: RGB | RGBA | Bind.ImTuple3<number> | Bind.ImTuple4<number> | Bind.interface_ImVec4, flags?: ImGuiColorEditFlags): boolean;
 export declare function ColorEdit4(label: string, col: RGBA | Bind.ImTuple4<number> | Bind.interface_ImVec4, flags?: ImGuiColorEditFlags): boolean;
 export declare function ColorPicker3(label: string, col: RGB | RGBA | Bind.ImTuple3<number> | Bind.ImTuple4<number> | Bind.interface_ImVec4, flags?: ImGuiColorEditFlags): boolean;
@@ -1400,45 +1516,50 @@ export declare function TreeNodeEx(ptr_id: number, flags: ImGuiTreeNodeFlags, fm
 export declare function TreePush(str_id: string): void;
 export declare function TreePush(ptr_id: number): void;
 export declare function TreePop(): void;
-export declare function TreeAdvanceToLabelPos(): void;
 export declare function GetTreeNodeToLabelSpacing(): number;
 export declare function CollapsingHeader(label: string, flags?: ImGuiTreeNodeFlags): boolean;
 export declare function CollapsingHeader(label: string, p_open: Bind.ImScalar<boolean> | Bind.ImAccess<boolean>, flags?: ImGuiTreeNodeFlags): boolean;
 export declare function SetNextItemOpen(is_open: boolean, cond?: ImGuiCond): void;
 export declare function Selectable(label: string, selected?: boolean, flags?: ImGuiSelectableFlags, size?: Readonly<Bind.interface_ImVec2>): boolean;
 export declare function Selectable(label: string, p_selected: Bind.ImScalar<boolean> | Bind.ImAccess<boolean>, flags?: ImGuiSelectableFlags, size?: Readonly<Bind.interface_ImVec2>): boolean;
-export declare type ListBoxItemGetter = (data: any, idx: number, out_text: [string]) => boolean;
+export declare type ListBoxItemGetter<T> = (data: T, idx: number, out_text: [string]) => boolean;
 export declare function ListBox(label: string, current_item: Bind.ImAccess<number> | Bind.ImScalar<number>, items: string[], items_count?: number, height_in_items?: number): boolean;
-export declare function ListBox(label: string, current_item: Bind.ImAccess<number> | Bind.ImScalar<number>, items_getter: ListBoxItemGetter, data: any, items_count: number, height_in_items?: number): boolean;
+export declare function ListBox<T>(label: string, current_item: Bind.ImAccess<number> | Bind.ImScalar<number>, items_getter: ListBoxItemGetter<T>, data: T, items_count: number, height_in_items?: number): boolean;
 export declare function ListBoxHeader(label: string, size: Readonly<Bind.interface_ImVec2>): boolean;
 export declare function ListBoxHeader(label: string, items_count: number, height_in_items?: number): boolean;
 export declare function ListBoxFooter(): void;
+export declare type PlotLinesValueGetter<T> = (data: T, idx: number) => number;
+export declare function PlotLines(label: string, values: ArrayLike<number>, values_count?: number, value_offset?: number, overlay_text?: string | null, scale_min?: number, scale_max?: number, graph_size?: Readonly<Bind.interface_ImVec2>, stride?: number): void;
+export declare function PlotLines<T>(label: string, values_getter: PlotLinesValueGetter<T>, data: T, values_count?: number, value_offset?: number, overlay_text?: string | null, scale_min?: number, scale_max?: number, graph_size?: Readonly<Bind.interface_ImVec2>): void;
+export declare type PlotHistogramValueGetter<T> = (data: T, idx: number) => number;
+export declare function PlotHistogram(label: string, values: ArrayLike<number>, values_count?: number, value_offset?: number, overlay_text?: string | null, scale_min?: number, scale_max?: number, graph_size?: Readonly<Bind.interface_ImVec2>, stride?: number): void;
+export declare function PlotHistogram<T>(label: string, values_getter: PlotHistogramValueGetter<T>, data: T, values_count?: number, value_offset?: number, overlay_text?: string | null, scale_min?: number, scale_max?: number, graph_size?: Readonly<Bind.interface_ImVec2>): void;
 export declare function Value(prefix: string, b: boolean): void;
 export declare function Value(prefix: string, v: number): void;
 export declare function Value(prefix: string, v: number, float_format?: string | null): void;
 export declare function Value(prefix: string, v: any): void;
-export declare function BeginTooltip(): void;
-export declare function EndTooltip(): void;
-export declare function SetTooltip(fmt: string): void;
-export declare function BeginMainMenuBar(): boolean;
-export declare function EndMainMenuBar(): void;
 export declare function BeginMenuBar(): boolean;
 export declare function EndMenuBar(): void;
+export declare function BeginMainMenuBar(): boolean;
+export declare function EndMainMenuBar(): void;
 export declare function BeginMenu(label: string, enabled?: boolean): boolean;
 export declare function EndMenu(): void;
 export declare function MenuItem(label: string, shortcut?: string | null, selected?: boolean, enabled?: boolean): boolean;
 export declare function MenuItem(label: string, shortcut: string | null, p_selected: Bind.ImScalar<boolean> | Bind.ImAccess<boolean> | null, enabled?: boolean): boolean;
+export declare function BeginTooltip(): void;
+export declare function EndTooltip(): void;
+export declare function SetTooltip(fmt: string): void;
 export declare function BeginPopup(str_id: string, flags?: ImGuiWindowFlags): boolean;
-export declare function BeginPopupModal(str_id?: string, p_open?: Bind.ImScalar<boolean> | Bind.ImAccess<boolean> | null, flags?: ImGuiWindowFlags): boolean;
+export declare function BeginPopupModal(str_id: string, p_open?: Bind.ImScalar<boolean> | Bind.ImAccess<boolean> | null, flags?: ImGuiWindowFlags): boolean;
 export declare function EndPopup(): void;
 export declare function OpenPopup(str_id: string, popup_flags?: ImGuiPopupFlags): void;
-export declare function OpenPopupOnItemClick(str_id?: string | null, popup_flags?: ImGuiPopupFlags): boolean;
+export declare function OpenPopupOnItemClick(str_id?: string | null, popup_flags?: ImGuiPopupFlags): void;
+export declare function CloseCurrentPopup(): void;
 export declare function BeginPopupContextItem(str_id?: string | null, popup_flags?: ImGuiPopupFlags): boolean;
 export declare function BeginPopupContextWindow(str_id?: string | null, popup_flags?: ImGuiPopupFlags): boolean;
 export declare function BeginPopupContextVoid(str_id?: string | null, popup_flags?: ImGuiPopupFlags): boolean;
-export declare function IsPopupOpen(str_id: string, popup_flags?: ImGuiPopupFlags): boolean;
-export declare function CloseCurrentPopup(): void;
-export declare function BeginTable(str_id: string, column: number, flags?: ImGuiTableFlags, outer_size?: Readonly<Bind.interface_ImVec2>, inner_width?: number): boolean;
+export declare function IsPopupOpen(str_id: string, flags?: ImGuiPopupFlags): boolean;
+export declare function BeginTable(str_id: string, column: number, flags?: ImGuiTableFlags, outer_size?: Bind.interface_ImVec2, inner_width?: number): boolean;
 export declare function EndTable(): void;
 export declare function TableNextRow(row_flags?: ImGuiTableRowFlags, min_row_height?: number): void;
 export declare function TableNextColumn(): boolean;
@@ -1454,10 +1575,19 @@ export declare function TableGetRowIndex(): number;
 export declare function TableGetColumnName(column_n?: number): string;
 export declare function TableGetColumnFlags(column_n?: number): ImGuiTableColumnFlags;
 export declare function TableSetBgColor(target: ImGuiTableBgTarget, color: Bind.ImU32, column_n?: number): void;
+export declare function Columns(count?: number, id?: string | null, border?: boolean): void;
+export declare function NextColumn(): void;
+export declare function GetColumnIndex(): number;
+export declare function GetColumnWidth(column_index?: number): number;
+export declare function SetColumnWidth(column_index: number, width: number): void;
+export declare function GetColumnOffset(column_index?: number): number;
+export declare function SetColumnOffset(column_index: number, offset_x: number): void;
+export declare function GetColumnsCount(): number;
 export declare function BeginTabBar(str_id: string, flags?: ImGuiTabBarFlags): boolean;
 export declare function EndTabBar(): void;
 export declare function BeginTabItem(label: string, p_open?: Bind.ImScalar<boolean> | Bind.ImAccess<boolean> | null, flags?: ImGuiTabItemFlags): boolean;
 export declare function EndTabItem(): void;
+export declare function TabItemButton(label: string, flags?: ImGuiTabItemFlags): boolean;
 export declare function SetTabItemClosed(tab_or_docked_window_label: string): void;
 export declare function DockSpace(id: number, size?: Readonly<Bind.interface_ImVec2>, flags?: ImGuiDockNodeFlags, window_class?: Readonly<Bind.interface_ImGuiWindowClass> | null): void;
 export declare function DockSpaceOverMainViewport(flags?: ImGuiDockNodeFlags): Bind.ImGuiID;
@@ -1478,19 +1608,21 @@ export declare function EndDragDropSource(): void;
 export declare function BeginDragDropTarget(): boolean;
 export declare function AcceptDragDropPayload<T>(type: string, flags?: ImGuiDragDropFlags): ImGuiPayload<T> | null;
 export declare function EndDragDropTarget(): void;
+export declare function GetDragDropPayload<T>(): ImGuiPayload<T> | null;
 export declare function PushClipRect(clip_rect_min: Readonly<Bind.interface_ImVec2>, clip_rect_max: Readonly<Bind.interface_ImVec2>, intersect_with_current_clip_rect: boolean): void;
 export declare function PopClipRect(): void;
 export declare function SetItemDefaultFocus(): void;
 export declare function SetKeyboardFocusHere(offset?: number): void;
 export declare function IsItemHovered(flags?: ImGuiHoveredFlags): boolean;
 export declare function IsItemActive(): boolean;
-export declare function IsItemEdited(): boolean;
 export declare function IsItemFocused(): boolean;
-export declare function IsItemClicked(mouse_button?: number): boolean;
+export declare function IsItemClicked(mouse_button?: ImGuiMouseButton): boolean;
 export declare function IsItemVisible(): boolean;
+export declare function IsItemEdited(): boolean;
 export declare function IsItemActivated(): boolean;
 export declare function IsItemDeactivated(): boolean;
 export declare function IsItemDeactivatedAfterEdit(): boolean;
+export declare function IsItemToggledOpen(): boolean;
 export declare function IsAnyItemHovered(): boolean;
 export declare function IsAnyItemActive(): boolean;
 export declare function IsAnyItemFocused(): boolean;
@@ -1498,8 +1630,6 @@ export declare function GetItemRectMin(out?: Bind.interface_ImVec2): Bind.interf
 export declare function GetItemRectMax(out?: Bind.interface_ImVec2): Bind.interface_ImVec2;
 export declare function GetItemRectSize(out?: Bind.interface_ImVec2): Bind.interface_ImVec2;
 export declare function SetItemAllowOverlap(): void;
-export declare function IsWindowFocused(flags?: ImGuiFocusedFlags): boolean;
-export declare function IsWindowHovered(flags?: ImGuiHoveredFlags): boolean;
 export declare function IsRectVisible(size: Readonly<Bind.interface_ImVec2>): boolean;
 export declare function IsRectVisible(rect_min: Readonly<Bind.interface_ImVec2>, rect_max: Readonly<Bind.interface_ImVec2>): boolean;
 export declare function GetTime(): number;
@@ -1508,10 +1638,10 @@ export declare function GetBackgroundDrawList(): ImDrawList;
 export declare function GetForegroundDrawList(): ImDrawList;
 export declare function GetDrawListSharedData(): ImDrawListSharedData;
 export declare function GetStyleColorName(idx: ImGuiCol): string;
-export declare function CalcTextSize(text: string, text_end?: number | null, hide_text_after_double_hash?: boolean, wrap_width?: number, out?: Bind.interface_ImVec2): Bind.interface_ImVec2;
 export declare function CalcListClipping(items_count: number, items_height: number, out_items_display_start: Bind.ImScalar<number>, out_items_display_end: Bind.ImScalar<number>): void;
-export declare function BeginChildFrame(id: Bind.ImGuiID, size: Readonly<Bind.interface_ImVec2>, extra_flags?: ImGuiWindowFlags): boolean;
+export declare function BeginChildFrame(id: ImGuiID, size: Readonly<Bind.interface_ImVec2>, flags?: ImGuiWindowFlags): boolean;
 export declare function EndChildFrame(): void;
+export declare function CalcTextSize(text: string, text_end?: number | null, hide_text_after_double_hash?: boolean, wrap_width?: number, out?: Bind.interface_ImVec2): Bind.interface_ImVec2;
 export declare function ColorConvertU32ToFloat4(in_: Bind.ImU32, out?: Bind.interface_ImVec4): Bind.interface_ImVec4;
 export declare function ColorConvertFloat4ToU32(in_: Readonly<Bind.interface_ImVec4>): Bind.ImU32;
 export declare function ColorConvertRGBtoHSV(r: number, g: number, b: number, out_h: Bind.ImScalar<number>, out_s: Bind.ImScalar<number>, out_v: Bind.ImScalar<number>): void;
@@ -1521,20 +1651,21 @@ export declare function IsKeyDown(user_key_index: number): boolean;
 export declare function IsKeyPressed(user_key_index: number, repeat?: boolean): boolean;
 export declare function IsKeyReleased(user_key_index: number): boolean;
 export declare function GetKeyPressedAmount(user_key_index: number, repeat_delay: number, rate: number): number;
+export declare function CaptureKeyboardFromApp(capture?: boolean): void;
 export declare function IsMouseDown(button: number): boolean;
 export declare function IsMouseClicked(button: number, repeat?: boolean): boolean;
 export declare function IsMouseDoubleClicked(button: number): boolean;
 export declare function IsMouseReleased(button: number): boolean;
-export declare function IsMouseDragging(button?: number, lock_threshold?: number): boolean;
 export declare function IsMouseHoveringRect(r_min: Readonly<Bind.interface_ImVec2>, r_max: Readonly<Bind.interface_ImVec2>, clip?: boolean): boolean;
 export declare function IsMousePosValid(mouse_pos?: Readonly<Bind.interface_ImVec2> | null): boolean;
+export declare function IsAnyMouseDown(): boolean;
 export declare function GetMousePos(out?: Bind.interface_ImVec2): Bind.interface_ImVec2;
 export declare function GetMousePosOnOpeningCurrentPopup(out?: Bind.interface_ImVec2): Bind.interface_ImVec2;
+export declare function IsMouseDragging(button?: number, lock_threshold?: number): boolean;
 export declare function GetMouseDragDelta(button?: number, lock_threshold?: number, out?: Bind.interface_ImVec2): Bind.interface_ImVec2;
 export declare function ResetMouseDragDelta(button?: number): void;
 export declare function GetMouseCursor(): ImGuiMouseCursor;
 export declare function SetMouseCursor(type: ImGuiMouseCursor): void;
-export declare function CaptureKeyboardFromApp(capture?: boolean): void;
 export declare function CaptureMouseFromApp(capture?: boolean): void;
 export declare function GetClipboardText(): string;
 export declare function SetClipboardText(text: string): void;
@@ -1542,6 +1673,7 @@ export declare function LoadIniSettingsFromDisk(ini_filename: string): void;
 export declare function LoadIniSettingsFromMemory(ini_data: string, ini_size?: number): void;
 export declare function SaveIniSettingsToDisk(ini_filename: string): void;
 export declare function SaveIniSettingsToMemory(out_ini_size?: Bind.ImScalar<number> | null): string;
+export declare function DebugCheckVersionAndDataLayout(version_str: string, sz_io: number, sz_style: number, sz_vec2: number, sz_vec4: number, sz_draw_vert: number, sz_draw_idx: number): boolean;
 export declare function SetAllocatorFunctions(alloc_func: (sz: number, user_data: any) => number, free_func: (ptr: number, user_data: any) => void, user_data?: any): void;
 export declare function MemAlloc(sz: number): void;
 export declare function MemFree(ptr: any): void;

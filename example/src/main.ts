@@ -1,20 +1,17 @@
 import * as ImGui from "imgui-js";
 import * as ImGui_Impl from "./imgui_impl.js";
-
-import { ImVec2 } from "imgui-js";
-import { ImVec4 } from "imgui-js";
-import { ImGuiIO } from "imgui-js";
 import { ShowDemoWindow } from "./imgui_demo.js";
-
 import { MemoryEditor } from "./imgui_memory_editor.js";
 
-let font: ImGui.ImFont | null = null;
+let font: ImGui.Font | null = null;
 
+// Our state
 let show_demo_window: boolean = true;
 let show_another_window: boolean = false;
-const clear_color: ImVec4 = new ImVec4(0.45, 0.55, 0.60, 1.00);
+const clear_color: ImGui.Vec4 = new ImGui.Vec4(0.45, 0.55, 0.60, 1.00);
 
 const memory_editor: MemoryEditor = new MemoryEditor();
+memory_editor.Open = false;
 
 let show_sandbox_window: boolean = false;
 let show_gamepad_window: boolean = false;
@@ -44,8 +41,8 @@ export default async function main(): Promise<void> {
     }
 }
 
-async function AddFontFromFileTTF(url: string, size_pixels: number, font_cfg: ImGui.ImFontConfig | null = null, glyph_ranges: number | null = null): Promise<ImGui.ImFont> {
-    font_cfg = font_cfg || new ImGui.ImFontConfig();
+async function AddFontFromFileTTF(url: string, size_pixels: number, font_cfg: ImGui.FontConfig | null = null, glyph_ranges: number | null = null): Promise<ImGui.Font> {
+    font_cfg = font_cfg || new ImGui.FontConfig();
     font_cfg.Name = font_cfg.Name || `${url.split(/[\\\/]/).pop()}, ${size_pixels.toFixed(0)}px`;
     return ImGui.GetIO().Fonts.AddFontFromMemoryTTF(await LoadArrayBuffer(url), size_pixels, font_cfg, glyph_ranges);
 }
@@ -53,15 +50,15 @@ async function AddFontFromFileTTF(url: string, size_pixels: number, font_cfg: Im
 async function _init(): Promise<void> {
     console.log("Total allocated space (uordblks) @ _init:", ImGui.bind.mallinfo().uordblks);
 
-    // Setup Dear ImGui binding
-    ImGui.IMGUI_CHECKVERSION();
+    // Setup Dear ImGui context
+    ImGui.CHECKVERSION();
     ImGui.CreateContext();
-
-    const io: ImGuiIO = ImGui.GetIO();
-    // io.ConfigFlags |= ImGui.ConfigFlags.NavEnableKeyboard;  // Enable Keyboard Controls
+    const io: ImGui.IO = ImGui.GetIO();
+    //io.ConfigFlags |= ImGui.ConfigFlags.NavEnableKeyboard;     // Enable Keyboard Controls
+    //io.ConfigFlags |= ImGui.ConfigFlags.NavEnableGamepad;      // Enable Gamepad Controls
     io.ConfigFlags |= ImGui.ConfigFlags.DockingEnable;  // Enable Docking
 
-    // Setup style
+    // Setup Dear ImGui style
     ImGui.StyleColorsDark();
     //ImGui.StyleColorsClassic();
 
@@ -70,7 +67,7 @@ async function _init(): Promise<void> {
     // - AddFontFromFileTTF() will return the ImFont* so you can store it if you need to select the font among multiple.
     // - If the file cannot be loaded, the function will return NULL. Please handle those errors in your application (e.g. use an assertion, or display an error and quit).
     // - The fonts will be rasterized at a given size (w/ oversampling) and stored into a texture when calling ImFontAtlas::Build()/GetTexDataAsXXXX(), which ImGui_ImplXXXX_NewFrame below will call.
-    // - Read 'misc/fonts/README.txt' for more instructions and details.
+    // - Read 'docs/FONTS.md' for more instructions and details.
     // - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to write a double backslash \\ !
     io.Fonts.AddFontDefault();
     font = await AddFontFromFileTTF("../imgui/misc/fonts/Roboto-Medium.ttf", 16.0);
@@ -79,13 +76,11 @@ async function _init(): Promise<void> {
     // font = await AddFontFromFileTTF("../imgui/misc/fonts/ProggyTiny.ttf", 10.0);
     // font = await AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0, null, io.Fonts.GetGlyphRangesJapanese());
     // font = await AddFontFromFileTTF("https://raw.githubusercontent.com/googlei18n/noto-cjk/master/NotoSansJP-Regular.otf", 18.0, null, io.Fonts.GetGlyphRangesJapanese());
-    // Custom glyph ranges example:
-    // This is most useful for importing in icon font files.
-    // let gr: number = ImGui.GlyphRangeAlloc(new Uint16Array([32, 100]));
-    // console.log(ImGui.GlyphRangeExport(gr));
-    // font = await AddFontFromFileTTF("../imgui/misc/fonts/Roboto-Medium.ttf", 16.0, null, gr);
-    ImGui.IM_ASSERT(font !== null);
+    ImGui.ASSERT(font !== null);
 
+    // Setup Platform/Renderer backends
+    // ImGui_ImplSDL2_InitForOpenGL(window, gl_context);
+    // ImGui_ImplOpenGL3_Init(glsl_version);
     if (typeof(window) !== "undefined") {
         const output: HTMLElement = document.getElementById("output") || document.body;
         const canvas: HTMLCanvasElement = document.createElement("canvas");
@@ -98,6 +93,7 @@ async function _init(): Promise<void> {
         canvas.style.bottom = "0px";
         canvas.style.width = "100%";
         canvas.style.height = "100%";
+        canvas.style.userSelect = "none";
         ImGui_Impl.Init(canvas);
     } else {
         ImGui_Impl.Init(null);
@@ -163,7 +159,7 @@ function _loop(time: number): void {
         ImGui.Text(`Total allocated space (uordblks):      ${mi.uordblks}`);
         ImGui.Text(`Total free space (fordblks):           ${mi.fordblks}`);
         // ImGui.Text(`Topmost releasable block (keepcost):   ${mi.keepcost}`);
-        if (ImGui.ImageButton(image_gl_texture, new ImVec2(48, 48))) {
+        if (ImGui.ImageButton(image_gl_texture, new ImGui.Vec2(48, 48))) {
             // show_demo_window = !show_demo_window;
             image_url = image_urls[(image_urls.indexOf(image_url) + 1) % image_urls.length];
             if (image_element) {
@@ -278,25 +274,25 @@ let source: string = [
     "",
 ].join("\n");
 
-function ShowSandboxWindow(title: string, p_open: ImGui.ImAccess<boolean> | null = null): void {
-    ImGui.SetNextWindowSize(new ImVec2(320, 240), ImGui.Cond.FirstUseEver);
+function ShowSandboxWindow(title: string, p_open: ImGui.Access<boolean> | null = null): void {
+    ImGui.SetNextWindowSize(new ImGui.Vec2(320, 240), ImGui.Cond.FirstUseEver);
     ImGui.Begin(title, p_open);
     ImGui.Text("Source");
     ImGui.SameLine(); ShowHelpMarker("Contents evaluated and appended to the window.");
     ImGui.PushItemWidth(-1);
-    ImGui.InputTextMultiline("##source", (_ = source) => (source = _), 1024, ImVec2.ZERO, ImGui.InputTextFlags.AllowTabInput);
+    ImGui.InputTextMultiline("##source", (_ = source) => (source = _), 1024, ImGui.Vec2.ZERO, ImGui.InputTextFlags.AllowTabInput);
     ImGui.PopItemWidth();
     try {
         eval(source);
     } catch (e) {
-        ImGui.TextColored(new ImVec4(1.0, 0.0, 0.0, 1.0), "error: ");
+        ImGui.TextColored(new ImGui.Vec4(1.0, 0.0, 0.0, 1.0), "error: ");
         ImGui.SameLine();
         ImGui.Text(e.message);
     }
     ImGui.End();
 }
 
-function ShowGamepadWindow(title: string, p_open: ImGui.ImAccess<boolean> | null = null): void {
+function ShowGamepadWindow(title: string, p_open: ImGui.Access<boolean> | null = null): void {
     ImGui.Begin(title, p_open, ImGui.WindowFlags.AlwaysAutoResize);
     const gamepads: (Gamepad | null)[] = (typeof(navigator) !== "undefined" && typeof(navigator.getGamepads) === "function") ? navigator.getGamepads() : [];
     if (gamepads.length > 0) {
@@ -333,6 +329,12 @@ let image_element: HTMLImageElement | null = null;
 let image_gl_texture: WebGLTexture | null = null;
 
 function StartUpImage(): void {
+    if (typeof document !== "undefined") {
+        image_element = document.createElement("img");
+        image_element.crossOrigin = "anonymous";
+        image_element.src = image_url;
+    }
+    
     const gl: WebGLRenderingContext | null = ImGui_Impl.gl;
     if (gl) {
         const width: number = 256;
@@ -346,13 +348,19 @@ function StartUpImage(): void {
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
 
-        const image: HTMLImageElement = image_element = new Image();
-        image.crossOrigin = "anonymous";
-        image.addEventListener("load", (event: Event) => {
-            gl.bindTexture(gl.TEXTURE_2D, image_gl_texture);
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-        });
-        image.src = image_url;
+        if (image_element) {
+            image_element.addEventListener("load", (event: Event) => {
+                if (image_element) {
+                    gl.bindTexture(gl.TEXTURE_2D, image_gl_texture);
+                    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image_element);
+                }
+            });
+        }
+    }
+
+    const ctx: CanvasRenderingContext2D | null = ImGui_Impl.ctx;
+    if (ctx) {
+        image_gl_texture = image_element; // HACK
     }
 }
 
@@ -360,9 +368,14 @@ function CleanUpImage(): void {
     const gl: WebGLRenderingContext | null = ImGui_Impl.gl;
     if (gl) {
         gl.deleteTexture(image_gl_texture); image_gl_texture = null;
-
-        image_element = null;
     }
+
+    const ctx: CanvasRenderingContext2D | null = ImGui_Impl.ctx;
+    if (ctx) {
+        image_gl_texture = null;
+    }
+
+    image_element = null;
 }
 
 const video_urls: string[] = [
@@ -391,14 +404,16 @@ let video_time: number = 0;
 let video_duration: number = 0;
 
 function StartUpVideo(): void {
-    const gl: WebGLRenderingContext | null = ImGui_Impl.gl;
-    if (gl) {
+    if (typeof document !== "undefined") {
         video_element = document.createElement("video");
         video_element.crossOrigin = "anonymous";
         video_element.preload = "auto";
         video_element.src = video_url;
         video_element.load();
+    }
 
+    const gl: WebGLRenderingContext | null = ImGui_Impl.gl;
+    if (gl) {
         const width: number = 256;
         const height: number = 256;
         const pixels: Uint8Array = new Uint8Array(4 * width * height);
@@ -410,15 +425,25 @@ function StartUpVideo(): void {
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
     }
+
+    const ctx: CanvasRenderingContext2D | null = ImGui_Impl.ctx;
+    if (ctx) {
+        video_gl_texture = video_element; // HACK
+    }
 }
 
 function CleanUpVideo(): void {
     const gl: WebGLRenderingContext | null = ImGui_Impl.gl;
     if (gl) {
         gl.deleteTexture(video_gl_texture); video_gl_texture = null;
-
-        video_element = null;
     }
+
+    const ctx: CanvasRenderingContext2D | null = ImGui_Impl.ctx;
+    if (ctx) {
+        video_gl_texture = null;
+    }
+
+    video_element = null;
 }
 
 function UpdateVideo(): void {
@@ -429,7 +454,7 @@ function UpdateVideo(): void {
     }
 }
 
-function ShowMovieWindow(title: string, p_open: ImGui.ImAccess<boolean> | null = null): void {
+function ShowMovieWindow(title: string, p_open: ImGui.Access<boolean> | null = null): void {
     ImGui.Begin(title, p_open, ImGui.WindowFlags.AlwaysAutoResize);
     if (video_element !== null) {
         if (p_open && !p_open()) {
@@ -442,7 +467,7 @@ function ShowMovieWindow(title: string, p_open: ImGui.ImAccess<boolean> | null =
 
         ImGui.BeginGroup();
         if (ImGui.BeginCombo("##urls", null, ImGui.ComboFlags.NoPreview | ImGui.ComboFlags.PopupAlignLeft)) {
-            for (let n = 0; n < ImGui.IM_ARRAYSIZE(video_urls); n++) {
+            for (let n = 0; n < ImGui.ARRAYSIZE(video_urls); n++) {
                 if (ImGui.Selectable(video_urls[n])) {
                     video_url = video_urls[n];
                     console.log(video_url);
@@ -461,7 +486,7 @@ function ShowMovieWindow(title: string, p_open: ImGui.ImAccess<boolean> | null =
         ImGui.PopItemWidth();
         ImGui.EndGroup();
 
-        if (ImGui.ImageButton(video_gl_texture, new ImVec2(video_w, video_h))) {
+        if (ImGui.ImageButton(video_gl_texture, new ImGui.Vec2(video_w, video_h))) {
             if (video_element.readyState >= video_element.HAVE_CURRENT_DATA) {
                 video_element.paused ? video_element.play() : video_element.pause();
             }

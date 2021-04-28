@@ -1,6 +1,6 @@
 System.register(["imgui-js"], function (exports_1, context_1) {
     "use strict";
-    var ImGui, clipboard_text, canvas, gl, g_ShaderHandle, g_VertHandle, g_FragHandle, g_AttribLocationTex, g_AttribLocationProjMtx, g_AttribLocationPosition, g_AttribLocationUV, g_AttribLocationColor, g_VboHandle, g_ElementsHandle, g_FontTexture, ctx, prev_time, mouse_button_map;
+    var ImGui, clipboard_text, canvas, gl, g_ShaderHandle, g_VertHandle, g_FragHandle, g_AttribLocationTex, g_AttribLocationProjMtx, g_AttribLocationPosition, g_AttribLocationUV, g_AttribLocationColor, g_VboHandle, g_ElementsHandle, g_FontTexture, ctx, prev_time, key_code_to_index, mouse_button_map;
     var __moduleName = context_1 && context_1.id;
     function document_on_copy(event) {
         if (event.clipboardData) {
@@ -50,34 +50,36 @@ System.register(["imgui-js"], function (exports_1, context_1) {
         }
     }
     function canvas_on_keydown(event) {
-        // console.log(event.type, event.key, event.keyCode);
+        // console.log(event.type, event.key, event.code, event.keyCode);
         const io = ImGui.GetIO();
         io.KeyCtrl = event.ctrlKey;
         io.KeyShift = event.shiftKey;
         io.KeyAlt = event.altKey;
         io.KeySuper = event.metaKey;
-        ImGui.IM_ASSERT(event.keyCode >= 0 && event.keyCode < ImGui.IM_ARRAYSIZE(io.KeysDown));
-        io.KeysDown[event.keyCode] = true;
+        const key_index = key_code_to_index[event.code] || event.keyCode;
+        ImGui.ASSERT(key_index >= 0 && key_index < ImGui.ARRAYSIZE(io.KeysDown));
+        io.KeysDown[key_index] = true;
         // forward to the keypress event
         if ( /*io.WantCaptureKeyboard ||*/event.key === "Tab") {
             event.preventDefault();
         }
     }
     function canvas_on_keyup(event) {
-        // console.log(event.type, event.key, event.keyCode);
+        // console.log(event.type, event.key, event.code, event.keyCode);
         const io = ImGui.GetIO();
         io.KeyCtrl = event.ctrlKey;
         io.KeyShift = event.shiftKey;
         io.KeyAlt = event.altKey;
         io.KeySuper = event.metaKey;
-        ImGui.IM_ASSERT(event.keyCode >= 0 && event.keyCode < ImGui.IM_ARRAYSIZE(io.KeysDown));
-        io.KeysDown[event.keyCode] = false;
+        const key_index = key_code_to_index[event.code] || event.keyCode;
+        ImGui.ASSERT(key_index >= 0 && key_index < ImGui.ARRAYSIZE(io.KeysDown));
+        io.KeysDown[key_index] = false;
         if (io.WantCaptureKeyboard) {
             event.preventDefault();
         }
     }
     function canvas_on_keypress(event) {
-        // console.log(event.type, event.key, event.keyCode);
+        // console.log(event.type, event.key, event.code, event.keyCode);
         const io = ImGui.GetIO();
         io.AddInputCharacter(event.charCode);
         if (io.WantCaptureKeyboard) {
@@ -137,8 +139,11 @@ System.register(["imgui-js"], function (exports_1, context_1) {
     function Init(value) {
         const io = ImGui.GetIO();
         if (typeof (window) !== "undefined") {
-            io.BackendPlatformName = "imgui_impl_html5";
+            io.BackendPlatformName = "imgui_impl_browser";
             ImGui.LoadIniSettingsFromMemory(window.localStorage.getItem("imgui.ini") || "");
+        }
+        else {
+            io.BackendPlatformName = "imgui_impl_console";
         }
         if (typeof (navigator) !== "undefined") {
             io.ConfigMacOSXBehaviors = navigator.platform.match(/Mac/) !== null;
@@ -177,16 +182,22 @@ System.register(["imgui-js"], function (exports_1, context_1) {
         }
         if (typeof (window) !== "undefined") {
             if (value instanceof (HTMLCanvasElement)) {
-                value = value.getContext("webgl", { alpha: false }) || value.getContext("2d");
+                canvas = value;
+                value = canvas.getContext("webgl2", { alpha: false }) || canvas.getContext("webgl", { alpha: false }) || canvas.getContext("2d");
             }
-            if (value instanceof (WebGLRenderingContext)) {
-                io.BackendRendererName = "imgui_impl_webgl";
-                canvas = value.canvas;
+            if (typeof WebGL2RenderingContext !== "undefined" && value instanceof (WebGL2RenderingContext)) {
+                io.BackendRendererName = "imgui_impl_webgl2";
+                canvas = canvas || value.canvas;
                 exports_1("gl", gl = value);
             }
-            if (value instanceof (CanvasRenderingContext2D)) {
-                io.BackendRendererName = "imgui_impl_ctx2d";
-                canvas = value.canvas;
+            else if (typeof WebGLRenderingContext !== "undefined" && value instanceof (WebGLRenderingContext)) {
+                io.BackendRendererName = "imgui_impl_webgl";
+                canvas = canvas || value.canvas;
+                exports_1("gl", gl = value);
+            }
+            else if (typeof CanvasRenderingContext2D !== "undefined" && value instanceof (CanvasRenderingContext2D)) {
+                io.BackendRendererName = "imgui_impl_2d";
+                canvas = canvas || value.canvas;
                 exports_1("ctx", ctx = value);
             }
         }
@@ -221,6 +232,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
         io.KeyMap[ImGui.Key.Space] = 32;
         io.KeyMap[ImGui.Key.Enter] = 13;
         io.KeyMap[ImGui.Key.Escape] = 27;
+        io.KeyMap[ImGui.Key.KeyPadEnter] = key_code_to_index["NumpadEnter"];
         io.KeyMap[ImGui.Key.A] = 65;
         io.KeyMap[ImGui.Key.C] = 67;
         io.KeyMap[ImGui.Key.V] = 86;
@@ -297,7 +309,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                         document.body.style.cursor = "text";
                         break; // When hovering over InputText, etc.
                     case ImGui.MouseCursor.ResizeAll:
-                        document.body.style.cursor = "move";
+                        document.body.style.cursor = "all-scroll";
                         break; // Unused
                     case ImGui.MouseCursor.ResizeNS:
                         document.body.style.cursor = "ns-resize";
@@ -313,6 +325,9 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                         break; // When hovering over the bottom-right corner of a window
                     case ImGui.MouseCursor.Hand:
                         document.body.style.cursor = "move";
+                        break;
+                    case ImGui.MouseCursor.NotAllowed:
+                        document.body.style.cursor = "not-allowed";
                         break;
                 }
             }
@@ -333,6 +348,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                 if (!gamepad) {
                     continue;
                 }
+                io.BackendFlags |= ImGui.BackendFlags.HasGamepad;
                 const buttons_count = gamepad.buttons.length;
                 const axes_count = gamepad.axes.length;
                 function MAP_BUTTON(NAV_NO, BUTTON_NO) {
@@ -451,12 +467,15 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             return;
         }
         draw_data.ScaleClipRects(io.DisplayFramebufferScale);
+        const gl2 = typeof WebGL2RenderingContext !== "undefined" && gl instanceof WebGL2RenderingContext && gl || null;
+        const gl_vao = gl && gl.getExtension("OES_vertex_array_object") || null;
         // Backup GL state
         const last_active_texture = gl && gl.getParameter(gl.ACTIVE_TEXTURE) || null;
         const last_program = gl && gl.getParameter(gl.CURRENT_PROGRAM) || null;
         const last_texture = gl && gl.getParameter(gl.TEXTURE_BINDING_2D) || null;
         const last_array_buffer = gl && gl.getParameter(gl.ARRAY_BUFFER_BINDING) || null;
         const last_element_array_buffer = gl && gl.getParameter(gl.ELEMENT_ARRAY_BUFFER_BINDING) || null;
+        const last_vertex_array_object = gl2 && gl2.getParameter(gl2.VERTEX_ARRAY_BINDING) || gl && gl_vao && gl.getParameter(gl_vao.VERTEX_ARRAY_BINDING_OES) || null;
         // GLint last_polygon_mode[2]; glGetIntegerv(GL_POLYGON_MODE, last_polygon_mode);
         const last_viewport = gl && gl.getParameter(gl.VIEWPORT) || null;
         const last_scissor_box = gl && gl.getParameter(gl.SCISSOR_BOX) || null;
@@ -470,6 +489,10 @@ System.register(["imgui-js"], function (exports_1, context_1) {
         const last_enable_cull_face = gl && gl.getParameter(gl.CULL_FACE) || null;
         const last_enable_depth_test = gl && gl.getParameter(gl.DEPTH_TEST) || null;
         const last_enable_scissor_test = gl && gl.getParameter(gl.SCISSOR_TEST) || null;
+        // Setup desired GL state
+        // Recreate the VAO every time (this is to easily allow multiple GL contexts to be rendered to. VAO are not shared among GL contexts)
+        // The renderer would actually work without any VAO bound, but then our VertexAttrib calls would overwrite the default one currently bound.
+        const vertex_array_object = gl2 && gl2.createVertexArray() || gl_vao && gl_vao.createVertexArrayOES();
         // Setup render state: alpha-blending enabled, no face culling, no depth testing, scissor enabled, polygon fill
         gl && gl.enable(gl.BLEND);
         gl && gl.blendEquation(gl.FUNC_ADD);
@@ -494,17 +517,18 @@ System.register(["imgui-js"], function (exports_1, context_1) {
         gl && gl.useProgram(g_ShaderHandle);
         gl && gl.uniform1i(g_AttribLocationTex, 0);
         gl && g_AttribLocationProjMtx && gl.uniformMatrix4fv(g_AttribLocationProjMtx, false, ortho_projection);
+        gl2 && gl2.bindVertexArray(vertex_array_object) || gl_vao && gl_vao.bindVertexArrayOES(vertex_array_object);
         // Render command lists
         gl && gl.bindBuffer(gl.ARRAY_BUFFER, g_VboHandle);
         gl && gl.enableVertexAttribArray(g_AttribLocationPosition);
         gl && gl.enableVertexAttribArray(g_AttribLocationUV);
         gl && gl.enableVertexAttribArray(g_AttribLocationColor);
-        gl && gl.vertexAttribPointer(g_AttribLocationPosition, 2, gl.FLOAT, false, ImGui.ImDrawVertSize, ImGui.ImDrawVertPosOffset);
-        gl && gl.vertexAttribPointer(g_AttribLocationUV, 2, gl.FLOAT, false, ImGui.ImDrawVertSize, ImGui.ImDrawVertUVOffset);
-        gl && gl.vertexAttribPointer(g_AttribLocationColor, 4, gl.UNSIGNED_BYTE, true, ImGui.ImDrawVertSize, ImGui.ImDrawVertColOffset);
+        gl && gl.vertexAttribPointer(g_AttribLocationPosition, 2, gl.FLOAT, false, ImGui.DrawVertSize, ImGui.DrawVertPosOffset);
+        gl && gl.vertexAttribPointer(g_AttribLocationUV, 2, gl.FLOAT, false, ImGui.DrawVertSize, ImGui.DrawVertUVOffset);
+        gl && gl.vertexAttribPointer(g_AttribLocationColor, 4, gl.UNSIGNED_BYTE, true, ImGui.DrawVertSize, ImGui.DrawVertColOffset);
         // Draw
         const pos = draw_data.DisplayPos;
-        const idx_buffer_type = gl && ((ImGui.ImDrawIdxSize === 4) ? gl.UNSIGNED_INT : gl.UNSIGNED_SHORT) || 0;
+        const idx_buffer_type = gl && ((ImGui.DrawIdxSize === 4) ? gl.UNSIGNED_INT : gl.UNSIGNED_SHORT) || 0;
         draw_data.IterateDrawLists((draw_list) => {
             gl || ctx || console.log(draw_list);
             gl || ctx || console.log("VtxBuffer.length", draw_list.VtxBuffer.length);
@@ -522,7 +546,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                 if (!gl && !ctx) {
                     console.log("i: pos.x pos.y uv.x uv.y col");
                     for (let i = 0; i < Math.min(3, draw_cmd.ElemCount); ++i) {
-                        const view = new ImGui.ImDrawVert(draw_list.VtxBuffer.buffer, draw_list.VtxBuffer.byteOffset + i * ImGui.ImDrawVertSize);
+                        const view = new ImGui.DrawVert(draw_list.VtxBuffer.buffer, draw_list.VtxBuffer.byteOffset + i * ImGui.DrawVertSize);
                         console.log(`${i}: ${view.pos[0].toFixed(2)} ${view.pos[1].toFixed(2)} ${view.uv[0].toFixed(5)} ${view.uv[1].toFixed(5)} ${("00000000" + view.col[0].toString(16)).substr(-8)}`);
                     }
                 }
@@ -531,7 +555,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                     draw_cmd.UserCallback(draw_list, draw_cmd);
                 }
                 else {
-                    const clip_rect = new ImGui.ImVec4(draw_cmd.ClipRect.x - pos.x, draw_cmd.ClipRect.y - pos.y, draw_cmd.ClipRect.z - pos.x, draw_cmd.ClipRect.w - pos.y);
+                    const clip_rect = new ImGui.Vec4(draw_cmd.ClipRect.x - pos.x, draw_cmd.ClipRect.y - pos.y, draw_cmd.ClipRect.z - pos.x, draw_cmd.ClipRect.w - pos.y);
                     if (clip_rect.x < fb_width && clip_rect.y < fb_height && clip_rect.z >= 0.0 && clip_rect.w >= 0.0) {
                         // Apply scissor/clipping rectangle
                         gl && gl.scissor(clip_rect.x, fb_height - clip_rect.w, clip_rect.z - clip_rect.x, clip_rect.w - clip_rect.y);
@@ -544,22 +568,22 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                             ctx.beginPath();
                             ctx.rect(clip_rect.x, clip_rect.y, clip_rect.z - clip_rect.x, clip_rect.w - clip_rect.y);
                             ctx.clip();
-                            const idx = ImGui.ImDrawIdxSize === 4 ?
+                            const idx = ImGui.DrawIdxSize === 4 ?
                                 new Uint32Array(draw_list.IdxBuffer.buffer, draw_list.IdxBuffer.byteOffset + idx_buffer_offset) :
                                 new Uint16Array(draw_list.IdxBuffer.buffer, draw_list.IdxBuffer.byteOffset + idx_buffer_offset);
                             for (let i = 0; i < draw_cmd.ElemCount; i += 3) {
                                 const i0 = idx[i + 0];
                                 const i1 = idx[i + 1];
                                 const i2 = idx[i + 2];
-                                const v0 = new ImGui.ImDrawVert(draw_list.VtxBuffer.buffer, draw_list.VtxBuffer.byteOffset + i0 * ImGui.ImDrawVertSize);
-                                const v1 = new ImGui.ImDrawVert(draw_list.VtxBuffer.buffer, draw_list.VtxBuffer.byteOffset + i1 * ImGui.ImDrawVertSize);
-                                const v2 = new ImGui.ImDrawVert(draw_list.VtxBuffer.buffer, draw_list.VtxBuffer.byteOffset + i2 * ImGui.ImDrawVertSize);
+                                const v0 = new ImGui.DrawVert(draw_list.VtxBuffer.buffer, draw_list.VtxBuffer.byteOffset + i0 * ImGui.DrawVertSize);
+                                const v1 = new ImGui.DrawVert(draw_list.VtxBuffer.buffer, draw_list.VtxBuffer.byteOffset + i1 * ImGui.DrawVertSize);
+                                const v2 = new ImGui.DrawVert(draw_list.VtxBuffer.buffer, draw_list.VtxBuffer.byteOffset + i2 * ImGui.DrawVertSize);
                                 const i3 = idx[i + 3];
                                 const i4 = idx[i + 4];
                                 const i5 = idx[i + 5];
-                                const v3 = new ImGui.ImDrawVert(draw_list.VtxBuffer.buffer, draw_list.VtxBuffer.byteOffset + i3 * ImGui.ImDrawVertSize);
-                                const v4 = new ImGui.ImDrawVert(draw_list.VtxBuffer.buffer, draw_list.VtxBuffer.byteOffset + i4 * ImGui.ImDrawVertSize);
-                                const v5 = new ImGui.ImDrawVert(draw_list.VtxBuffer.buffer, draw_list.VtxBuffer.byteOffset + i5 * ImGui.ImDrawVertSize);
+                                const v3 = new ImGui.DrawVert(draw_list.VtxBuffer.buffer, draw_list.VtxBuffer.byteOffset + i3 * ImGui.DrawVertSize);
+                                const v4 = new ImGui.DrawVert(draw_list.VtxBuffer.buffer, draw_list.VtxBuffer.byteOffset + i4 * ImGui.DrawVertSize);
+                                const v5 = new ImGui.DrawVert(draw_list.VtxBuffer.buffer, draw_list.VtxBuffer.byteOffset + i5 * ImGui.DrawVertSize);
                                 let quad = true;
                                 let minmin = v0;
                                 let minmax = v0;
@@ -592,7 +616,7 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                                 quad = quad && (minmin.pos[1] === maxmin.pos[1]);
                                 quad = quad && (minmax.pos[1] === maxmax.pos[1]);
                                 if (quad) {
-                                    if (minmin.uv[0] < 0.01 && minmin.uv[1] < 0.01) {
+                                    if (minmin.uv[0] === maxmax.uv[0] || minmin.uv[1] === maxmax.uv[1]) {
                                         // one vertex color
                                         ctx.beginPath();
                                         ctx.rect(minmin.pos[0], minmin.pos[1], maxmax.pos[0] - minmin.pos[0], maxmax.pos[1] - minmin.pos[1]);
@@ -601,8 +625,10 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                                     }
                                     else {
                                         // no vertex color
-                                        const image = draw_cmd.TextureId;
-                                        ctx.drawImage(image, minmin.uv[0] * image.width, minmin.uv[1] * image.height, (maxmax.uv[0] - minmin.uv[0]) * image.width, (maxmax.uv[1] - minmin.uv[1]) * image.height, minmin.pos[0], minmin.pos[1], maxmax.pos[0] - minmin.pos[0], maxmax.pos[1] - minmin.pos[1]);
+                                        const image = draw_cmd.TextureId; // HACK
+                                        const width = image instanceof HTMLVideoElement ? image.videoWidth : image.width;
+                                        const height = image instanceof HTMLVideoElement ? image.videoHeight : image.height;
+                                        image && ctx.drawImage(image, minmin.uv[0] * width, minmin.uv[1] * height, (maxmax.uv[0] - minmin.uv[0]) * width, (maxmax.uv[1] - minmin.uv[1]) * height, minmin.pos[0], minmin.pos[1], maxmax.pos[0] - minmin.pos[0], maxmax.pos[1] - minmin.pos[1]);
                                         // ctx.beginPath();
                                         // ctx.rect(minmin.pos[0], minmin.pos[1], maxmax.pos[0] - minmin.pos[0], maxmax.pos[1] - minmin.pos[1]);
                                         // ctx.strokeStyle = "yellow";
@@ -625,16 +651,16 @@ System.register(["imgui-js"], function (exports_1, context_1) {
                         }
                     }
                 }
-                idx_buffer_offset += draw_cmd.ElemCount * ImGui.ImDrawIdxSize;
+                idx_buffer_offset += draw_cmd.ElemCount * ImGui.DrawIdxSize;
             });
         });
+        // Destroy the temporary VAO
+        gl2 && gl2.deleteVertexArray(vertex_array_object) || gl_vao && gl_vao.deleteVertexArrayOES(vertex_array_object);
         // Restore modified GL state
         gl && (last_program !== null) && gl.useProgram(last_program);
         gl && (last_texture !== null) && gl.bindTexture(gl.TEXTURE_2D, last_texture);
         gl && (last_active_texture !== null) && gl.activeTexture(last_active_texture);
-        gl && gl.disableVertexAttribArray(g_AttribLocationPosition);
-        gl && gl.disableVertexAttribArray(g_AttribLocationUV);
-        gl && gl.disableVertexAttribArray(g_AttribLocationColor);
+        gl2 && gl2.bindVertexArray(last_vertex_array_object) || gl_vao && gl_vao.bindVertexArrayOES(last_vertex_array_object);
         gl && (last_array_buffer !== null) && gl.bindBuffer(gl.ARRAY_BUFFER, last_array_buffer);
         gl && (last_element_array_buffer !== null) && gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, last_element_array_buffer);
         gl && (last_blend_equation_rgb !== null && last_blend_equation_alpha !== null) && gl.blendEquationSeparate(last_blend_equation_rgb, last_blend_equation_alpha);
@@ -777,6 +803,9 @@ System.register(["imgui-js"], function (exports_1, context_1) {
             g_FontTexture = null;
             exports_1("ctx", ctx = null);
             prev_time = 0;
+            key_code_to_index = {
+                "NumpadEnter": 176,
+            };
             // MouseEvent.button
             // A number representing a given button:
             // 0: Main button pressed, usually the left button or the un-initialized state
